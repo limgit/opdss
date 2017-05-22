@@ -1,0 +1,12 @@
+{
+  "title": "Hello Scene",
+  "dev_name": "Noddle",
+  "dev_homepage": "https://cs.kaist.ac.kr",
+  "description": "default hello world scene.",
+  "required_data": {
+    "message": ["Message", "a message to show", {
+      "type": "str",
+      "default": "Hello, World!"
+    }]
+  }
+}
