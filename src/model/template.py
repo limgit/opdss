@@ -1,6 +1,6 @@
 from typing import Dict, Tuple, Any
 
-RequiredData = Dict[str, Tuple[Any, str, str]]  # todo: change 'Any' to 'DataType'
+RequiredData = Dict[str, Tuple[str, str, Any]]  # todo: change 'Any' to 'DataType'
 
 
 class Template:
