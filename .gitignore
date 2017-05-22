@@ -226,4 +226,7 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/macos,linux,python,pycharm,windows
+
+# Custom
 !/src/model/template.py
+/.idea/
