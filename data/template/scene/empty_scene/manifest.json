@@ -2,5 +2,6 @@
   "title": "Empty Scene",
   "dev_name": "Noddle",
   "dev_homepage": "https://cs.kaist.ac.kr",
-  "description": "default empty scene."
+  "description": "default empty scene.",
+  "required_data": {}
 }

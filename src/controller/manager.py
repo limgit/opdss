@@ -1,7 +1,16 @@
 import json
 from pathlib import Path
 
-from model.template import json_to_template
+from model.data_type import ObjectDataType
+from model.template import SceneTemplate
+
+
+class ObjectManager:
+    def __init__(self):
+        pass
+
+    def get_object_type(self, type_id: str) -> ObjectDataType:
+        return None  # todo: mock implementation
 
 
 class SignageManager:
@@ -17,8 +26,9 @@ class SignageManager:
 
 
 class TemplateManager:
-    def __init__(self, dir_root: str):
+    def __init__(self, dir_root: str, obj_mng: ObjectManager):
         self._dir_root = dir_root
+        self._obj_mng = obj_mng
         self._scene_templates = dict()
         self._frame_templates = dict()
         self.load()
@@ -29,12 +39,8 @@ class TemplateManager:
 
         for scene_name, scene_manifest in [(x.name, Path(str(x) + '/manifest.json')) for x in scenes_dir]:
             with scene_manifest.open() as f:
-                new_scene_template = json.load(f, object_hook=json_to_template)
-
-            self._scene_templates[scene_name] = new_scene_template
-
-class ObjectManager:
-    pass
+                self._scene_templates[scene_name] = SceneTemplate(json.load(f), self._obj_mng)
+                print('{} loaded'.format(self._scene_templates[scene_name].title))
 
 
 class MultimediaManager:

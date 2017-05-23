@@ -1,8 +1,6 @@
 import sys
 from typing import TypeVar, Generic, Sequence
 
-from model.data_value import DataValue
-
 T = TypeVar('T')
 
 
@@ -14,17 +12,26 @@ class DataType(Generic[T]):
     def default(self):
         return self._default
 
-    def is_valid(self, data_value: DataValue[T]):
-        return data_value is not None
+    def is_valid(self, value: T):
+        return value is not None
 
 
 class StringDataType(DataType[str]):
-    def __init__(self, default: str):
-        super().__init__(default)
+    def __init__(self, dct: dict):
+        super().__init__(dct['default'] if 'default' in dct.keys() else '')
 
         self._min_length = 0
         self._max_length = sys.maxsize
         self._one_of = []
+
+        if 'min_length' in dct.keys():
+            self.min_length = dct['min_length']
+
+        if 'max_length' in dct.keys():
+            self.max_length = dct['max_length']
+
+        if 'one_of' in dct.keys():
+            self.one_of = dct['one_of']
 
     @property
     def min_length(self) -> int:
@@ -59,7 +66,18 @@ class StringDataType(DataType[str]):
 
         self._one_of = new_value[:]
 
-    def is_valid(self, data_value: DataValue[str]):
-        value = data_value.value
-
+    def is_valid(self, value: str):
         return self.min_length <= len(value) <= self.max_length and value in self.one_of if self.one_of else True
+
+
+class IntegerDataType(DataType):
+    pass
+
+
+class ObjectDataType(DataType):
+    pass
+
+STR_TO_TYPE = {
+    "str": StringDataType,
+    "int": IntegerDataType
+}

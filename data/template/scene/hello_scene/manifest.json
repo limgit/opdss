@@ -6,7 +6,12 @@
   "required_data": {
     "message": ["Message", "a message to show", {
       "type": "str",
-      "default": "Hello, World!"
+      "default": "Hello, World!",
+      "max_length": 100
+    }],
+    "repeat": ["Repeat", "times to repeat a message", {
+      "type": "int",
+      "default": 3
     }]
   }
 }
