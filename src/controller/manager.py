@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 
 from model.data_type import ObjectDataType
@@ -37,10 +36,9 @@ class TemplateManager:
         scene_path = Path(self._dir_root + '/scene')
         scenes_dir = [x for x in scene_path.iterdir() if x.is_dir()]
 
-        for scene_name, scene_manifest in [(x.name, Path(str(x) + '/manifest.json')) for x in scenes_dir]:
-            with scene_manifest.open() as f:
-                self._scene_templates[scene_name] = SceneTemplate(json.load(f), self._obj_mng)
-                print('{} loaded'.format(self._scene_templates[scene_name].title))
+        for scene_name, scene_dir in [(x.name, x) for x in scenes_dir]:
+            self._scene_templates[scene_name] = SceneTemplate(scene_dir, self._obj_mng)
+            print('{} loaded'.format(self._scene_templates[scene_name].title))
 
 
 class MultimediaManager:

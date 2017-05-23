@@ -1,3 +1,8 @@
+import json
+from pathlib import Path
+
+from jinja2.environment import Environment
+from jinja2.loaders import FileSystemLoader
 from typing import Dict, Tuple, Any
 
 from controller import manager
@@ -7,7 +12,14 @@ RequiredData = Dict[str, Tuple[str, str, Any]]  # todo: change 'Any' to 'DataTyp
 
 
 class Template:
-    def __init__(self, dct: dict, obj_mng: 'manager.ObjectManager'):
+    def __init__(self, root_dir: Path, obj_mng: 'manager.ObjectManager'):
+        self._root_dir = root_dir
+
+        manifest_path = self._root_dir / 'manifest.json'
+
+        with manifest_path.open() as f:
+            dct = json.load(f)
+
         self.title = dct['title']
         self.dev_name = dct['dev_name']
         self.dev_homepage = dct['dev_homepage']
@@ -27,6 +39,14 @@ class Template:
                 raise AttributeError()
 
             self.required_data[required_data_key] = copied
+
+    def render(self, variables: dict) -> str:
+        env = Environment(
+            loader=FileSystemLoader(str(self._root_dir))
+        )
+        template = env.get_template('index.html')
+
+        return template.render(**variables)
 
 
 class FrameTemplate(Template):
