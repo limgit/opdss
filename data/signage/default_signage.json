@@ -5,7 +5,7 @@
     {
       "id": "hello_scene",
       "duration": 30,
-      "transition": "None",
+      "transition": "NONE",
       "scheduling": {
         "type": "always_visible"
       },
@@ -17,7 +17,7 @@
     {
       "id": "empty_scene",
       "duration": 10,
-      "transition": "None",
+      "transition": "NONE",
       "scheduling": {
         "type": "always_visible"
       },

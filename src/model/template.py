@@ -44,7 +44,7 @@ class Template:
         env = Environment(
             loader=FileSystemLoader(str(self._root_dir))
         )
-        template = env.get_template('index.html')
+        template = env.get_template(self._root_dir.stem + 'html')
 
         return template.render(**variables)
 
