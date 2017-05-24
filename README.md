@@ -48,7 +48,7 @@ High-quality digital signage generation system that can be customized by user
  ```bash
  ~/guess$ pip install -r requirements.txt
  ```
- 10. PROFIT!
+ 10. **PROFIT!**
 
 Everytime you work on the repository, activate virtualenv with `$ pyenv activate venv`
 
