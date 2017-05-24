@@ -1,0 +1,27 @@
+{
+  "title": "Default Signage",
+  "description": "default signage with an empty_scene and a hello_scene.",
+  "scene": [
+    {
+      "id": "hello_scene",
+      "duration": 30,
+      "transition": "None",
+      "scheduling": {
+        "type": "always_visible"
+      },
+      "data": {
+        "message": "hello, world!",
+        "repeat": 3
+      }
+    },
+    {
+      "id": "empty_scene",
+      "duration": 10,
+      "transition": "None",
+      "scheduling": {
+        "type": "always_visible"
+      },
+      "data": { }
+    }
+  ]
+}
