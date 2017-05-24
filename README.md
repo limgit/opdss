@@ -13,8 +13,8 @@ High-quality digital signage generation system that can be customized by user
  - Tested in Ubuntu 16.04.2 LTS
  1. Install dependencies
  ```bash
- ~$ sudo apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev
- libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev
+ ~$ sudo apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
+ > libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev xz-utils tk-dev
  ~$ sudo apt-get install git #If git is not installed
  ```
  2. Install pyenv using pyenv-installer
