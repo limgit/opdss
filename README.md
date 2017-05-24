@@ -7,6 +7,21 @@ High-quality digital signage generation system that can be customized by user
  - Language: Python 3.6.1
  - Other requirements: Specified in requirements.txt
 
+### Conventions
+#### Commit message convention
+ - Commit message should have no problem when it is interpreted as "This commit will <commit_msg>"
+   - In other words, **always** start with verb in infinitive form (e.g. start with "Update", not "Updates")
+ - **Always** capitalize the commit message
+ - Commit message must be shorter than 50 characters
+ - It is recommended to write detailed commit description for every commit
+
+#### Code convention
+ - TODO: Styling tool or static analyzer should be applied
+ 
+#### Other conventions
+ - Update requirements.txt whenever you install the new package with pip installer
+   - Use `$ pip freeze > requirements.txt` to update the requirements.txt
+
 ### Development Environment Setting
 
 #### Using pyenv & Ubuntu
