@@ -1,3 +1,51 @@
-{% for template in _templates %}
-{% include template %}
-{% endfor %}
+<!doctype html>
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/jquery.slick/1.6.0/slick.css"/>
+        <script type="text/javascript" src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+        <script type="text/javascript" src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+        <script src="//cdn.jsdelivr.net/jquery.slick/1.6.0/slick.min.js"></script>
+        <script>
+            $(document).ready(function(){
+                var durations = [{% for duration in _durations %}{{duration*1000}},{% endfor %}];
+
+                $('#main_slides').slick({
+                    autoplay: true,
+                    autoplaySpeed: 1000,
+                    arrows: false,
+                    pauseOnFocus: false,
+                    pauseOnHover: false
+                });
+
+                $('#main_slides').on('afterChange', function(event, slick, currentSlide, nextSlide){
+                   slick.slickSetOption('autoplaySpeed', durations[currentSlide]);
+                });
+            });
+        </script>
+        <style>
+            * {
+                cursor: none;
+            }
+
+            :focus {
+                outline: 0;
+            }
+
+            body {
+                margin: 0;
+            }
+
+            .scenes {
+                height: 100vh;
+                display: flex !important;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="main_slides">
+            {% for template in _templates %}
+            {% include template %}
+            {% endfor %}
+        </div>
+    </body>
+</html>

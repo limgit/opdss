@@ -91,6 +91,7 @@ class Signage:
         dirs.append(str(self._manifest_dir.parent))
 
         templates = [str(x._template._root_dir.stem) + '.html' for x in self._scene]
+        durations = [x._duration for x in self._scene]
 
         data = {str(x._template._root_dir.stem): x._values for x in self._scene}
 
@@ -100,4 +101,4 @@ class Signage:
 
         template = env.get_template('index.html')
 
-        return template.render(_templates=templates, **data)
+        return template.render(_durations=durations, _templates=templates, **data)
