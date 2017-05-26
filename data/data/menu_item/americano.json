@@ -2,9 +2,5 @@
   "americano": {
     "name": "Americano",
     "price": 399
-  },
-  "milk": {
-    "name": "Milk",
-    "price": 299
   }
 }
