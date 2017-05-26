@@ -1,0 +1,9 @@
+{
+  "drinks": {
+    "name": "Drinks",
+    "menus": [
+      "americano",
+      "milk"
+    ]
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "Menu Group",
+  "dev_name": "Noddle",
+  "dev_homepage": "https://cs.kaist.ac.kr",
+  "description": "a group of menu items",
+  "fields": {
+    "name": ["Group Name", "a name of the menu group", {
+      "type": "str",
+      "default": "Menu",
+      "max_length": 50
+    }],
+    "menus": ["Menu List", "a list of the menu", {
+      "type": "list",
+      "default": 0
+    }],
+    "digits": ["Digits", "a number of digits of 0.xxx", {
+      "type": "int",
+      "default": 2
+    }],
+    "price_prefix": ["Prefix of prices", "a prefix of prices", {
+      "type": "str",
+      "default": "$",
+      "max_length": 3
+    }],
+    "price_postfix": ["Postfix of prices", "a postfix of prices", {
+      "type": "str",
+      "default": "",
+      "max_length": 3
+    }]
+  }
+}

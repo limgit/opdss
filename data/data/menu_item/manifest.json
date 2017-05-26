@@ -1,0 +1,17 @@
+{
+  "name": "Menu Item",
+  "dev_name": "Noddle",
+  "dev_homepage": "https://cs.kaist.ac.kr",
+  "description": "a single menu item for the menu",
+  "fields": {
+    "name": ["Menu Name", "a name of the menu", {
+      "type": "str",
+      "default": "Menu Item",
+      "max_length": 50
+    }],
+    "price": ["Menu Price", "a price of the menu", {
+      "type": "int",
+      "default": 0
+    }]
+  }
+}
