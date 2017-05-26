@@ -1,3 +1,6 @@
+from pathlib import Path
+
+from flask import json
 from typing import TypeVar, Generic
 
 from model.data_type import DataType
@@ -32,3 +35,19 @@ class DataValue(Generic[T]):
         self._on_change = new_value
 
 
+class ObjectValue(DataValue[dict]):
+    def __init__(self, data_type: DataType[dict], path: Path):
+        super().__init__(data_type)  # first, loads with default values
+
+        # create a new file if not exists
+        if not path.exists():
+            self.save()
+
+            return
+
+        # load from the json file
+        with path.open() as f:
+            self.value = json.load(f)
+
+    def save(self):
+        pass

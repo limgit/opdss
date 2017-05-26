@@ -1,13 +1,32 @@
 from pathlib import Path
 
 from model.data_type import ObjectDataType
+from model.data_value import ObjectValue
 from model.signage import Signage
 from model.template import SceneTemplate
 
 
 class ObjectManager:
-    def __init__(self):
-        pass
+    def __init__(self, dir_root: Path):
+        self._dir_root = dir_root
+        self._object_types = dict()
+        self._object_values = dict()
+        self.load()
+
+    def load(self) -> None:
+        types_dir = [x for x in self._dir_root.iterdir() if x.is_dir()]
+
+        for type_name, type_dir in [(x.name, x) for x in types_dir]:
+            self._object_types[type_name] = ObjectDataType(type_dir / 'manifest.json')
+            self._object_values[type_name] = dict()
+
+            for value_id, value_path in [(x.stem, x) for x in type_dir.glob('*.json')]:
+                if value_id == 'manifest':
+                    continue
+
+                self._object_values[type_name][value_id] = ObjectValue(self._object_types[type_name], value_path)
+
+            print('{} loaded'.format(self._object_types[type_name].title))
 
     def get_object_type(self, type_id: str) -> ObjectDataType:
         return None  # todo: mock implementation
