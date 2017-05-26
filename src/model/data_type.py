@@ -1,3 +1,5 @@
+import copy
+
 import sys
 from typing import TypeVar, Generic, Sequence
 
@@ -10,7 +12,7 @@ class DataType(Generic[T]):
 
     @property
     def default(self):
-        return self._default
+        return copy.deepcopy(self._default)
 
     def is_valid(self, value: T):
         return value is not None
