@@ -35,9 +35,10 @@ class DataValue(Generic[T]):
         self._on_change = new_value
 
 
+# todo: mock implementation
 class ObjectValue(DataValue[dict]):
     def __init__(self, data_type: DataType[dict], path: Path):
-        super().__init__(data_type)  # first, loads with default values
+        super().__init__(data_type.default)  # first, loads with default values
 
         # create a new file if not exists
         if not path.exists():
