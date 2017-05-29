@@ -37,7 +37,7 @@ class MultimediaManager:
 
 
 class TemplateManager:
-    def __init__(self, dir_root: str, obj_mng: ObjectManager):
+    def __init__(self, dir_root: Path, obj_mng: ObjectManager):
         self._dir_root = dir_root
         self._obj_mng = obj_mng
         self._scene_templates = dict()
@@ -45,7 +45,7 @@ class TemplateManager:
         self.load()
 
     def load(self) -> None:
-        scene_path = Path(self._dir_root + '/scene')
+        scene_path = self._dir_root / '/scene'
         scenes_dir = [x for x in scene_path.iterdir() if x.is_dir()]
 
         for scene_name, scene_dir in [(x.name, x) for x in scenes_dir]:
@@ -57,7 +57,7 @@ class TemplateManager:
 
 
 class SignageManager:
-    def __init__(self, dir_root: str, obj_mng: ObjectManager, tpl_mng: TemplateManager):
+    def __init__(self, dir_root: Path, obj_mng: ObjectManager, tpl_mng: TemplateManager):
         self._tpl_mng = tpl_mng
         self._obj_mng = obj_mng
         self._dir_root = dir_root
@@ -65,9 +65,7 @@ class SignageManager:
         self.load()
 
     def load(self) -> None:
-        signage_path = Path(self._dir_root)
-
-        for signage_id, signage_dir in [(x.stem, x) for x in signage_path.glob('*.json')]:
+        for signage_id, signage_dir in [(x.stem, x) for x in self._dir_root.glob('*.json')]:
             self._signages[signage_id] = Signage(signage_dir, self._obj_mng, self._tpl_mng)
             print('{} loaded'.format(self._signages[signage_id]._title))
 
