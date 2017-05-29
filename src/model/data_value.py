@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from flask import json
-from typing import TypeVar, Generic
+from typing import TypeVar, Generic, Callable
 
 from model.data_type import DataType
 
@@ -31,7 +31,7 @@ class DataValue(Generic[T]):
         return self._on_change
 
     @on_change.setter
-    def on_change(self, new_value: function):
+    def on_change(self, new_value: Callable[[], None]):
         self._on_change = new_value
 
 
