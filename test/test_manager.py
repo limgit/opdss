@@ -1,3 +1,6 @@
+import sys
+sys.path.append("../src")
+
 import unittest
 from pathlib import Path
 
