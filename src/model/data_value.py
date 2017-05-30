@@ -1,54 +1,38 @@
-from pathlib import Path
+from typing import TypeVar
 
-from flask import json
-from typing import TypeVar, Generic, Callable
-
-from model.data_type import DataType
+from model import data_type
 
 T = TypeVar('T')
 
 
-class DataValue(Generic[T]):
-    def __init__(self, data_type: DataType[T]):
-        self._value = data_type.default
+class ObjectValue:
+    def __init__(self, data_type: 'data_type.ObjectDataType'):
+        self._values = {}
         self._data_type = data_type
-        self._on_change = lambda: None
 
-    @property
-    def value(self):
-        return self._value
+        for field_key, field_type in data_type._fields.items():
+            self._values[field_key] = field_type.default
 
-    @value.setter
-    def value(self, new_value: T):
-        self._value = new_value
+    def set_value(self, key: str, value) -> None:
+        if key not in self._data_type._fields.keys():
+            raise KeyError
 
-    @property
-    def data_type(self):
-        return self._data_type
+        if not self._data_type._fields[key].is_valid(value):
+            raise AttributeError
 
-    @property
-    def on_change(self):
-        return self._on_change
+        self._values[key] = value
 
-    @on_change.setter
-    def on_change(self, new_value: Callable[[], None]):
-        self._on_change = new_value
+    def get_value(self, key: str):
+        return self._values[key]
 
+    def get_dict(self):
+        to_return = {x: y for x, y in self._values.items()}
 
-# todo: mock implementation
-class ObjectValue(DataValue[dict]):
-    def __init__(self, data_type: DataType[dict], path: Path):
-        super().__init__(data_type.default)  # first, loads with default values
+        for field_id, field_value in to_return.items():
+            if isinstance(field_value, ObjectValue):
+                to_return[field_id] = field_value.get_dict()
+            elif isinstance(field_value, list) and isinstance(field_value[0], ObjectValue):
+                to_return[field_id] = [x.get_dict() for x in to_return[field_id]]
 
-        # create a new file if not exists
-        if not path.exists():
-            self.save()
+        return to_return
 
-            return
-
-        # load from the json file
-        with path.open() as f:
-            self.value = json.load(f)
-
-    def save(self):
-        pass

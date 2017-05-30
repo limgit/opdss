@@ -1,9 +1,13 @@
 import copy
-
 import sys
 from typing import TypeVar, Generic, Sequence
 
+from model.data_value import ObjectValue
+
 T = TypeVar('T')
+
+# as DataType don't need to be changed dynamically, just use a dict class to initialize, not a Path.
+# use a Path class for an initializer when we have to write back changes on a class to a file.
 
 
 class DataType(Generic[T]):
@@ -19,21 +23,15 @@ class DataType(Generic[T]):
 
 
 class StringDataType(DataType[str]):
-    def __init__(self, dct: dict):
-        super().__init__(dct['default'] if 'default' in dct.keys() else '')
+    def __init__(self, default: int=0, min_length: int=0, max_length: int=sys.maxsize, one_of=None):
+        super().__init__(default)
 
-        self._min_length = 0
-        self._max_length = sys.maxsize
-        self._one_of = []
+        if one_of is None:
+            one_of = []
 
-        if 'min_length' in dct.keys():
-            self.min_length = dct['min_length']
-
-        if 'max_length' in dct.keys():
-            self.max_length = dct['max_length']
-
-        if 'one_of' in dct.keys():
-            self.one_of = dct['one_of']
+        self._min_length = min_length
+        self._max_length = max_length
+        self._one_of = one_of
 
     @property
     def min_length(self) -> int:
@@ -72,14 +70,44 @@ class StringDataType(DataType[str]):
         return self.min_length <= len(value) <= self.max_length and value in self.one_of if self.one_of else True
 
 
-class IntegerDataType(DataType):
-    pass
+# todo: mock implementation
+class IntegerDataType(DataType[int]):
+    def __init__(self, default: int=0):
+        super().__init__(default)
 
 
-class ObjectDataType(DataType):
-    pass
+class ObjectDataType(DataType[ObjectValue]):
+    def __init__(self, name: str='', dev_name: str='', dev_homepage: str='', description: str='',
+                 fields=None):
 
-STR_TO_TYPE = {
-    "str": StringDataType,
-    "int": IntegerDataType
+        if fields is None:
+            fields = dict()
+
+        self._name = name
+        self._dev_name = dev_name
+        self._dev_homepage = dev_homepage
+        self._description = description
+        self._fields = fields
+
+        super().__init__({key: value.default for key, value in fields.items()})
+
+    def is_valid(self, value: ObjectValue):
+        return all([field_type.is_valid(value.get_value(field_key)) for field_key, field_type in self._fields.items()])
+
+
+class ListDataType(DataType[list]):
+    def __init__(self, data_type: DataType, min_len: int, max_len: int):
+        self._min_len = min_len
+        self._max_len = max_len
+        self._data_type = data_type
+
+        super().__init__([data_type.default for _ in range(min_len)])
+
+    def is_valid(self, value: list):
+        return all([self._data_type.is_valid(x) for x in value])
+
+
+STR_TO_PRIMITIVE_TYPE = {
+    'str': StringDataType,
+    'int': IntegerDataType
 }

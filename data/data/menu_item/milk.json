@@ -1,6 +1,4 @@
 {
-  "milk": {
-    "name": "Milk",
-    "price": 299
-  }
+  "name": "Milk",
+  "price": 299
 }

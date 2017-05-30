@@ -1,9 +1,9 @@
 {
-  "title": "Hello Scene",
+  "name": "Hello Scene",
   "dev_name": "Noddle",
   "dev_homepage": "https://cs.kaist.ac.kr",
   "description": "default hello world scene.",
-  "required_data": {
+  "fields": {
     "message": ["Message", "a message to show", {
       "type": "str",
       "default": "Hello, World!",
@@ -12,6 +12,9 @@
     "repeat": ["Repeat", "times to repeat a message", {
       "type": "int",
       "default": 3
+    }],
+    "menu_group": ["Menu Group", "menus to show", {
+      "type": "$menu_group"
     }]
   }
 }

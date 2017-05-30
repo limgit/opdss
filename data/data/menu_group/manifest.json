@@ -10,8 +10,7 @@
       "max_length": 50
     }],
     "menus": ["Menu List", "a list of the menu", {
-      "type": "list",
-      "default": 0
+      "type": "[0,20]$menu_item"
     }],
     "digits": ["Digits", "a number of digits of 0.xxx", {
       "type": "int",

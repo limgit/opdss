@@ -1,13 +1,10 @@
-import json
 from pathlib import Path
 
-import jinja2
 from enum import Enum, auto
-
-from controller import manager
 from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
 
+from model.data_value import ObjectValue
 from model.template import SceneTemplate
 
 
@@ -30,19 +27,16 @@ class Schedule:
 
 
 class Scene:
-    def __init__(self, template: SceneTemplate, duration: int=10, transition: TransitionType=TransitionType.NONE,
-                 schedule: Schedule=None, values=None):
+    def __init__(self, template: SceneTemplate, object_value: ObjectValue, duration: int=10, transition: TransitionType=TransitionType.NONE,
+                 schedule: Schedule=None):
         if schedule is None:
             schedule = Schedule(ScheduleType.ALWAYS_VISIBLE)
-
-        if values is None:
-            values = dict()
 
         self._template = template
         self._duration = duration
         self._transition = transition
         self._schedule = schedule
-        self._values = values
+        self._values = object_value
 
 
 class Frame:
@@ -50,55 +44,32 @@ class Frame:
 
 
 class Signage:
-    def __init__(self, manifest_path: Path,
-                 obj_mng: 'manager.ObjectManager'=None,
-                 tmp_mng: 'manager.TemplateManager'=None):
-        self._manifest_dir = manifest_path
+    def __init__(self, resource_dir: Path, title: str='', description: str='', frame: Frame=None, scene=None):
+        if scene is None:
+            scene = []
 
-        # create new signage if not exists
-        if not manifest_path.exists():
-            self._title = ''
-            self._description = ''
-            self._frame = None
-            self._scene = []
-
-            self.save()
-
-            return
-
-        # load from the signage file
-        with manifest_path.open() as f:
-            dct = json.load(f)
-
-        self._title = dct['title']
-        self._description = dct['description']
-        self._frame = None  # todo: needs to implement frame related contents
-        self._scene = []
-
-        for scene_value in dct['scene']:
-            self._scene.append(Scene(tmp_mng.get_scene_template(scene_value['id']),
-                                     scene_value['duration'],
-                                     TransitionType[scene_value['transition']],
-                                     None,  # todo
-                                     scene_value['data'])
-                               )
-
-    def save(self) -> None:
-        return  # todo: write contents back to the file
+        self._resource_dir = resource_dir
+        self._title = title
+        self._description = description
+        self._frame = frame
+        self._scene = scene
 
     def render(self) -> str:
-        dirs = [str(x._template._root_dir) for x in self._scene]
-        dirs.append(str(self._manifest_dir.parent))
+        dirs = [str(x._template._root_dir) for x in self._scene]  # for template resources
+        dirs.append(str(self._resource_dir))  # for index.html
 
         templates = [str(x._template._root_dir.stem) + '.html' for x in self._scene]
         durations = [x._duration for x in self._scene]
 
-        data = {str(x._template._root_dir.stem): x._values for x in self._scene}
+        data = {str(x._template._root_dir.stem): x._values.get_dict() for x in self._scene}
 
+        print(data)
         env = Environment(
             loader=FileSystemLoader(dirs)
         )
 
         template = env.get_template('index.html')
+
+        print(data)
 
         return template.render(_durations=durations, _templates=templates, **data)

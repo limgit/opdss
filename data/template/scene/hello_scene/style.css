@@ -6,3 +6,12 @@
 .hello_scene p {
     font-size: 48px;
 }
+
+.hello_scene .message {
+    font-size: 12px;
+}
+
+.hello_scene .title {
+    font-size: 64px;
+    font-style: oblique;
+}

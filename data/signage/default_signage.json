@@ -10,8 +10,7 @@
         "type": "always_visible"
       },
       "data": {
-        "message": "hello, world!",
-        "repeat": 3
+        "menu_group": "drinks"
       }
     },
     {

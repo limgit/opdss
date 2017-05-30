@@ -1,6 +1,8 @@
 <div class="scenes hello_scene">
     <link rel="stylesheet" type="text/css" href="/_/hello_scene/style.css"/>
-    {% for _ in range(hello_scene.repeat) %}
-    <p>{{ hello_scene.message }}</p>
+
+    <p class="title">{{ hello_scene.menu_group.name }}</p>
+    {% for x in hello_scene.menu_group.menus %}
+    <p>{{ x.name }}: {{ hello_scene.menu_group.price_prefix }}{{ x.price / 10**hello_scene.menu_group.digits }}{{ hello_scene.menu_group.price_postfix }}</p>
     {% endfor %}
 </div>
