@@ -8,5 +8,11 @@
   "multimediaManagementTabText": "Multimedia",
   "templateManagementTabText": "Template",
   "statusManagementTabText": "Status",
-  "logManagementTabText": "Log"
+  "logManagementTabText": "Log",
+  "idLabel": "ID",
+  "signageNameLabel": "Signage Name",
+  "signageDescriptionLabel": "Signage Description",
+  "deleteButtonText": "Delete",
+  "saveButtonText": "Save",
+  "cancelButtonText": "Cancel"
 }

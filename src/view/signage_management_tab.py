@@ -1,5 +1,7 @@
 from PyQt5.QtWidgets import (QWidget, QTreeWidget, QTreeWidgetItem,
-                             QStackedWidget, QHBoxLayout)
+                             QStackedWidget, QHBoxLayout, QVBoxLayout,
+                             QLabel, QLineEdit, QPlainTextEdit, QGroupBox,
+                             QFormLayout, QPushButton)
 
 from controller.manager import ObjectManager, TemplateManager, SignageManager
 from view.resource_manager import ResourceManager
@@ -15,7 +17,9 @@ class SignageManagementTab(QWidget):
 
         self._res = ResourceManager()
         self._stacked_widget = QStackedWidget()
-        self._stack_idx = {}
+        self._widget_idx = dict()
+        self._widget_idx['signage'] = self._stacked_widget.addWidget(SignageWidget())
+        # TODO: Add widgets for scene and frame
         self.initUI()
 
     def signage_to_tree_item(self):
@@ -59,10 +63,84 @@ class SignageManagementTab(QWidget):
         if get_selected:
             item = get_selected[0]
             item_text = item.text(0)
+            if item.parent() is None:
+                # It is at topmost level
+                if item_text == "+":
+                    pass  # TODO: Add signage addition logic
+                else:
+                    idx = self._widget_idx['signage']
+                    self._stacked_widget.widget(idx).load_data_on_UI(self._sgn_mng, item_text)
+                    self._stacked_widget.setCurrentIndex(idx)
+            else:
+                if item_text.startswith("F:"):
+                    # Selected one is frame
+                    pass
+                else:
+                    # Selected one is scene
+                    pass
 
 
 class SignageWidget(QWidget):
-    pass
+    def __init__(self):
+        super().__init__()
+
+        self._ledit_id = QLineEdit()
+        self._ledit_name = QLineEdit()
+        self._ptedit_descript = QPlainTextEdit()
+
+        self._res = ResourceManager()
+        self.initUI()
+
+    def load_data_on_UI(self, sgn_mng: SignageManager, sgn_id: str):
+        signage = sgn_mng._signages[sgn_id]
+        self._ledit_id.setText(sgn_id)
+        self._ledit_name.setText(signage._title)
+        self._ptedit_descript.setPlainText(signage._description)
+
+    def initUI(self):
+        # ID display
+        label_id = QLabel(self._res['idLabel'])
+
+        form_id = QFormLayout()
+        form_id.addWidget(label_id)
+        form_id.addWidget(self._ledit_id)
+
+        # Name display
+        vbox_name = QVBoxLayout()
+        vbox_name.addWidget(self._ledit_name)
+
+        group_name = QGroupBox(self._res['signageNameLabel'])
+        group_name.setLayout(vbox_name)
+
+        # Description display
+        vbox_descript = QVBoxLayout()
+        vbox_descript.addWidget(self._ptedit_descript)
+
+        group_descript = QGroupBox(self._res['signageDescriptionLabel'])
+        group_descript.setLayout(vbox_descript)
+
+        # Buttons
+        btn_delete = QPushButton(self._res['deleteButtonText'])
+        # TODO: Add functionality
+        btn_save = QPushButton(self._res['saveButtonText'])
+        # TODO: Add functionality
+        btn_cancel = QPushButton(self._res['cancelButtonText'])
+
+        hbox_buttons = QHBoxLayout()
+        hbox_buttons.addStretch(1)
+        hbox_buttons.addWidget(btn_delete)
+        hbox_buttons.addWidget(btn_save)
+        hbox_buttons.addWidget(btn_cancel)
+
+        # Getting altogether
+        vbox_outmost = QVBoxLayout()
+        vbox_outmost.addLayout(form_id)
+        vbox_outmost.addWidget(group_name)
+        vbox_outmost.addWidget(group_descript)
+        vbox_outmost.addStretch(1)
+        vbox_outmost.addLayout(hbox_buttons)
+
+        self.setLayout(vbox_outmost)
 
 
 class FrameWidget(QWidget):
