@@ -2,5 +2,11 @@
   "mainWindowTitle": "OPDSS Management System",
   "runButtonText": "Run",
   "stopButtonText": "Stop",
-  "refreshButtonText": "Refresh"
+  "refreshButtonText": "Refresh",
+  "signageManagementTabText": "Signage",
+  "dataManagementTabText": "Data",
+  "multimediaManagementTabText": "Multimedia",
+  "templateManagementTabText": "Template",
+  "statusManagementTabText": "Status",
+  "logManagementTabText": "Log"
 }

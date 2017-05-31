@@ -1,7 +1,8 @@
 import sys
-from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QTabWidget,
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget,
                              QPushButton, QHBoxLayout, QVBoxLayout)
 from view.resource_manager import ResourceManager
+from view.main_tab_widget import MainTabWidget
 
 
 class MainWidget(QWidget):
@@ -32,7 +33,7 @@ class MainWidget(QWidget):
         hbox_buttons.addWidget(btn_refresh)
 
         # Tab widget
-        tab_widget_main = QTabWidget()  # TODO: Change this to custom tab widget class
+        tab_widget_main = MainTabWidget()
 
         # Layout buttons and tab widget
         vbox_outmost = QVBoxLayout()
