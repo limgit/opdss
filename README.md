@@ -20,7 +20,7 @@ High-quality digital signage generation system that can be customized by user
  
 #### Other conventions
  - Update requirements.txt whenever you install the new package with pip installer
-   - Use `$ pip freeze > requirements.txt` to update the requirements.txt
+   - **Always** include version information (i.e. Flask==0.12.2)
 
 ### Development Environment Setting
 
