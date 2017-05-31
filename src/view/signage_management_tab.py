@@ -75,6 +75,8 @@ class SignageManagementTab(QWidget):
                 if item_text.startswith("F:"):
                     # Selected one is frame
                     pass
+                elif item_text == '+':
+                    pass  # TODO: Add scene addition logic
                 else:
                     # Selected one is scene
                     pass
