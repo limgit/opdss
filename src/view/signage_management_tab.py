@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import (QWidget, QTreeWidget, QTreeWidgetItem,
-                             QHBoxLayout)
+                             QStackedWidget, QHBoxLayout)
 
 from controller.manager import ObjectManager, TemplateManager, SignageManager
 from view.resource_manager import ResourceManager
@@ -14,6 +14,8 @@ class SignageManagementTab(QWidget):
         self._sgn_mng = sgn_mng
 
         self._res = ResourceManager()
+        self._stacked_widget = QStackedWidget()
+        self._stack_idx = {}
         self.initUI()
 
     def signage_to_tree_item(self):
@@ -24,12 +26,14 @@ class SignageManagementTab(QWidget):
             frame_item = QTreeWidgetItem(["F:"])  # Add frame
             top_item.addChild(frame_item)
             idx = 1
-            # Add signages
+            # Add signage
             for scene in self._sgn_mng._signages[key]._scene:
                 scene_template_name = scene._template._definition._name
                 scene_item = QTreeWidgetItem([str(idx) + ":" + scene_template_name])
                 top_item.addChild(scene_item)
                 idx += 1
+            scene_addition_item = QTreeWidgetItem(["+"])
+            top_item.addChild(scene_addition_item)
             top_level_items.append(top_item)
         signage_addition_item = QTreeWidgetItem(["+"])
         top_level_items.append(signage_addition_item)
@@ -41,9 +45,29 @@ class SignageManagementTab(QWidget):
         signage_list.setHeaderLabel('Signage')
         signage_list.addTopLevelItems(self.signage_to_tree_item())
         signage_list.expandAll()
+        signage_list.itemSelectionChanged.connect(self.list_item_clicked)
+
+        # TODO: Add Up/Down button
 
         hbox_outmost = QHBoxLayout()
-        hbox_outmost.addWidget(signage_list)
+        hbox_outmost.addWidget(signage_list, 1)
+        hbox_outmost.addWidget(self._stacked_widget, 5)
         self.setLayout(hbox_outmost)
-        # Right side of screen
 
+    def list_item_clicked(self):
+        get_selected = self.sender().selectedItems()
+        if get_selected:
+            item = get_selected[0]
+            item_text = item.text(0)
+
+
+class SignageWidget(QWidget):
+    pass
+
+
+class FrameWidget(QWidget):
+    pass
+
+
+class SceneWidget(QWidget):
+    pass
