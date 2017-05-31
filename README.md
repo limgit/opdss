@@ -65,6 +65,6 @@ High-quality digital signage generation system that can be customized by user.
  ```
  10. **PROFIT!**
 
-Everytime you work on the repository, activate virtualenv with `$ pyenv activate venv`
+Everytime you work on the repository, activate virtualenv with `$ pyenv activate venv`.
 
-To deactivate, `$ pyenv deactivate` is used
+To deactivate, `$ pyenv deactivate` is used.
