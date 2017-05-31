@@ -1,16 +1,23 @@
 from PyQt5.QtWidgets import QWidget, QTabWidget
+
+from controller.manager import ObjectManager, TemplateManager, SignageManager
 from view.resource_manager import ResourceManager
+from view.signage_management_tab import SignageManagementTab
 
 
 class MainTabWidget(QTabWidget):
-    def __init__(self):
+    def __init__(self, obj_mng: ObjectManager, tpl_mng: TemplateManager, sgn_mng: SignageManager):
         super().__init__()
+
+        self._obj_mng = obj_mng
+        self._tpl_mng = tpl_mng
+        self._sgn_mng = sgn_mng
 
         self._res = ResourceManager()
         self.initUI()
 
     def initUI(self):
-        signage_tab = QWidget()  # TODO: Change to custom widget
+        signage_tab = SignageManagementTab(self._obj_mng, self._tpl_mng, self._sgn_mng)
         self.addTab(signage_tab, self._res['signageManagementTabText'])
 
         data_tab = QWidget()  # TODO: Change to custom widget
@@ -27,3 +34,6 @@ class MainTabWidget(QTabWidget):
 
         log_tab = QWidget()  # TODO: Change to custom widget
         self.addTab(log_tab, self._res['logManagementTabText'])
+
+
+
