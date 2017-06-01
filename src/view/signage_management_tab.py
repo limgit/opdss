@@ -26,13 +26,13 @@ class SignageManagementTab(QWidget):
     def signage_to_tree_item(self):
         signage_items = []
         # For all signage
-        for signage in self._sgn_mng._signages.keys():
-            signage_item = QTreeWidgetItem([signage])
+        for signage_id in self._sgn_mng._signages.keys():
+            signage_item = QTreeWidgetItem([signage_id])
             frame_item = QTreeWidgetItem(["F:"])  # Add frame
             signage_item.addChild(frame_item)
             idx = 1
-            # Add signage
-            for scene in self._sgn_mng._signages[signage]._scene:
+            # Add scene
+            for scene in self._sgn_mng._signages[signage_id]._scene:
                 scene_template_name = scene._template._definition._name
                 scene_item = QTreeWidgetItem([str(idx) + ":" + scene_template_name])
                 signage_item.addChild(scene_item)
