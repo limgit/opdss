@@ -24,25 +24,25 @@ class SignageManagementTab(QWidget):
         self.init_ui()
 
     def signage_to_tree_item(self):
-        top_level_items = []
+        signage_items = []
         # For all signage
-        for key in self._sgn_mng._signages.keys():
-            top_item = QTreeWidgetItem([key])
+        for signage in self._sgn_mng._signages.keys():
+            signage_item = QTreeWidgetItem([signage])
             frame_item = QTreeWidgetItem(["F:"])  # Add frame
-            top_item.addChild(frame_item)
+            signage_item.addChild(frame_item)
             idx = 1
             # Add signage
-            for scene in self._sgn_mng._signages[key]._scene:
+            for scene in self._sgn_mng._signages[signage]._scene:
                 scene_template_name = scene._template._definition._name
                 scene_item = QTreeWidgetItem([str(idx) + ":" + scene_template_name])
-                top_item.addChild(scene_item)
+                signage_item.addChild(scene_item)
                 idx += 1
             scene_addition_item = QTreeWidgetItem(["+"])
-            top_item.addChild(scene_addition_item)
-            top_level_items.append(top_item)
+            signage_item.addChild(scene_addition_item)
+            signage_items.append(signage_item)
         signage_addition_item = QTreeWidgetItem(["+"])
-        top_level_items.append(signage_addition_item)
-        return top_level_items
+        signage_items.append(signage_addition_item)
+        return signage_items
 
     def init_ui(self):
         # Left side of screen

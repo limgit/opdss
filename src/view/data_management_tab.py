@@ -23,18 +23,18 @@ class DataManagementTab(QWidget):
         self.init_ui()
 
     def data_to_tree_item(self):
-        top_level_items = []
+        data_type_items = []
         # For all data type
-        for key in self._obj_mng._object_types.keys():
-            top_item = QTreeWidgetItem([key])
+        for data_type in self._obj_mng._object_types.keys():
+            data_type_item = QTreeWidgetItem([data_type])
             # Add data
-            for data in self._obj_mng._object_values[self._obj_mng._object_types[key]].keys():
+            for data in self._obj_mng._object_values[self._obj_mng._object_types[data_type]].keys():
                 data_item = QTreeWidgetItem([data])
-                top_item.addChild(data_item)
+                data_type_item.addChild(data_item)
             data_addition_item = QTreeWidgetItem(["+"])
-            top_item.addChild(data_addition_item)
-            top_level_items.append(top_item)
-        return top_level_items
+            data_type_item.addChild(data_addition_item)
+            data_type_items.append(data_type_item)
+        return data_type_items
 
     def init_ui(self):
         # Left side of screen
@@ -59,7 +59,7 @@ class DataManagementTab(QWidget):
                 # It is at topmost level
                 # Selected one is data type
                 idx = self._widget_idx['type']
-                self._stacked_widget.widget(idx).load_data_on_ui()
+                self._stacked_widget.widget(idx).load_data_on_ui(self._obj_mng, item_text)
                 self._stacked_widget.setCurrentIndex(idx)
             else:
                 if item_text == '+':
@@ -85,8 +85,14 @@ class DataTypeWidget(QWidget):
         self._res = ResourceManager()
         self.init_ui()
 
-    def load_data_on_ui(self):
-        pass  # TODO: Create logic
+    def load_data_on_ui(self, obj_mng: ObjectManager, data_type_id: str):
+        data_type = obj_mng._object_types[data_type_id]
+        self._ledit_id.setText(data_type_id)
+        self._ledit_name.setText(data_type._name)
+        self._ledit_author.setText(data_type._dev_name)
+        self._ledit_homepage.setText(data_type._dev_homepage)
+        self._ptedit_descript.setPlainText(data_type._description)
+        # TODO: Show user data type dependency
 
     def init_ui(self):
         # ID display
