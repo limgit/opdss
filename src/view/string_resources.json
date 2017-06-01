@@ -14,5 +14,6 @@
   "signageDescriptionLabel": "Signage Description",
   "deleteButtonText": "Delete",
   "saveButtonText": "Save",
-  "cancelButtonText": "Cancel"
+  "cancelButtonText": "Cancel",
+  "dataTabText": "Data"
 }

@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (QWidget, QTreeWidget, QTreeWidgetItem,
                              QStackedWidget, QHBoxLayout, QVBoxLayout,
                              QLabel, QLineEdit, QPlainTextEdit, QGroupBox,
-                             QFormLayout, QPushButton)
+                             QFormLayout, QPushButton, QComboBox, QTabWidget)
 
 from controller.manager import ObjectManager, TemplateManager, SignageManager
 from view.resource_manager import ResourceManager
@@ -19,7 +19,8 @@ class SignageManagementTab(QWidget):
         self._stacked_widget = QStackedWidget()
         self._widget_idx = dict()
         self._widget_idx['signage'] = self._stacked_widget.addWidget(SignageWidget())
-        # TODO: Add widgets for scene and frame
+        self._widget_idx['frame'] = self._stacked_widget.addWidget(FrameWidget())
+        # TODO: Add widgets for scene
         self.initUI()
 
     def signage_to_tree_item(self):
@@ -74,7 +75,9 @@ class SignageManagementTab(QWidget):
             else:
                 if item_text.startswith("F:"):
                     # Selected one is frame
-                    pass
+                    idx = self._widget_idx['frame']
+                    self._stacked_widget.widget(idx).load_data_on_UI()
+                    self._stacked_widget.setCurrentIndex(idx)
                 elif item_text == '+':
                     pass  # TODO: Add scene addition logic
                 else:
@@ -146,7 +149,60 @@ class SignageWidget(QWidget):
 
 
 class FrameWidget(QWidget):
-    pass
+    def __init__(self):
+        super().__init__()
+
+        self._cbox_tpl = QComboBox()
+        self._tab_data = FrameDataTab()
+
+        self._res = ResourceManager()
+        self.initUI()
+
+    def load_data_on_UI(self):
+        # TODO: Maybe more functionality?
+        self._tab_data.load_data_on_UI()
+
+    def initUI(self):
+        # TODO: Read template list and add it by cbox.addItems(list)
+        # Tab widget
+        tab_frame_manage = QTabWidget()
+        tab_frame_manage.addTab(self._tab_data, self._res['dataTabText'])
+
+        # Buttons
+        btn_save = QPushButton(self._res['saveButtonText'])
+        # TODO: Add functionality
+        btn_cancel = QPushButton(self._res['cancelButtonText'])
+        # TODO: Add functionality
+
+        hbox_buttons = QHBoxLayout()
+        hbox_buttons.addStretch(1)
+        hbox_buttons.addWidget(btn_save)
+        hbox_buttons.addWidget(btn_cancel)
+
+        # Getting altogether
+        vbox_outmost = QVBoxLayout()
+        vbox_outmost.addWidget(self._cbox_tpl)
+        vbox_outmost.addWidget(tab_frame_manage)
+        vbox_outmost.addStretch(1)
+        vbox_outmost.addLayout(hbox_buttons)
+
+        self.setLayout(vbox_outmost)
+
+
+class FrameDataTab(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self._res = ResourceManager()
+        self.initUI()
+
+    def load_data_on_UI(self):
+        pass  # TODO: Add functionality
+
+    def initUI(self):
+        # TODO: This is dummy code. Have to edit it
+        vbox = QVBoxLayout()
+        self.setLayout(vbox)
 
 
 class SceneWidget(QWidget):
