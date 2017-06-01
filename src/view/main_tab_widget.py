@@ -19,9 +19,9 @@ class MainTabWidget(QTabWidget):
         self._sgn_mng = sgn_mng
 
         self._res = ResourceManager()
-        self.initUI()
+        self.init_ui()
 
-    def initUI(self):
+    def init_ui(self):
         signage_tab = SignageManagementTab(self._obj_mng, self._tpl_mng, self._sgn_mng)
         self.addTab(signage_tab, self._res['signageManagementTabText'])
 
