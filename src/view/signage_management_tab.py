@@ -21,7 +21,7 @@ class SignageManagementTab(QWidget):
         self._widget_idx['signage'] = self._stacked_widget.addWidget(SignageWidget())
         self._widget_idx['frame'] = self._stacked_widget.addWidget(FrameWidget())
         self._widget_idx['scene'] = self._stacked_widget.addWidget(SceneWidget())
-        self.initUI()
+        self.init_ui()
 
     def signage_to_tree_item(self):
         top_level_items = []
@@ -44,7 +44,7 @@ class SignageManagementTab(QWidget):
         top_level_items.append(signage_addition_item)
         return top_level_items
 
-    def initUI(self):
+    def init_ui(self):
         # Left side of screen
         signage_list = QTreeWidget()
         signage_list.setHeaderLabel('Signage')
@@ -84,20 +84,20 @@ class SignageManagementTab(QWidget):
                 else:
                     # Selected one is signage
                     idx = self._widget_idx['signage']
-                    self._stacked_widget.widget(idx).load_data_on_UI(self._sgn_mng, item_text)
+                    self._stacked_widget.widget(idx).load_data_on_ui(self._sgn_mng, item_text)
                     self._stacked_widget.setCurrentIndex(idx)
             else:
                 if item_text.startswith("F:"):
                     # Selected one is frame
                     idx = self._widget_idx['frame']
-                    self._stacked_widget.widget(idx).load_data_on_UI()
+                    self._stacked_widget.widget(idx).load_data_on_ui()
                     self._stacked_widget.setCurrentIndex(idx)
                 elif item_text == '+':
                     pass  # TODO: Add scene addition logic
                 else:
                     # Selected one is scene
                     idx = self._widget_idx['scene']
-                    self._stacked_widget.widget(idx).load_data_on_UI()
+                    self._stacked_widget.widget(idx).load_data_on_ui()
                     self._stacked_widget.setCurrentIndex(idx)
                     pass
 
@@ -111,15 +111,15 @@ class SignageWidget(QWidget):
         self._ptedit_descript = QPlainTextEdit()
 
         self._res = ResourceManager()
-        self.initUI()
+        self.init_ui()
 
-    def load_data_on_UI(self, sgn_mng: SignageManager, sgn_id: str):
+    def load_data_on_ui(self, sgn_mng: SignageManager, sgn_id: str):
         signage = sgn_mng._signages[sgn_id]
         self._ledit_id.setText(sgn_id)
         self._ledit_name.setText(signage._title)
         self._ptedit_descript.setPlainText(signage._description)
 
-    def initUI(self):
+    def init_ui(self):
         # ID display
         label_id = QLabel(self._res['idLabel'])
 
@@ -173,13 +173,13 @@ class FrameWidget(QWidget):
         self._tab_data = FrameDataTab()
 
         self._res = ResourceManager()
-        self.initUI()
+        self.init_ui()
 
-    def load_data_on_UI(self):
+    def load_data_on_ui(self):
         # TODO: Maybe more functionality?
-        self._tab_data.load_data_on_UI()
+        self._tab_data.load_data_on_ui()
 
-    def initUI(self):
+    def init_ui(self):
         # TODO: Read template list and add it by cbox.addItems(list)
         # Tab widget
         tab_frame_manage = QTabWidget()
@@ -211,12 +211,12 @@ class FrameDataTab(QWidget):
         super().__init__()
 
         self._res = ResourceManager()
-        self.initUI()
+        self.init_ui()
 
-    def load_data_on_UI(self):
+    def load_data_on_ui(self):
         pass  # TODO: Add functionality
 
-    def initUI(self):
+    def init_ui(self):
         # TODO: This is dummy code. Have to edit it
         vbox = QVBoxLayout()
         self.setLayout(vbox)
@@ -232,12 +232,12 @@ class SceneWidget(QWidget):
         self._tab_scheduling = SceneSchedulingTab()
 
         self._res = ResourceManager()
-        self.initUI()
+        self.init_ui()
 
-    def load_data_on_UI(self):
+    def load_data_on_ui(self):
         pass
 
-    def initUI(self):
+    def init_ui(self):
         # TODO: Read template list and add it by cbox.addItems(list)
         # Tab widget
         tab_scene_manage = QTabWidget()
@@ -274,9 +274,9 @@ class SceneDataTab(QWidget):
         super().__init__()
 
         self._res = ResourceManager()
-        self.initUI()
+        self.init_ui()
 
-    def initUI(self):
+    def init_ui(self):
         pass
 
 
@@ -285,9 +285,9 @@ class SceneTransitionTab(QWidget):
         super().__init__()
 
         self._res = ResourceManager()
-        self.initUI()
+        self.init_ui()
 
-    def initUI(self):
+    def init_ui(self):
         pass
 
 
@@ -296,7 +296,7 @@ class SceneSchedulingTab(QWidget):
         super().__init__()
 
         self._res = ResourceManager()
-        self.initUI()
+        self.init_ui()
 
-    def initUI(self):
+    def init_ui(self):
         pass

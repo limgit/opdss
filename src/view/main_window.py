@@ -17,9 +17,9 @@ class MainWidget(QWidget):
         self._sgn_mng = sgn_mng
 
         self._res = ResourceManager()
-        self.initUI()
+        self.init_ui()
 
-    def initUI(self):
+    def init_ui(self):
         # Run button
         btn_run = QPushButton(self._res['runButtonText'])
         # TODO: Add functionality: btn_run.clicked.connect(self.handler)
@@ -62,9 +62,9 @@ class MainWindow(QMainWindow):
         self._sgn_mng = SignageManager(self._root_path / 'signage', self._obj_mng, self._tpl_mng)
 
         self._res = ResourceManager()
-        self.initUI()
+        self.init_ui()
 
-    def initUI(self):
+    def init_ui(self):
         main_widget = MainWidget(self._obj_mng, self._tpl_mng, self._sgn_mng)
         self.setCentralWidget(main_widget)
 
