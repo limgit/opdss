@@ -29,5 +29,11 @@
   "dataTypeDependencyLabel": "User Data Type Dependency",
   "multimediaListLabel": "List",
   "nameLabel": "Name",
-  "multimediaPreviewLabel": "Preview"
+  "multimediaPreviewLabel": "Preview",
+  "templateListLabel": "List",
+  "templateNameLabel": "Name",
+  "templateAuthorLabel": "Author",
+  "templateHomepageLabel": "Homepage",
+  "templateDescriptionLabel": "Description",
+  "templateDependencyLabel": "User Data Type Dependency"
 }
