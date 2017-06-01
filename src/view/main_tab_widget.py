@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QWidget, QTabWidget
 from controller.manager import ObjectManager, TemplateManager, SignageManager
 from view.resource_manager import ResourceManager
 from view.signage_management_tab import SignageManagementTab
+from view.data_management_tab import DataManagementTab
 
 
 class MainTabWidget(QTabWidget):
@@ -20,7 +21,7 @@ class MainTabWidget(QTabWidget):
         signage_tab = SignageManagementTab(self._obj_mng, self._tpl_mng, self._sgn_mng)
         self.addTab(signage_tab, self._res['signageManagementTabText'])
 
-        data_tab = QWidget()  # TODO: Change to custom widget
+        data_tab = DataManagementTab(self._obj_mng, self._tpl_mng, self._sgn_mng)
         self.addTab(data_tab, self._res['dataManagementTabText'])
 
         multimedia_tab = QWidget()  # TODO: Change to custom widget

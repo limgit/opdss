@@ -47,7 +47,7 @@ class SignageManagementTab(QWidget):
     def init_ui(self):
         # Left side of screen
         signage_list = QTreeWidget()
-        signage_list.setHeaderLabel('Signage')
+        signage_list.setHeaderLabel(self._res['signageListLabel'])
         signage_list.addTopLevelItems(self.signage_to_tree_item())
         signage_list.expandAll()
         signage_list.itemSelectionChanged.connect(self.list_item_clicked)
@@ -99,7 +99,6 @@ class SignageManagementTab(QWidget):
                     idx = self._widget_idx['scene']
                     self._stacked_widget.widget(idx).load_data_on_ui()
                     self._stacked_widget.setCurrentIndex(idx)
-                    pass
 
 
 class SignageWidget(QWidget):

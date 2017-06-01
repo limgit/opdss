@@ -9,6 +9,7 @@
   "templateManagementTabText": "Template",
   "statusManagementTabText": "Status",
   "logManagementTabText": "Log",
+  "signageListLabel": "List",
   "idLabel": "ID",
   "signageNameLabel": "Signage Name",
   "signageDescriptionLabel": "Signage Description",
@@ -19,5 +20,11 @@
   "transitionTabText": "Transition",
   "schedulingTabText": "Scheduling",
   "downButtonText": "DOWN",
-  "upButtonText": "UP"
+  "upButtonText": "UP",
+  "dataTypeListLabel": "List",
+  "dataTypeNameLabel": "Name",
+  "dataTypeAuthorLabel": "Author",
+  "dataTypeHomepageLabel": "Homepage",
+  "dataTypeDescriptionLabel": "Description",
+  "dataTypeDependencyLabel": "User Data Type Dependency"
 }
