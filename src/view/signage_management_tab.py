@@ -146,6 +146,7 @@ class SignageWidget(QWidget):
         btn_save = QPushButton(self._res['saveButtonText'])
         # TODO: Add functionality
         btn_cancel = QPushButton(self._res['cancelButtonText'])
+        # TODO: Add functionality
 
         hbox_buttons = QHBoxLayout()
         hbox_buttons.addStretch(1)
@@ -234,7 +235,7 @@ class SceneWidget(QWidget):
         self.init_ui()
 
     def load_data_on_ui(self):
-        pass
+        pass  # TODO: Add functionality
 
     def init_ui(self):
         # TODO: Read template list and add it by cbox.addItems(list)
@@ -276,7 +277,7 @@ class SceneDataTab(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        pass
+        pass  # TODO: Add functionality
 
 
 class SceneTransitionTab(QWidget):
@@ -287,7 +288,7 @@ class SceneTransitionTab(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        pass
+        pass  # TODO: Add functionality
 
 
 class SceneSchedulingTab(QWidget):
@@ -298,4 +299,4 @@ class SceneSchedulingTab(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        pass
+        pass  # TODO: Add functionality

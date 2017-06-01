@@ -63,7 +63,7 @@ class DataManagementTab(QWidget):
                 self._stacked_widget.setCurrentIndex(idx)
             else:
                 if item_text == '+':
-                    pass  # TODO: Add scene addition logic
+                    pass  # TODO: Add data addition logic
                 else:
                     # Selected one is data
                     idx = self._widget_idx['data']
@@ -86,7 +86,7 @@ class DataTypeWidget(QWidget):
         self.init_ui()
 
     def load_data_on_ui(self):
-        pass
+        pass  # TODO: Create logic
 
     def init_ui(self):
         # ID display
@@ -169,7 +169,7 @@ class DataWidget(QWidget):
         self.init_ui()
 
     def load_data_on_ui(self):
-        pass
+        pass  # TODO: Create logic
 
     def init_ui(self):
         # ID display
