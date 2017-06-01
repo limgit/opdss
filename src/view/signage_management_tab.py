@@ -20,7 +20,7 @@ class SignageManagementTab(QWidget):
         self._widget_idx = dict()
         self._widget_idx['signage'] = self._stacked_widget.addWidget(SignageWidget())
         self._widget_idx['frame'] = self._stacked_widget.addWidget(FrameWidget())
-        # TODO: Add widgets for scene
+        self._widget_idx['scene'] = self._stacked_widget.addWidget(SceneWidget())
         self.initUI()
 
     def signage_to_tree_item(self):
@@ -69,6 +69,7 @@ class SignageManagementTab(QWidget):
                 if item_text == "+":
                     pass  # TODO: Add signage addition logic
                 else:
+                    # Selected one is signage
                     idx = self._widget_idx['signage']
                     self._stacked_widget.widget(idx).load_data_on_UI(self._sgn_mng, item_text)
                     self._stacked_widget.setCurrentIndex(idx)
@@ -82,6 +83,9 @@ class SignageManagementTab(QWidget):
                     pass  # TODO: Add scene addition logic
                 else:
                     # Selected one is scene
+                    idx = self._widget_idx['scene']
+                    self._stacked_widget.widget(idx).load_data_on_UI()
+                    self._stacked_widget.setCurrentIndex(idx)
                     pass
 
 
@@ -206,4 +210,80 @@ class FrameDataTab(QWidget):
 
 
 class SceneWidget(QWidget):
-    pass
+    def __init__(self):
+        super().__init__()
+
+        self._cbox_tpl = QComboBox()
+        self._tab_data = SceneDataTab()
+        self._tab_transition = SceneTransitionTab()
+        self._tab_scheduling = SceneSchedulingTab()
+
+        self._res = ResourceManager()
+        self.initUI()
+
+    def load_data_on_UI(self):
+        pass
+
+    def initUI(self):
+        # TODO: Read template list and add it by cbox.addItems(list)
+        # Tab widget
+        tab_scene_manage = QTabWidget()
+        tab_scene_manage.addTab(self._tab_data, self._res['dataTabText'])
+        tab_scene_manage.addTab(self._tab_transition, self._res['transitionTabText'])
+        tab_scene_manage.addTab(self._tab_scheduling, self._res['schedulingTabText'])
+
+        # Buttons
+        btn_delete = QPushButton(self._res['deleteButtonText'])
+        # TODO: Add functionality
+        btn_save = QPushButton(self._res['saveButtonText'])
+        # TODO: Add functionality
+        btn_cancel = QPushButton(self._res['cancelButtonText'])
+        # TODO: Add functionality
+
+        hbox_buttons = QHBoxLayout()
+        hbox_buttons.addStretch(1)
+        hbox_buttons.addWidget(btn_delete)
+        hbox_buttons.addWidget(btn_save)
+        hbox_buttons.addWidget(btn_cancel)
+
+        # Getting altogether
+        vbox_outmost = QVBoxLayout()
+        vbox_outmost.addWidget(self._cbox_tpl)
+        vbox_outmost.addWidget(tab_scene_manage)
+        vbox_outmost.addStretch(1)
+        vbox_outmost.addLayout(hbox_buttons)
+
+        self.setLayout(vbox_outmost)
+
+
+class SceneDataTab(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self._res = ResourceManager()
+        self.initUI()
+
+    def initUI(self):
+        pass
+
+
+class SceneTransitionTab(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self._res = ResourceManager()
+        self.initUI()
+
+    def initUI(self):
+        pass
+
+
+class SceneSchedulingTab(QWidget):
+    def __init__(self):
+        super().__init__()
+
+        self._res = ResourceManager()
+        self.initUI()
+
+    def initUI(self):
+        pass

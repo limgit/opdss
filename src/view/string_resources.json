@@ -15,5 +15,7 @@
   "deleteButtonText": "Delete",
   "saveButtonText": "Save",
   "cancelButtonText": "Cancel",
-  "dataTabText": "Data"
+  "dataTabText": "Data",
+  "transitionTabText": "Transition",
+  "schedulingTabText": "Scheduling"
 }
