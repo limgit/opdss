@@ -17,5 +17,7 @@
   "cancelButtonText": "Cancel",
   "dataTabText": "Data",
   "transitionTabText": "Transition",
-  "schedulingTabText": "Scheduling"
+  "schedulingTabText": "Scheduling",
+  "downButtonText": "DOWN",
+  "upButtonText": "UP"
 }

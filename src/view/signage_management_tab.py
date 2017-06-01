@@ -52,10 +52,23 @@ class SignageManagementTab(QWidget):
         signage_list.expandAll()
         signage_list.itemSelectionChanged.connect(self.list_item_clicked)
 
-        # TODO: Add Up/Down button
+        # Buttons
+        btn_up = QPushButton(self._res['upButtonText'])
+        # TODO: Add functionality
+        btn_down = QPushButton(self._res['downButtonText'])
+        # TODO: Add functionality
 
+        hbox_buttons = QHBoxLayout()
+        hbox_buttons.addWidget(btn_up)
+        hbox_buttons.addWidget(btn_down)
+
+        vbox_left = QVBoxLayout()
+        vbox_left.addWidget(signage_list)
+        vbox_left.addLayout(hbox_buttons)
+
+        # Gather altogether
         hbox_outmost = QHBoxLayout()
-        hbox_outmost.addWidget(signage_list, 1)
+        hbox_outmost.addLayout(vbox_left, 1)
         hbox_outmost.addWidget(self._stacked_widget, 5)
         self.setLayout(hbox_outmost)
 
