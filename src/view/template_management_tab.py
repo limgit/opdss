@@ -20,8 +20,8 @@ class TemplateManagementTab(QWidget):
 
     def template_to_tree_item(self):
         # TODO: This is dummy code. Add functionality
-        frame_label_item = QTreeWidgetItem(['Frame'])
-        scene_label_item = QTreeWidgetItem(['Scene'])
+        frame_label_item = QTreeWidgetItem([self._res['frameLabel']])
+        scene_label_item = QTreeWidgetItem([self._res['sceneLabel']])
         for scene_tpl_id in self._tpl_mng._scene_templates.keys():
             scene_item = QTreeWidgetItem([scene_tpl_id])
             scene_label_item.addChild(scene_item)
@@ -51,8 +51,9 @@ class TemplateManagementTab(QWidget):
                 # Selected one is Scene/Frame
                 pass
             else:
-                # Selected one is scene/frame
-                self._template_widget.load_data_on_ui()
+                # Selected one is frame/scene
+                self._template_widget.load_data_on_ui(item.parent().text(0), self._tpl_mng, item_text)
+                # item.parent().text(0) is self._res['frameLabel'] or self._res['sceneLabel']
 
 
 class TemplateWidget(QWidget):
@@ -70,8 +71,20 @@ class TemplateWidget(QWidget):
         self._res = ResourceManager()
         self.init_ui()
 
-    def load_data_on_ui(self):
-        pass  # TODO: Add functionality
+    def load_data_on_ui(self, tpl_type: str, tpl_mng: TemplateManager, tpl_id: str):
+        if tpl_type == self._res['frameLabel']:
+            # Frame
+            pass  # TODO: Add functionality
+        else:
+            # Scene
+            scene_tpl = tpl_mng._scene_templates[tpl_id]
+            scene_tpl_metadata = scene_tpl._definition
+            self._ledit_id.setText(tpl_id)
+            self._ledit_name.setText(scene_tpl_metadata._name)
+            self._ledit_author.setText(scene_tpl_metadata._dev_name)
+            self._ledit_homepage.setText(scene_tpl_metadata._dev_homepage)
+            self._ptedit_descript.setPlainText(scene_tpl_metadata._description)
+            # TODO: Show user data type dependency
 
     def init_ui(self):
         # ID display

@@ -35,5 +35,7 @@
   "templateAuthorLabel": "Author",
   "templateHomepageLabel": "Homepage",
   "templateDescriptionLabel": "Description",
-  "templateDependencyLabel": "User Data Type Dependency"
+  "templateDependencyLabel": "User Data Type Dependency",
+  "frameLabel": "Frame",
+  "sceneLabel": "Scene"
 }
