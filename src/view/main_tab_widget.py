@@ -4,6 +4,7 @@ from controller.manager import ObjectManager, TemplateManager, SignageManager
 from view.resource_manager import ResourceManager
 from view.signage_management_tab import SignageManagementTab
 from view.data_management_tab import DataManagementTab
+from view.multimedia_management_tab import MultimediaManagementTab
 
 
 class MainTabWidget(QTabWidget):
@@ -24,7 +25,7 @@ class MainTabWidget(QTabWidget):
         data_tab = DataManagementTab(self._obj_mng, self._tpl_mng, self._sgn_mng)
         self.addTab(data_tab, self._res['dataManagementTabText'])
 
-        multimedia_tab = QWidget()  # TODO: Change to custom widget
+        multimedia_tab = MultimediaManagementTab(self._obj_mng, self._tpl_mng, self._sgn_mng)
         self.addTab(multimedia_tab, self._res['multimediaManagementTabText'])
 
         template_tab = QWidget()  # TODO: Change to custom widget
@@ -35,6 +36,3 @@ class MainTabWidget(QTabWidget):
 
         log_tab = QWidget()  # TODO: Change to custom widget
         self.addTab(log_tab, self._res['logManagementTabText'])
-
-
-

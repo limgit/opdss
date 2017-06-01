@@ -26,5 +26,8 @@
   "dataTypeAuthorLabel": "Author",
   "dataTypeHomepageLabel": "Homepage",
   "dataTypeDescriptionLabel": "Description",
-  "dataTypeDependencyLabel": "User Data Type Dependency"
+  "dataTypeDependencyLabel": "User Data Type Dependency",
+  "multimediaListLabel": "List",
+  "nameLabel": "Name",
+  "multimediaPreviewLabel": "Preview"
 }
