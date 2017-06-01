@@ -20,9 +20,12 @@ class TemplateManagementTab(QWidget):
 
     def template_to_tree_item(self):
         # TODO: This is dummy code. Add functionality
-        scene_item = QTreeWidgetItem(['Scene'])
-        scene_item.addChild(QTreeWidgetItem(['scene_dummy']))
-        return [scene_item]
+        frame_label_item = QTreeWidgetItem(['Frame'])
+        scene_label_item = QTreeWidgetItem(['Scene'])
+        for scene_tpl in self._tpl_mng._scene_templates.keys():
+            scene_item = QTreeWidgetItem([scene_tpl])
+            scene_label_item.addChild(scene_item)
+        return [frame_label_item, scene_label_item]
 
     def init_ui(self):
         # Left side of screen
