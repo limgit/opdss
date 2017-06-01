@@ -7,6 +7,7 @@ from view.data_management_tab import DataManagementTab
 from view.multimedia_management_tab import MultimediaManagementTab
 from view.template_management_tab import TemplateManagementTab
 from view.status_management_tab import StatusManagementTab
+from view.log_management_tab import LogManagementTab
 
 
 class MainTabWidget(QTabWidget):
@@ -36,5 +37,5 @@ class MainTabWidget(QTabWidget):
         status_tab = StatusManagementTab(self._obj_mng, self._tpl_mng, self._sgn_mng)
         self.addTab(status_tab, self._res['statusManagementTabText'])
 
-        log_tab = QWidget()  # TODO: Change to custom widget
+        log_tab = LogManagementTab(self._obj_mng, self._tpl_mng, self._sgn_mng)
         self.addTab(log_tab, self._res['logManagementTabText'])
