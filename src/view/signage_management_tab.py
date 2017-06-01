@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import (QWidget, QTreeWidget, QTreeWidgetItem,
                              QStackedWidget, QHBoxLayout, QVBoxLayout,
                              QLabel, QLineEdit, QPlainTextEdit, QGroupBox,
-                             QFormLayout, QPushButton, QComboBox, QTabWidget)
+                             QPushButton, QComboBox, QTabWidget)
 
 from controller.manager import ObjectManager, TemplateManager, SignageManager
 from view.resource_manager import ResourceManager
@@ -106,9 +106,9 @@ class SignageWidget(QWidget):
         # ID display
         label_id = QLabel(self._res['idLabel'])
 
-        form_id = QFormLayout()
-        form_id.addWidget(label_id)
-        form_id.addWidget(self._ledit_id)
+        hbox_id = QHBoxLayout()
+        hbox_id.addWidget(label_id)
+        hbox_id.addWidget(self._ledit_id)
 
         # Name display
         vbox_name = QVBoxLayout()
@@ -139,7 +139,7 @@ class SignageWidget(QWidget):
 
         # Getting altogether
         vbox_outmost = QVBoxLayout()
-        vbox_outmost.addLayout(form_id)
+        vbox_outmost.addLayout(hbox_id)
         vbox_outmost.addWidget(group_name)
         vbox_outmost.addWidget(group_descript)
         vbox_outmost.addStretch(1)
