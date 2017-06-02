@@ -67,7 +67,7 @@ class StringDataType(DataType[str]):
         self._one_of = new_value[:]
 
     def is_valid(self, value: str):
-        return self.min_length <= len(value) <= self.max_length and value in self.one_of if self.one_of else True
+        return self.min_length <= len(value) <= self.max_length and (value in self.one_of if self.one_of else True)
 
 
 # todo: mock implementation
@@ -77,12 +77,13 @@ class IntegerDataType(DataType[int]):
 
 
 class ObjectDataType(DataType[ObjectValue]):
-    def __init__(self, name: str='', dev_name: str='', dev_homepage: str='', description: str='',
+    def __init__(self, type_id: str, name: str='', dev_name: str='', dev_homepage: str='', description: str='',
                  fields=None):
 
         if fields is None:
             fields = dict()
 
+        self._id = type_id
         self._name = name
         self._dev_name = dev_name
         self._dev_homepage = dev_homepage

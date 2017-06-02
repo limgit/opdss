@@ -35,6 +35,13 @@
                 margin: 0;
             }
 
+            .frame {
+                position: fixed;
+                height: 100vh;
+                width: 100vw;
+                z-index: 100;
+            }
+
             .scenes {
                 height: 100vh;
                 display: flex !important;
@@ -42,9 +49,10 @@
         </style>
     </head>
     <body>
+        {% include _frame %}
         <div id="main_slides">
-            {% for template in _templates %}
-            {% include template %}
+            {% for scene in _scenes %}
+            {% include scene %}
             {% endfor %}
         </div>
     </body>

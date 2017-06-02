@@ -1,24 +1,19 @@
-from pathlib import Path
-
 import flask
-from flask import app
 
 from controller.manager import ObjectManager, TemplateManager, SignageManager
 
 
 class WebServer:
-    def __init__(self, root_path: Path):
-        self._root_path = root_path.resolve()
-
+    def __init__(self, obj_mng: ObjectManager, tpl_mng: TemplateManager, sgn_mng: SignageManager):
         self._app = flask.Flask(__name__)
-        self._app.static_folder = str(self._root_path / 'template/scene/')
+        self._app.static_folder = str(tpl_mng._dir_root.resolve())
         self._app.add_url_rule('/', 'handle_signage_list', self.handle_signage_list)
         self._app.add_url_rule('/<signage_id>', 'handle_signage', self.handle_signage)
         self._app.add_url_rule('/_/<path:path>', 'handle_template_static', self.handle_template_static)
 
-        self._obj_mng = ObjectManager(self._root_path / 'data')
-        self._tpl_mng = TemplateManager(self._root_path / 'template', self._obj_mng)
-        self._sgn_mng = SignageManager(self._root_path / 'signage', self._obj_mng, self._tpl_mng)
+        self._obj_mng = obj_mng
+        self._tpl_mng = tpl_mng
+        self._sgn_mng = sgn_mng
 
     def start(self):
         self._app.run()

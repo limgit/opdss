@@ -1,3 +1,7 @@
+import os
+
+from typing import Optional
+
 import copy
 import json
 from collections import deque
@@ -5,8 +9,8 @@ from pathlib import Path
 
 from model.data_type import ObjectDataType, ListDataType, STR_TO_PRIMITIVE_TYPE, DataType
 from model.data_value import ObjectValue
-from model.signage import Signage, Scene, TransitionType
-from model.template import SceneTemplate
+from model.signage import Signage, Scene, TransitionType, Frame
+from model.template import SceneTemplate, FrameTemplate
 
 
 class ObjectManager:
@@ -25,18 +29,18 @@ class ObjectManager:
         type_queue = deque([(x.name, x) for x in types_dir])
         while type_queue:
             current_type = type_queue.popleft()
-            type_name, type_dir = current_type
+            type_id, type_dir = current_type
 
             # initialize new object type
             with (type_dir / 'manifest.json').open() as f:
                 mnf_contents = json.load(f)
-                new_type = self.load_object_type(mnf_contents)
+                new_type = self.load_object_type(type_id, mnf_contents)
 
             if not new_type:
                 type_queue.append(current_type)
                 continue
 
-            self._object_types[type_name] = new_type
+            self._object_types[type_id] = new_type
 
             # loads object values
             self._object_values[new_type] = dict()
@@ -46,13 +50,13 @@ class ObjectManager:
                     continue
 
                 with value_path.open() as f:
-                    new_object = self.load_object_value(new_type, json.load(f))
+                    new_object = self.load_object_value(value_id, new_type, json.load(f))
 
-                self._object_values[new_type][value_id] = new_object
+                self.add_object_value(new_object)
 
             print('{} loaded'.format(new_type._name))
 
-    def load_object_type(self, data: dict) -> ObjectDataType:
+    def load_object_type(self, type_id: str, data: dict) -> ObjectDataType:
             # populate raw fields values to real python objects
             if 'fields' in data.keys():
                 fields = {}
@@ -64,7 +68,7 @@ class ObjectManager:
 
                 data['fields'] = fields
 
-            new_type = ObjectDataType(**data)
+            new_type = ObjectDataType(type_id=type_id, **data)
 
             return new_type
 
@@ -89,8 +93,8 @@ class ObjectManager:
 
         return type_instance
 
-    def load_object_value(self, data_type: ObjectDataType, data: dict) -> ObjectValue:
-        new_object = ObjectValue(data_type)
+    def load_object_value(self, object_id: Optional[str], data_type: ObjectDataType, data: dict) -> ObjectValue:
+        new_object = ObjectValue(object_id, data_type)
 
         for field_id, field_value in data.items():
             field_type = data_type._fields[field_id]
@@ -110,6 +114,25 @@ class ObjectManager:
     def get_object_value(self, type_instance: ObjectDataType, value_id: str) -> ObjectValue:
         return self._object_values[type_instance][value_id]
 
+    def add_object_value(self, new_object: ObjectValue) -> None:
+        object_dir = self._dir_root / new_object.data_type._id
+
+        def id_change_handler(old_id, new_id):
+            del self._object_values[new_object.data_type][old_id]
+            self._object_values[new_object.data_type][new_id] = new_object
+
+            os.remove(str(object_dir / (old_id + '.json')))
+            # todo: find references and update them. it should be hard work! :weary:
+
+        def value_change_handler():
+            with (object_dir / (new_object.id + '.json')).open('w') as f:
+                f.write(json.dumps(new_object.get_dict(False)))
+
+        new_object.on_id_change = id_change_handler
+        new_object.on_value_change = value_change_handler
+
+        self._object_values[new_object.data_type][new_object.id] = new_object
+
 
 class MultimediaManager:
     pass
@@ -124,16 +147,33 @@ class TemplateManager:
         self.load_all()
 
     def load_all(self) -> None:
+        # load scenes
         scene_path = self._dir_root / 'scene'
         scenes_dir = [x for x in scene_path.iterdir() if x.is_dir()]
 
-        for scene_name, scene_dir in [(x.name, x) for x in scenes_dir]:
+        for scene_tpl_id, scene_dir in [(x.name, x) for x in scenes_dir]:
             with (scene_dir / 'manifest.json').open() as f:
-                self._scene_templates[scene_name] = SceneTemplate(self._obj_mng.load_object_type(json.load(f)), scene_dir)
-                print('{} loaded'.format(self._scene_templates[scene_name]._definition._name))
+                self._scene_templates[scene_tpl_id] = SceneTemplate(scene_tpl_id,
+                                                                  self._obj_mng.load_object_type('', json.load(f)),
+                                                                  scene_dir)
+                print('{} loaded'.format(self._scene_templates[scene_tpl_id]._definition._name))
+
+        # load frames
+        frame_path = self._dir_root / 'frame'
+        frames_dir = [x for x in frame_path.iterdir() if x.is_dir()]
+
+        for frame_tpl_id, frame_dir in [(x.name, x) for x in frames_dir]:
+            with (frame_dir / 'manifest.json').open() as f:
+                self._frame_templates[frame_tpl_id] = FrameTemplate(frame_tpl_id,
+                                                                    self._obj_mng.load_object_type('', json.load(f)),
+                                                                    frame_dir)
+                print('{} loaded'.format(self._frame_templates[frame_tpl_id]._definition._name))
 
     def get_scene_template(self, key: str) -> SceneTemplate:
         return self._scene_templates[key]
+
+    def get_frame_template(self, key: str) -> FrameTemplate:
+        return self._frame_templates[key]
 
 
 class SignageManager:
@@ -151,21 +191,27 @@ class SignageManager:
             with signage_mnf.open() as f:
                 dct = json.load(f)
 
+            # load scenes
             scenes = []
-            for scene_value in dct['scene']:
-                template = self._tpl_mng.get_scene_template(scene_value['id'])
-                scene_data = self._obj_mng.load_object_value(template._definition, scene_value['data'])
+            for scene_value in dct['scenes']:
+                scene_template = self._tpl_mng.get_scene_template(scene_value['id'])
+                scene_data = self._obj_mng.load_object_value(None, scene_template._definition, scene_value['data'])
 
-                scenes.append(Scene(template,
+                scenes.append(Scene(scene_template,
                                     scene_data,
                                     scene_value['duration'],
                                     TransitionType[scene_value['transition']],
                                     None  # todo
                                     )
                               )
+            # load a frame
+            frame_value = dct['frame']
+            frame_template = self._tpl_mng.get_frame_template(frame_value['id'])
+            frame_data = self._obj_mng.load_object_value(None, frame_template._definition, frame_value['data'])
+            frame = Frame(frame_template, frame_data)
 
-            # todo: frame related works should be done
-            self._signages[signage_id] = Signage(signage_mnf.parent, dct['title'], dct['description'], None, scenes)
+            self._signages[signage_id] = Signage(signage_id, signage_mnf.parent,
+                                                 dct['title'], dct['description'], frame, scenes)
             print('{} loaded'.format(self._signages[signage_id]._title))
 
     def get_signage(self, key: str) -> Signage:
