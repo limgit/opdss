@@ -156,7 +156,7 @@ class TemplateManager:
                 self._scene_templates[scene_tpl_id] = SceneTemplate(scene_tpl_id,
                                                                   self._obj_mng.load_object_type('', json.load(f)),
                                                                   scene_dir)
-                print('{} loaded'.format(self._scene_templates[scene_tpl_id]._definition._name))
+                print('{} loaded'.format(self._scene_templates[scene_tpl_id].definition._name))
 
         # load frames
         frame_path = self._dir_root / 'frame'
@@ -167,7 +167,7 @@ class TemplateManager:
                 self._frame_templates[frame_tpl_id] = FrameTemplate(frame_tpl_id,
                                                                     self._obj_mng.load_object_type('', json.load(f)),
                                                                     frame_dir)
-                print('{} loaded'.format(self._frame_templates[frame_tpl_id]._definition._name))
+                print('{} loaded'.format(self._frame_templates[frame_tpl_id].definition._name))
 
     def get_scene_template(self, key: str) -> SceneTemplate:
         return self._scene_templates[key]

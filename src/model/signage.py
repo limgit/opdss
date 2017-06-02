@@ -37,6 +37,12 @@ class Scene:
         self._transition = transition
         self._schedule = schedule
         self._values = object_value
+        self._on_change_handler = lambda: None
+
+        def object_value_change_handler():
+            self._on_change_handler()
+
+        self._values.on_value_change = object_value_change_handler
 
     @property
     def template(self) -> SceneTemplate:
@@ -46,6 +52,32 @@ class Scene:
     def template(self, new_template: SceneTemplate) -> None:
         self._template = new_template
         self._values = new_template.definition.default
+        self._on_change_handler()
+
+    @property
+    def duration(self) -> int:
+        return self._duration
+
+    @duration.setter
+    def duration(self, new_value: int) -> None:
+        if new_value < 0:
+            raise AttributeError()
+
+        self._duration = new_value
+        self._on_change_handler()
+
+    @property
+    def transition_type(self) -> TransitionType:
+        return self._transition
+
+    @transition_type.setter
+    def transition_type(self, new_value: TransitionType) -> None:
+        self._transition = new_value
+        self._on_change_handler()
+
+    @property
+    def values(self) -> ObjectValue:
+        return self._values
 
 
 class Frame:
@@ -76,17 +108,17 @@ class Signage:
         self._scenes[index_1], self._scenes[index_2] = self._scenes[index_2], self._scenes[index_1]
 
     def render(self) -> str:
-        dirs = [str(x._template._root_dir) for x in self._scenes]  # for scene template resources
-        dirs.append(str(self._frame._template.root_dir))  # for frame template resources
+        dirs = [str(x.template.root_dir) for x in self._scenes]  # for scene template resources
+        dirs.append(str(self._frame.template.root_dir))  # for frame template resources
         dirs.append(str(self._resource_dir))  # for index.html
 
-        scenes = [str(x._template._root_dir.stem) + '.html' for x in self._scenes]
-        frame = (str(self._frame._template.root_dir.stem) + '.html')
+        scenes = [str(x.template.root_dir.stem) + '.html' for x in self._scenes]
+        frame = (str(self._frame.template.root_dir.stem) + '.html')
 
-        durations = [x._duration for x in self._scenes]
+        durations = [x.duration for x in self._scenes]
 
-        data = {str(x._template._root_dir.stem): x._values.get_dict() for x in self._scenes}
-        data[str(self._frame._template.root_dir.stem)] = self._frame._values.get_dict()
+        data = {str(x.template.root_dir.stem): x.values.get_dict() for x in self._scenes}
+        data[str(self._frame.template.root_dir.stem)] = self._frame.values.get_dict()
 
         env = Environment(
             loader=FileSystemLoader(dirs)
