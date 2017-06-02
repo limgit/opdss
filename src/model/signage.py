@@ -131,15 +131,25 @@ class Signage:
         if scenes is None:
             scenes = []
 
-        self._id = signage_id
+        self._id = ''
         self._root_dir = root_dir
         self._title = title
         self._description = description
         self._frame = frame
         self._scenes = []
 
+        self._id_change_handler = lambda x, y: None
+        self._value_change_handler = lambda: None
+
+        self.id = signage_id  # validate new id
+
         for scene in scenes:
             self.add_scene(scene)
+
+        self._frame.on_value_change = self._handler_wrapper
+
+    def _handler_wrapper(self):
+        self._value_change_handler()
 
     @property
     def id(self) -> str:
@@ -149,7 +159,10 @@ class Signage:
     def id(self, new_id: str) -> None:
         utils.validate_id(new_id)
 
+        old_id = self._id
         self._id = new_id
+        self._id_change_handler(old_id, new_id)
+        self._value_change_handler()
 
     @property
     def title(self) -> str:
@@ -159,6 +172,8 @@ class Signage:
     def title(self, new_title: str) -> None:
         self._title = new_title
 
+        self._value_change_handler()
+
     @property
     def description(self) -> str:
         return self._description
@@ -166,6 +181,8 @@ class Signage:
     @description.setter
     def description(self, new_value: str) -> None:
         self._description = new_value
+
+        self._value_change_handler()
 
     @property
     def root_dir(self) -> Path:
@@ -179,14 +196,34 @@ class Signage:
     def frame(self) -> Frame:
         return self.frame
 
+    @property
+    def on_id_change(self) -> None:
+        raise ValueError  # don't try to access!
+
+    # (old_id, new_id)
+    @on_id_change.setter
+    def on_id_change(self, handler: Callable[[str, str], None]) -> None:
+        self._id_change_handler = handler
+
+    @property
+    def on_value_change(self) -> None:
+        raise ValueError  # don't try to access!
+
+    @on_value_change.setter
+    def on_value_change(self, handler: Callable[[None], None]) -> None:
+        self._value_change_handler = handler
+
     def add_scene(self, new_scene: Scene) -> None:
+        new_scene.on_value_change = self._handler_wrapper
         self._scenes.append(new_scene)
 
     def remove_scene(self, to_delete: Scene) -> None:
+        to_delete.on_value_change = lambda: None
         self._scenes.remove(to_delete)
 
     def rearrange_scene(self, index_1:int, index_2: int) -> None:
         self._scenes[index_1], self._scenes[index_2] = self._scenes[index_2], self._scenes[index_1]
+        self._value_change_handler()
 
     def render(self) -> str:
         dirs = [str(x.template.root_dir) for x in self._scenes]  # for scene template resources
