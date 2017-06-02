@@ -1,3 +1,5 @@
+from typing import Optional
+
 import copy
 import json
 from collections import deque
@@ -89,7 +91,7 @@ class ObjectManager:
 
         return type_instance
 
-    def load_object_value(self, object_id: str, data_type: ObjectDataType, data: dict) -> ObjectValue:
+    def load_object_value(self, object_id: Optional[str], data_type: ObjectDataType, data: dict) -> ObjectValue:
         new_object = ObjectValue(object_id, data_type)
 
         for field_id, field_value in data.items():
@@ -156,7 +158,7 @@ class SignageManager:
             scenes = []
             for scene_value in dct['scene']:
                 template = self._tpl_mng.get_scene_template(scene_value['id'])
-                scene_data = self._obj_mng.load_object_value('', template._definition, scene_value['data'])
+                scene_data = self._obj_mng.load_object_value(None, template._definition, scene_value['data'])
 
                 scenes.append(Scene(template,
                                     scene_data,
