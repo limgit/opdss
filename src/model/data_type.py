@@ -67,7 +67,7 @@ class StringDataType(DataType[str]):
         self._one_of = new_value[:]
 
     def is_valid(self, value: str):
-        return self.min_length <= len(value) <= self.max_length and value in self.one_of if self.one_of else True
+        return self.min_length <= len(value) <= self.max_length and (value in self.one_of if self.one_of else True)
 
 
 # todo: mock implementation
