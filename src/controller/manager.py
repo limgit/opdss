@@ -234,7 +234,7 @@ class SignageManager:
 
             self._signages[signage_id] = Signage(signage_id, signage_mnf.parent,
                                                  dct['title'], dct['description'], frame, scenes)
-            print('{} loaded'.format(self._signages[signage_id]._title))
+            print('{} loaded'.format(self._signages[signage_id].title))
 
     def add_signage(self, key: str, signage: Signage):
         pass
