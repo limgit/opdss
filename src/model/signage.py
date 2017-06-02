@@ -44,10 +44,11 @@ class Frame:
 
 
 class Signage:
-    def __init__(self, resource_dir: Path, title: str='', description: str='', frame: Frame=None, scene=None):
+    def __init__(self, signage_id: str, resource_dir: Path, title: str='', description: str='', frame: Frame=None, scene=None):
         if scene is None:
             scene = []
 
+        self._id = signage_id
         self._resource_dir = resource_dir
         self._title = title
         self._description = description

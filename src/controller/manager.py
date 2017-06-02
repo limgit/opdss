@@ -165,7 +165,8 @@ class SignageManager:
                               )
 
             # todo: frame related works should be done
-            self._signages[signage_id] = Signage(signage_mnf.parent, dct['title'], dct['description'], None, scenes)
+            self._signages[signage_id] = Signage(signage_id, signage_mnf.parent,
+                                                 dct['title'], dct['description'], None, scenes)
             print('{} loaded'.format(self._signages[signage_id]._title))
 
     def get_signage(self, key: str) -> Signage:
