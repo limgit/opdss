@@ -57,6 +57,15 @@ class Signage:
         self._frame = frame
         self._scenes = scenes
 
+    def add_scene(self, new_scene: Scene) -> None:
+        self._scenes.append(new_scene)
+
+    def remove_scene(self, to_delete: Scene) -> None:
+        self._scenes.remove(to_delete)
+
+    def rearrange_scene(self, index_1:int, index_2: int) -> None:
+        self._scenes[index_1], self._scenes[index_2] = self._scenes[index_2], self._scenes[index_1]
+
     def render(self) -> str:
         dirs = [str(x._template._root_dir) for x in self._scenes]  # for scene template resources
         dirs.append(str(self._frame._template._root_dir))  # for frame template resources
