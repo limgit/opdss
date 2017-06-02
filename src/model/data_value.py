@@ -1,7 +1,5 @@
 from typing import TypeVar, Callable, Any, Optional
 
-from model import data_type
-
 from utils import utils
 
 T = TypeVar('T')
@@ -66,6 +64,7 @@ class ObjectValue:
         old_id = self._id
         self._id = new_id
         self._id_change_handler(old_id, new_id)
+        self._value_change_handler()
 
     @property
     def data_type(self) -> 'data_type.ObjectDataType':

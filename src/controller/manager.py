@@ -1,3 +1,5 @@
+import os
+
 from typing import Optional
 
 import copy
@@ -50,7 +52,7 @@ class ObjectManager:
                 with value_path.open() as f:
                     new_object = self.load_object_value(value_id, new_type, json.load(f))
 
-                self._object_values[new_type][value_id] = new_object
+                self.add_object_value(new_object)
 
             print('{} loaded'.format(new_type._name))
 
@@ -111,6 +113,25 @@ class ObjectManager:
 
     def get_object_value(self, type_instance: ObjectDataType, value_id: str) -> ObjectValue:
         return self._object_values[type_instance][value_id]
+
+    def add_object_value(self, new_object: ObjectValue) -> None:
+        object_dir = self._dir_root / new_object.data_type._id
+
+        def id_change_handler(old_id, new_id):
+            del self._object_values[new_object.data_type][old_id]
+            self._object_values[new_object.data_type][new_id] = new_object
+
+            os.remove(str(object_dir / (old_id + '.json')))
+            # todo: find references and update them. it should be hard work! :weary:
+
+        def value_change_handler():
+            with (object_dir / (new_object.id + '.json')).open('w') as f:
+                f.write(json.dumps(new_object.get_dict(False)))
+
+        new_object.on_id_change = id_change_handler
+        new_object.on_value_change = value_change_handler
+
+        self._object_values[new_object.data_type][new_object.id] = new_object
 
 
 class MultimediaManager:
