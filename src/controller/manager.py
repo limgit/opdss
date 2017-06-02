@@ -1,6 +1,6 @@
 import os
 
-from typing import Optional
+from typing import Optional, Dict
 
 import copy
 import json
@@ -19,6 +19,19 @@ class ObjectManager:
         self._object_types = dict()
         self._object_values = dict()
         self.load_all()
+
+    @property
+    def object_types(self) -> Dict[str, ObjectDataType]:
+        return copy.copy(self._object_types)
+
+    def get_object_type(self, type_id: str) -> ObjectDataType:
+        return self._object_types[type_id]
+
+    def get_object_value(self, type_instance: ObjectDataType, value_id: str) -> ObjectValue:
+        return self._object_values[type_instance][value_id]
+
+    def get_object_values(self, type_instance: ObjectDataType) -> Dict[str, ObjectValue]:
+        return copy.copy(self._object_values[type_instance])
 
     def load_all(self) -> None:
         types_dir = [x for x in self._dir_root.iterdir() if x.is_dir()]
@@ -108,12 +121,6 @@ class ObjectManager:
 
         return new_object
 
-    def get_object_type(self, type_id: str) -> ObjectDataType:
-        return self._object_types[type_id]
-
-    def get_object_value(self, type_instance: ObjectDataType, value_id: str) -> ObjectValue:
-        return self._object_values[type_instance][value_id]
-
     def add_object_value(self, new_object: ObjectValue) -> None:
         object_dir = self._dir_root / new_object.data_type._id
 
@@ -146,6 +153,20 @@ class TemplateManager:
         self._frame_templates = dict()
         self.load_all()
 
+    @property
+    def scene_templates(self) -> Dict[str, SceneTemplate]:
+        return copy.copy(self._scene_templates)
+
+    @property
+    def frame_templates(self) -> Dict[str, FrameTemplate]:
+        return copy.copy(self._frame_templates)
+
+    def get_scene_template(self, key: str) -> SceneTemplate:
+        return self._scene_templates[key]
+
+    def get_frame_template(self, key: str) -> FrameTemplate:
+        return self._frame_templates[key]
+
     def load_all(self) -> None:
         # load scenes
         scene_path = self._dir_root / 'scene'
@@ -169,12 +190,6 @@ class TemplateManager:
                                                                     frame_dir)
                 print('{} loaded'.format(self._frame_templates[frame_tpl_id].definition._name))
 
-    def get_scene_template(self, key: str) -> SceneTemplate:
-        return self._scene_templates[key]
-
-    def get_frame_template(self, key: str) -> FrameTemplate:
-        return self._frame_templates[key]
-
 
 class SignageManager:
     def __init__(self, dir_root: Path, obj_mng: ObjectManager, tpl_mng: TemplateManager):
@@ -183,6 +198,13 @@ class SignageManager:
         self._dir_root = dir_root
         self._signages = dict()
         self.load_all()
+
+    @property
+    def signages(self) -> Dict[str, Signage]:
+        return copy.copy(self._signages)
+
+    def get_signage(self, key: str) -> Signage:
+        return self._signages[key]
 
     def load_all(self) -> None:
         for signage_id, signage_mnf in [(x.stem, x) for x in self._dir_root.glob('*.json')]:
@@ -213,9 +235,6 @@ class SignageManager:
             self._signages[signage_id] = Signage(signage_id, signage_mnf.parent,
                                                  dct['title'], dct['description'], frame, scenes)
             print('{} loaded'.format(self._signages[signage_id]._title))
-
-    def get_signage(self, key: str) -> Signage:
-        return self._signages[key]
 
     def add_signage(self, key: str, signage: Signage):
         pass
