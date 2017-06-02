@@ -1,6 +1,8 @@
 from pathlib import Path
 
 from enum import Enum, auto
+from typing import Callable
+
 from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
 
@@ -79,11 +81,47 @@ class Scene:
     def values(self) -> ObjectValue:
         return self._values
 
+    @property
+    def on_value_change(self) -> None:
+        raise ValueError  # don't try to access!
+
+    @on_value_change.setter
+    def on_value_change(self, handler: Callable[[None], None]) -> None:
+        self._on_change_handler = handler
+
 
 class Frame:
     def __init__(self, template: FrameTemplate, object_value: ObjectValue):
         self._template = template
         self._values = object_value
+        self._on_change_handler = lambda: None
+
+        def object_value_change_handler():
+            self._on_change_handler()
+
+        self._values.on_value_change = object_value_change_handler
+
+    @property
+    def template(self) -> SceneTemplate:
+        return self._template
+
+    @template.setter
+    def template(self, new_template: SceneTemplate) -> None:
+        self._template = new_template
+        self._values = new_template.definition.default
+        self._on_change_handler()
+
+    @property
+    def values(self) -> ObjectValue:
+        return self._values
+
+    @property
+    def on_value_change(self) -> None:
+        raise ValueError  # don't try to access!
+
+    @on_value_change.setter
+    def on_value_change(self, handler: Callable[[None], None]) -> None:
+        self._on_change_handler = handler
 
 
 class Signage:
