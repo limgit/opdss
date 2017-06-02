@@ -8,9 +8,12 @@ from controller.manager import ObjectManager, TemplateManager, SignageManager
 from webserver.web_server import WebServer
 
 
+root_path = Path('../data')
+
+
 class TestObjectManager(unittest.TestCase):
     def test_object_change(self):
-        obj_mng = ObjectManager(Path('../data/data'))
+        obj_mng = ObjectManager(root_path / 'data')
 
         menu_item_type = obj_mng.get_object_type('menu_item')
         milk_object = obj_mng.get_object_value(menu_item_type, 'milk')
@@ -26,9 +29,28 @@ class TestObjectManager(unittest.TestCase):
         drinks_object.set_value('name', 'Drinks')
 
 
+class TestSignageManager(unittest.TestCase):
+    def test_signage_change(self):
+        obj_mng = ObjectManager(root_path / 'data')
+        tpl_mng = TemplateManager(root_path / 'template', obj_mng)
+        sgn_mng = SignageManager(root_path / 'signage', obj_mng, tpl_mng)
+
+        default_signage = sgn_mng.get_signage('default_signage')
+
+        # change signage's property
+        default_signage.title = 'test'
+        default_signage.title = 'Default Signage'
+
+        # change scene's property
+        default_signage.scenes[1].duration = 100
+        default_signage.scenes[1].duration = 1
+
+        # change reference value of a scene
+        default_signage.scenes[0].values.set_value('menu_group', 'drinks')
+
+
 class TestWebServer(unittest.TestCase):
     def test_start(self):
-        root_path = Path('../data')
 
         obj_mng = ObjectManager(root_path / 'data')
         tpl_mng = TemplateManager(root_path / 'template', obj_mng)

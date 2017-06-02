@@ -1,6 +1,6 @@
 import os
 
-from typing import Optional
+from typing import Optional, Dict
 
 import copy
 import json
@@ -19,6 +19,19 @@ class ObjectManager:
         self._object_types = dict()
         self._object_values = dict()
         self.load_all()
+
+    @property
+    def object_types(self) -> Dict[str, ObjectDataType]:
+        return copy.copy(self._object_types)
+
+    def get_object_type(self, type_id: str) -> ObjectDataType:
+        return self._object_types[type_id]
+
+    def get_object_value(self, type_instance: ObjectDataType, value_id: str) -> ObjectValue:
+        return self._object_values[type_instance][value_id]
+
+    def get_object_values(self, type_instance: ObjectDataType) -> Dict[str, ObjectValue]:
+        return copy.copy(self._object_values[type_instance])
 
     def load_all(self) -> None:
         types_dir = [x for x in self._dir_root.iterdir() if x.is_dir()]
@@ -94,25 +107,12 @@ class ObjectManager:
         return type_instance
 
     def load_object_value(self, object_id: Optional[str], data_type: ObjectDataType, data: dict) -> ObjectValue:
-        new_object = ObjectValue(object_id, data_type)
+        new_object = ObjectValue(object_id, data_type, self)
 
         for field_id, field_value in data.items():
-            field_type = data_type._fields[field_id]
-
-            if isinstance(field_type, ObjectDataType):
-                field_value = self.get_object_value(field_type, field_value)
-            elif isinstance(field_type, ListDataType) and isinstance(field_type._data_type, ObjectDataType):
-                field_value = [self.get_object_value(field_type._data_type, x) for x in field_value]
-
             new_object.set_value(field_id, field_value)
 
         return new_object
-
-    def get_object_type(self, type_id: str) -> ObjectDataType:
-        return self._object_types[type_id]
-
-    def get_object_value(self, type_instance: ObjectDataType, value_id: str) -> ObjectValue:
-        return self._object_values[type_instance][value_id]
 
     def add_object_value(self, new_object: ObjectValue) -> None:
         object_dir = self._dir_root / new_object.data_type._id
@@ -126,7 +126,7 @@ class ObjectManager:
 
         def value_change_handler():
             with (object_dir / (new_object.id + '.json')).open('w') as f:
-                f.write(json.dumps(new_object.get_dict(False)))
+                f.write(json.dumps(new_object.get_values(False)))
 
         new_object.on_id_change = id_change_handler
         new_object.on_value_change = value_change_handler
@@ -146,6 +146,20 @@ class TemplateManager:
         self._frame_templates = dict()
         self.load_all()
 
+    @property
+    def scene_templates(self) -> Dict[str, SceneTemplate]:
+        return copy.copy(self._scene_templates)
+
+    @property
+    def frame_templates(self) -> Dict[str, FrameTemplate]:
+        return copy.copy(self._frame_templates)
+
+    def get_scene_template(self, key: str) -> SceneTemplate:
+        return self._scene_templates[key]
+
+    def get_frame_template(self, key: str) -> FrameTemplate:
+        return self._frame_templates[key]
+
     def load_all(self) -> None:
         # load scenes
         scene_path = self._dir_root / 'scene'
@@ -156,7 +170,7 @@ class TemplateManager:
                 self._scene_templates[scene_tpl_id] = SceneTemplate(scene_tpl_id,
                                                                   self._obj_mng.load_object_type('', json.load(f)),
                                                                   scene_dir)
-                print('{} loaded'.format(self._scene_templates[scene_tpl_id]._definition._name))
+                print('{} loaded'.format(self._scene_templates[scene_tpl_id].definition._name))
 
         # load frames
         frame_path = self._dir_root / 'frame'
@@ -167,13 +181,7 @@ class TemplateManager:
                 self._frame_templates[frame_tpl_id] = FrameTemplate(frame_tpl_id,
                                                                     self._obj_mng.load_object_type('', json.load(f)),
                                                                     frame_dir)
-                print('{} loaded'.format(self._frame_templates[frame_tpl_id]._definition._name))
-
-    def get_scene_template(self, key: str) -> SceneTemplate:
-        return self._scene_templates[key]
-
-    def get_frame_template(self, key: str) -> FrameTemplate:
-        return self._frame_templates[key]
+                print('{} loaded'.format(self._frame_templates[frame_tpl_id].definition._name))
 
 
 class SignageManager:
@@ -183,6 +191,13 @@ class SignageManager:
         self._dir_root = dir_root
         self._signages = dict()
         self.load_all()
+
+    @property
+    def signages(self) -> Dict[str, Signage]:
+        return copy.copy(self._signages)
+
+    def get_signage(self, key: str) -> Signage:
+        return self._signages[key]
 
     def load_all(self) -> None:
         for signage_id, signage_mnf in [(x.stem, x) for x in self._dir_root.glob('*.json')]:
@@ -195,7 +210,7 @@ class SignageManager:
             scenes = []
             for scene_value in dct['scenes']:
                 scene_template = self._tpl_mng.get_scene_template(scene_value['id'])
-                scene_data = self._obj_mng.load_object_value(None, scene_template._definition, scene_value['data'])
+                scene_data = self._obj_mng.load_object_value(None, scene_template.definition, scene_value['data'])
 
                 scenes.append(Scene(scene_template,
                                     scene_data,
@@ -207,15 +222,28 @@ class SignageManager:
             # load a frame
             frame_value = dct['frame']
             frame_template = self._tpl_mng.get_frame_template(frame_value['id'])
-            frame_data = self._obj_mng.load_object_value(None, frame_template._definition, frame_value['data'])
+            frame_data = self._obj_mng.load_object_value(None, frame_template.definition, frame_value['data'])
             frame = Frame(frame_template, frame_data)
 
-            self._signages[signage_id] = Signage(signage_id, signage_mnf.parent,
-                                                 dct['title'], dct['description'], frame, scenes)
-            print('{} loaded'.format(self._signages[signage_id]._title))
+            new_signage = Signage(signage_id, signage_mnf.parent, dct['title'], dct['description'], frame, scenes)
+            self.add_signage(new_signage)
 
-    def get_signage(self, key: str) -> Signage:
-        return self._signages[key]
+            print('{} loaded'.format(new_signage.title))
 
-    def add_signage(self, key: str, signage: Signage):
-        pass
+    def add_signage(self, new_signage: Signage) -> None:
+        signage_path = self._dir_root / (new_signage.id + '.json')
+
+        def id_change_handler(old_id, new_id):
+            del self._signages[old_id]
+            self._signages[new_id] = new_signage
+
+            os.remove(str(signage_path))
+
+        def value_change_handler():
+            with signage_path.open('w') as f:
+                f.write(json.dumps(new_signage.to_dict()))
+
+        new_signage.on_id_change = id_change_handler
+        new_signage.on_value_change = value_change_handler
+
+        self._signages[new_signage.id] = new_signage
