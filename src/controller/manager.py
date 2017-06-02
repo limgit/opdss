@@ -126,7 +126,7 @@ class ObjectManager:
 
         def value_change_handler():
             with (object_dir / (new_object.id + '.json')).open('w') as f:
-                f.write(json.dumps(new_object.get_dict(False)))
+                f.write(json.dumps(new_object.get_values(False)))
 
         new_object.on_id_change = id_change_handler
         new_object.on_value_change = value_change_handler

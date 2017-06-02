@@ -235,8 +235,8 @@ class Signage:
 
         durations = [x.duration for x in self._scenes]
 
-        data = {str(x.template.root_dir.stem): x.values.get_dict() for x in self._scenes}
-        data[str(self._frame.template.root_dir.stem)] = self._frame.values.get_dict()
+        data = {str(x.template.root_dir.stem): x.values.get_values() for x in self._scenes}
+        data[str(self._frame.template.root_dir.stem)] = self._frame.values.get_values()
 
         env = Environment(
             loader=FileSystemLoader(dirs)
