@@ -38,6 +38,15 @@ class Scene:
         self._schedule = schedule
         self._values = object_value
 
+    @property
+    def template(self) -> SceneTemplate:
+        return self._template
+
+    @template.setter
+    def template(self, new_template: SceneTemplate) -> None:
+        self._template = new_template
+        self._values = new_template.definition.default
+
 
 class Frame:
     def __init__(self, template: FrameTemplate, object_value: ObjectValue):
