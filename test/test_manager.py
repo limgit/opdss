@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from controller.manager import ObjectManager
+from controller.manager import ObjectManager, TemplateManager, SignageManager
 from webserver.web_server import WebServer
 
 
@@ -25,7 +25,13 @@ class TestObjectManager(unittest.TestCase):
 
 class TestWebServer(unittest.TestCase):
     def test_start(self):
-        server = WebServer(Path('../data'))
+        root_path = Path('../data')
+
+        obj_mng = ObjectManager(root_path / 'data')
+        tpl_mng = TemplateManager(root_path / 'template', obj_mng)
+        sgn_mng = SignageManager(root_path / 'signage', obj_mng, tpl_mng)
+
+        server = WebServer(obj_mng, tpl_mng, sgn_mng)
         server.start()  # todo: causes infinite loop
 
 
