@@ -6,7 +6,8 @@ T = TypeVar('T')
 
 
 class ObjectValue:
-    def __init__(self, data_type: 'data_type.ObjectDataType'):
+    def __init__(self, object_id: str, data_type: 'data_type.ObjectDataType'):
+        self._id = object_id
         self._values = {}
         self._data_type = data_type
 

@@ -46,7 +46,7 @@ class ObjectManager:
                     continue
 
                 with value_path.open() as f:
-                    new_object = self.load_object_value(new_type, json.load(f))
+                    new_object = self.load_object_value(value_id, new_type, json.load(f))
 
                 self._object_values[new_type][value_id] = new_object
 
@@ -89,8 +89,8 @@ class ObjectManager:
 
         return type_instance
 
-    def load_object_value(self, data_type: ObjectDataType, data: dict) -> ObjectValue:
-        new_object = ObjectValue(data_type)
+    def load_object_value(self, object_id: str, data_type: ObjectDataType, data: dict) -> ObjectValue:
+        new_object = ObjectValue(object_id, data_type)
 
         for field_id, field_value in data.items():
             field_type = data_type._fields[field_id]
@@ -154,7 +154,7 @@ class SignageManager:
             scenes = []
             for scene_value in dct['scene']:
                 template = self._tpl_mng.get_scene_template(scene_value['id'])
-                scene_data = self._obj_mng.load_object_value(template._definition, scene_value['data'])
+                scene_data = self._obj_mng.load_object_value('', template._definition, scene_value['data'])
 
                 scenes.append(Scene(template,
                                     scene_data,
