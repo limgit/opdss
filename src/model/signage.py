@@ -1,13 +1,14 @@
 from pathlib import Path
 
 from enum import Enum, auto
-from typing import Callable
+from typing import Callable, Tuple
 
 from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
 
 from model.data_value import ObjectValue
 from model.template import SceneTemplate, FrameTemplate
+from utils import utils
 
 
 class ScheduleType(Enum):
@@ -125,13 +126,13 @@ class Frame:
 
 
 class Signage:
-    def __init__(self, signage_id: str, resource_dir: Path, title: str='',
+    def __init__(self, signage_id: str, root_dir: Path, title: str= '',
                  description: str='', frame: Frame=None, scenes=None):
         if scenes is None:
             scenes = []
 
         self._id = signage_id
-        self._resource_dir = resource_dir
+        self._root_dir = root_dir
         self._title = title
         self._description = description
         self._frame = frame
@@ -139,6 +140,44 @@ class Signage:
 
         for scene in scenes:
             self.add_scene(scene)
+
+    @property
+    def id(self) -> str:
+        return self._id
+
+    @id.setter
+    def id(self, new_id: str) -> None:
+        utils.validate_id(new_id)
+
+        self._id = new_id
+
+    @property
+    def title(self) -> str:
+        return self._title
+
+    @title.setter
+    def title(self, new_title: str) -> None:
+        self._title = new_title
+
+    @property
+    def description(self) -> str:
+        return self._description
+
+    @description.setter
+    def description(self, new_value: str) -> None:
+        self._description = new_value
+
+    @property
+    def root_dir(self) -> Path:
+        return self._root_dir
+
+    @property
+    def scenes(self) -> Tuple[Scene]:
+        return tuple(self.scenes)
+
+    @property
+    def frame(self) -> Frame:
+        return self.frame
 
     def add_scene(self, new_scene: Scene) -> None:
         self._scenes.append(new_scene)
@@ -152,7 +191,7 @@ class Signage:
     def render(self) -> str:
         dirs = [str(x.template.root_dir) for x in self._scenes]  # for scene template resources
         dirs.append(str(self._frame.template.root_dir))  # for frame template resources
-        dirs.append(str(self._resource_dir))  # for index.html
+        dirs.append(str(self._root_dir))  # for index.html
 
         scenes = [str(x.template.root_dir.stem) + '.html' for x in self._scenes]
         frame = (str(self._frame.template.root_dir.stem) + '.html')
