@@ -10,7 +10,7 @@ from pathlib import Path
 from model.data_type import ObjectDataType, ListDataType, STR_TO_PRIMITIVE_TYPE, DataType
 from model.data_value import ObjectValue
 from model.signage import Signage, Scene, TransitionType
-from model.template import SceneTemplate
+from model.template import SceneTemplate, FrameTemplate
 
 
 class ObjectManager:
@@ -147,6 +147,7 @@ class TemplateManager:
         self.load_all()
 
     def load_all(self) -> None:
+        # load scenes
         scene_path = self._dir_root / 'scene'
         scenes_dir = [x for x in scene_path.iterdir() if x.is_dir()]
 
@@ -156,6 +157,17 @@ class TemplateManager:
                                                                   self._obj_mng.load_object_type('', json.load(f)),
                                                                   scene_dir)
                 print('{} loaded'.format(self._scene_templates[scene_tpl_id]._definition._name))
+
+        # load frames
+        frame_path = self._dir_root / 'frame'
+        frames_dir = [x for x in frame_path.iterdir() if x.is_dir()]
+
+        for frame_tpl_id, frame_dir in [(x.name, x) for x in frames_dir]:
+            with (frame_dir / 'manifest.json').open() as f:
+                self._frame_templates[frame_tpl_id] = FrameTemplate(frame_tpl_id,
+                                                                    self._obj_mng.load_object_type('', json.load(f)),
+                                                                    frame_dir)
+                print('{} loaded'.format(self._frame_templates[frame_tpl_id]._definition._name))
 
     def get_scene_template(self, key: str) -> SceneTemplate:
         return self._scene_templates[key]
