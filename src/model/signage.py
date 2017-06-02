@@ -90,6 +90,15 @@ class Scene:
     def on_value_change(self, handler: Callable[[None], None]) -> None:
         self._on_change_handler = handler
 
+    def to_dict(self) -> dict:
+        return {
+            "id": self.template.id,
+            "duration": self.duration,
+            "transition": self.transition_type.name,
+            "scheduling": {"type": "ALWAYS_VISIBLE"},  # todo: mock data
+            "data": self.values.get_values(False)
+        }
+
 
 class Frame:
     def __init__(self, template: FrameTemplate, object_value: ObjectValue):
@@ -123,6 +132,12 @@ class Frame:
     @on_value_change.setter
     def on_value_change(self, handler: Callable[[None], None]) -> None:
         self._on_change_handler = handler
+
+    def to_dict(self) -> dict:
+        return {
+            "id": self.template.id,
+            "data": self.values.get_values(False)
+        }
 
 
 class Signage:
@@ -190,11 +205,11 @@ class Signage:
 
     @property
     def scenes(self) -> Tuple[Scene]:
-        return tuple(self.scenes)
+        return tuple(self._scenes)
 
     @property
     def frame(self) -> Frame:
-        return self.frame
+        return self._frame
 
     @property
     def on_id_change(self) -> None:
@@ -212,6 +227,14 @@ class Signage:
     @on_value_change.setter
     def on_value_change(self, handler: Callable[[None], None]) -> None:
         self._value_change_handler = handler
+
+    def to_dict(self) -> dict:
+        return {
+            "title": self.title,
+            "description": self.description,
+            "frame": self.frame.to_dict(),
+            "scenes": [x.to_dict() for x in self.scenes]
+        }
 
     def add_scene(self, new_scene: Scene) -> None:
         new_scene.on_value_change = self._handler_wrapper

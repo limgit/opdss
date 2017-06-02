@@ -225,9 +225,25 @@ class SignageManager:
             frame_data = self._obj_mng.load_object_value(None, frame_template.definition, frame_value['data'])
             frame = Frame(frame_template, frame_data)
 
-            self._signages[signage_id] = Signage(signage_id, signage_mnf.parent,
-                                                 dct['title'], dct['description'], frame, scenes)
-            print('{} loaded'.format(self._signages[signage_id].title))
+            new_signage = Signage(signage_id, signage_mnf.parent, dct['title'], dct['description'], frame, scenes)
+            self.add_signage(new_signage)
 
-    def add_signage(self, key: str, signage: Signage):
-        pass
+            print('{} loaded'.format(new_signage.title))
+
+    def add_signage(self, new_signage: Signage) -> None:
+        signage_path = self._dir_root / (new_signage.id + '.json')
+
+        def id_change_handler(old_id, new_id):
+            del self._signages[old_id]
+            self._signages[new_id] = new_signage
+
+            os.remove(str(signage_path))
+
+        def value_change_handler():
+            with signage_path.open('w') as f:
+                f.write(json.dumps(new_signage.to_dict()))
+
+        new_signage.on_id_change = id_change_handler
+        new_signage.on_value_change = value_change_handler
+
+        self._signages[new_signage.id] = new_signage
