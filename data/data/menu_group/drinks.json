@@ -1,7 +1,1 @@
-{
-  "name": "Drinks",
-  "menus": [
-    "americano",
-    "milk"
-  ]
-}
+{"name": "Drinks", "menus": ["americano", "milk"], "digits": 2, "price_prefix": "$", "price_postfix": ""}

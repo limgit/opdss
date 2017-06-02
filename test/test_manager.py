@@ -17,6 +17,11 @@ class TestObjectManager(unittest.TestCase):
         milk_object.set_value('price', 599)
         milk_object.set_value('price', 299)
 
+        menu_group_type = obj_mng.get_object_type('menu_group')
+        drinks_object = obj_mng.get_object_value(menu_group_type, 'drinks')
+        drinks_object.set_value('name', 'test')
+        drinks_object.set_value('name', 'Drinks')
+
 
 class TestWebServer(unittest.TestCase):
     def test_start(self):
