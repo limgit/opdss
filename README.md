@@ -1,6 +1,6 @@
 # OPDSS: Open Platform Digital Signage System
 
-High-quality digital signage generation system that can be customized by user.
+High-quality digital signage generation system that can be customized by user
 
 ## Development
 
