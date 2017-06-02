@@ -44,14 +44,14 @@ class ObjectValue:
     def get_value(self, key: str):
         return self._values[key]
 
-    def get_dict(self):
+    def get_dict(self, use_reference: bool=True):
         to_return = {x: y for x, y in self._values.items()}
 
         for field_id, field_value in to_return.items():
             if isinstance(field_value, ObjectValue):
-                to_return[field_id] = field_value.get_dict()
+                to_return[field_id] = field_value.get_dict() if use_reference else field_value.id
             elif isinstance(field_value, list) and isinstance(field_value[0], ObjectValue):
-                to_return[field_id] = [x.get_dict() for x in to_return[field_id]]
+                to_return[field_id] = [x.get_dict() if use_reference else x.id for x in to_return[field_id]]
 
         return to_return
 
