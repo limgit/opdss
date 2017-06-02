@@ -125,7 +125,8 @@ class Frame:
 
 
 class Signage:
-    def __init__(self, signage_id: str, resource_dir: Path, title: str='', description: str='', frame: Frame=None, scenes=None):
+    def __init__(self, signage_id: str, resource_dir: Path, title: str='',
+                 description: str='', frame: Frame=None, scenes=None):
         if scenes is None:
             scenes = []
 
@@ -134,7 +135,10 @@ class Signage:
         self._title = title
         self._description = description
         self._frame = frame
-        self._scenes = scenes
+        self._scenes = []
+
+        for scene in scenes:
+            self.add_scene(scene)
 
     def add_scene(self, new_scene: Scene) -> None:
         self._scenes.append(new_scene)
