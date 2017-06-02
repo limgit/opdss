@@ -16,7 +16,7 @@ class DataType(Generic[T]):
 
     @property
     def default(self):
-        return copy.deepcopy(self._default)
+        return copy.copy(self._default)
 
     def is_valid(self, value: T):
         return value is not None
