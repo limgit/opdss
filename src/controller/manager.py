@@ -195,7 +195,7 @@ class SignageManager:
             scenes = []
             for scene_value in dct['scenes']:
                 scene_template = self._tpl_mng.get_scene_template(scene_value['id'])
-                scene_data = self._obj_mng.load_object_value(None, scene_template._definition, scene_value['data'])
+                scene_data = self._obj_mng.load_object_value(None, scene_template.definition, scene_value['data'])
 
                 scenes.append(Scene(scene_template,
                                     scene_data,
@@ -207,7 +207,7 @@ class SignageManager:
             # load a frame
             frame_value = dct['frame']
             frame_template = self._tpl_mng.get_frame_template(frame_value['id'])
-            frame_data = self._obj_mng.load_object_value(None, frame_template._definition, frame_value['data'])
+            frame_data = self._obj_mng.load_object_value(None, frame_template.definition, frame_value['data'])
             frame = Frame(frame_template, frame_data)
 
             self._signages[signage_id] = Signage(signage_id, signage_mnf.parent,

@@ -68,16 +68,16 @@ class Signage:
 
     def render(self) -> str:
         dirs = [str(x._template._root_dir) for x in self._scenes]  # for scene template resources
-        dirs.append(str(self._frame._template._root_dir))  # for frame template resources
+        dirs.append(str(self._frame._template.root_dir))  # for frame template resources
         dirs.append(str(self._resource_dir))  # for index.html
 
         scenes = [str(x._template._root_dir.stem) + '.html' for x in self._scenes]
-        frame = (str(self._frame._template._root_dir.stem) + '.html')
+        frame = (str(self._frame._template.root_dir.stem) + '.html')
 
         durations = [x._duration for x in self._scenes]
 
         data = {str(x._template._root_dir.stem): x._values.get_dict() for x in self._scenes}
-        data[str(self._frame._template._root_dir.stem)] = self._frame._values.get_dict()
+        data[str(self._frame._template.root_dir.stem)] = self._frame._values.get_dict()
 
         env = Environment(
             loader=FileSystemLoader(dirs)
