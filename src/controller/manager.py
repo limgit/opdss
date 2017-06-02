@@ -189,7 +189,7 @@ class SignageManager:
                 dct = json.load(f)
 
             scenes = []
-            for scene_value in dct['scene']:
+            for scene_value in dct['scenes']:
                 template = self._tpl_mng.get_scene_template(scene_value['id'])
                 scene_data = self._obj_mng.load_object_value(None, template._definition, scene_value['data'])
 
