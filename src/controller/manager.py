@@ -25,18 +25,18 @@ class ObjectManager:
         type_queue = deque([(x.name, x) for x in types_dir])
         while type_queue:
             current_type = type_queue.popleft()
-            type_name, type_dir = current_type
+            type_id, type_dir = current_type
 
             # initialize new object type
             with (type_dir / 'manifest.json').open() as f:
                 mnf_contents = json.load(f)
-                new_type = self.load_object_type(type_name, mnf_contents)
+                new_type = self.load_object_type(type_id, mnf_contents)
 
             if not new_type:
                 type_queue.append(current_type)
                 continue
 
-            self._object_types[type_name] = new_type
+            self._object_types[type_id] = new_type
 
             # loads object values
             self._object_values[new_type] = dict()
@@ -127,12 +127,12 @@ class TemplateManager:
         scene_path = self._dir_root / 'scene'
         scenes_dir = [x for x in scene_path.iterdir() if x.is_dir()]
 
-        for scene_name, scene_dir in [(x.name, x) for x in scenes_dir]:
+        for scene_tpl_id, scene_dir in [(x.name, x) for x in scenes_dir]:
             with (scene_dir / 'manifest.json').open() as f:
-                self._scene_templates[scene_name] = SceneTemplate(scene_name,
+                self._scene_templates[scene_tpl_id] = SceneTemplate(scene_tpl_id,
                                                                   self._obj_mng.load_object_type('', json.load(f)),
                                                                   scene_dir)
-                print('{} loaded'.format(self._scene_templates[scene_name]._definition._name))
+                print('{} loaded'.format(self._scene_templates[scene_tpl_id]._definition._name))
 
     def get_scene_template(self, key: str) -> SceneTemplate:
         return self._scene_templates[key]
