@@ -129,7 +129,9 @@ class TemplateManager:
 
         for scene_name, scene_dir in [(x.name, x) for x in scenes_dir]:
             with (scene_dir / 'manifest.json').open() as f:
-                self._scene_templates[scene_name] = SceneTemplate(self._obj_mng.load_object_type('', json.load(f)), scene_dir)
+                self._scene_templates[scene_name] = SceneTemplate(scene_name,
+                                                                  self._obj_mng.load_object_type('', json.load(f)),
+                                                                  scene_dir)
                 print('{} loaded'.format(self._scene_templates[scene_name]._definition._name))
 
     def get_scene_template(self, key: str) -> SceneTemplate:
