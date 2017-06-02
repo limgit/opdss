@@ -5,7 +5,7 @@ from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
 
 from model.data_value import ObjectValue
-from model.template import SceneTemplate
+from model.template import SceneTemplate, FrameTemplate
 
 
 class ScheduleType(Enum):
@@ -40,7 +40,9 @@ class Scene:
 
 
 class Frame:
-    pass
+    def __init__(self, template: FrameTemplate, object_value: ObjectValue):
+        self._template = template
+        self._values = object_value
 
 
 class Signage:

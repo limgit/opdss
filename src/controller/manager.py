@@ -9,7 +9,7 @@ from pathlib import Path
 
 from model.data_type import ObjectDataType, ListDataType, STR_TO_PRIMITIVE_TYPE, DataType
 from model.data_value import ObjectValue
-from model.signage import Signage, Scene, TransitionType
+from model.signage import Signage, Scene, TransitionType, Frame
 from model.template import SceneTemplate, FrameTemplate
 
 
@@ -172,6 +172,9 @@ class TemplateManager:
     def get_scene_template(self, key: str) -> SceneTemplate:
         return self._scene_templates[key]
 
+    def get_frame_template(self, key: str) -> FrameTemplate:
+        return self._frame_templates[key]
+
 
 class SignageManager:
     def __init__(self, dir_root: Path, obj_mng: ObjectManager, tpl_mng: TemplateManager):
@@ -188,22 +191,27 @@ class SignageManager:
             with signage_mnf.open() as f:
                 dct = json.load(f)
 
+            # load scenes
             scenes = []
             for scene_value in dct['scenes']:
-                template = self._tpl_mng.get_scene_template(scene_value['id'])
-                scene_data = self._obj_mng.load_object_value(None, template._definition, scene_value['data'])
+                scene_template = self._tpl_mng.get_scene_template(scene_value['id'])
+                scene_data = self._obj_mng.load_object_value(None, scene_template._definition, scene_value['data'])
 
-                scenes.append(Scene(template,
+                scenes.append(Scene(scene_template,
                                     scene_data,
                                     scene_value['duration'],
                                     TransitionType[scene_value['transition']],
                                     None  # todo
                                     )
                               )
+            # load a frame
+            frame_value = dct['frame']
+            frame_template = self._tpl_mng.get_frame_template(frame_value['id'])
+            frame_data = self._obj_mng.load_object_value(None, frame_template._definition, frame_value['data'])
+            frame = Frame(frame_template, frame_data)
 
-            # todo: frame related works should be done
             self._signages[signage_id] = Signage(signage_id, signage_mnf.parent,
-                                                 dct['title'], dct['description'], None, scenes)
+                                                 dct['title'], dct['description'], frame, scenes)
             print('{} loaded'.format(self._signages[signage_id]._title))
 
     def get_signage(self, key: str) -> Signage:

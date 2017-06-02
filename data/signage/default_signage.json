@@ -1,6 +1,10 @@
 {
   "title": "Default Signage",
   "description": "default signage with an empty_scene and a hello_scene.",
+  "frame": {
+    "id": "bottom_clock",
+    "data": {}
+  },
   "scenes": [
     {
       "id": "hello_scene",
