@@ -107,16 +107,9 @@ class ObjectManager:
         return type_instance
 
     def load_object_value(self, object_id: Optional[str], data_type: ObjectDataType, data: dict) -> ObjectValue:
-        new_object = ObjectValue(object_id, data_type)
+        new_object = ObjectValue(object_id, data_type, self)
 
         for field_id, field_value in data.items():
-            field_type = data_type._fields[field_id]
-
-            if isinstance(field_type, ObjectDataType):
-                field_value = self.get_object_value(field_type, field_value)
-            elif isinstance(field_type, ListDataType) and isinstance(field_type._data_type, ObjectDataType):
-                field_value = [self.get_object_value(field_type._data_type, x) for x in field_value]
-
             new_object.set_value(field_id, field_value)
 
         return new_object
