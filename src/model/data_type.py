@@ -77,12 +77,13 @@ class IntegerDataType(DataType[int]):
 
 
 class ObjectDataType(DataType[ObjectValue]):
-    def __init__(self, name: str='', dev_name: str='', dev_homepage: str='', description: str='',
+    def __init__(self, type_id: str, name: str='', dev_name: str='', dev_homepage: str='', description: str='',
                  fields=None):
 
         if fields is None:
             fields = dict()
 
+        self._id = type_id
         self._name = name
         self._dev_name = dev_name
         self._dev_homepage = dev_homepage

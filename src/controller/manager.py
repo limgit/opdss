@@ -30,7 +30,7 @@ class ObjectManager:
             # initialize new object type
             with (type_dir / 'manifest.json').open() as f:
                 mnf_contents = json.load(f)
-                new_type = self.load_object_type(mnf_contents)
+                new_type = self.load_object_type(type_name, mnf_contents)
 
             if not new_type:
                 type_queue.append(current_type)
@@ -52,7 +52,7 @@ class ObjectManager:
 
             print('{} loaded'.format(new_type._name))
 
-    def load_object_type(self, data: dict) -> ObjectDataType:
+    def load_object_type(self, type_id: str, data: dict) -> ObjectDataType:
             # populate raw fields values to real python objects
             if 'fields' in data.keys():
                 fields = {}
@@ -64,7 +64,7 @@ class ObjectManager:
 
                 data['fields'] = fields
 
-            new_type = ObjectDataType(**data)
+            new_type = ObjectDataType(type_id=type_id, **data)
 
             return new_type
 
@@ -129,7 +129,7 @@ class TemplateManager:
 
         for scene_name, scene_dir in [(x.name, x) for x in scenes_dir]:
             with (scene_dir / 'manifest.json').open() as f:
-                self._scene_templates[scene_name] = SceneTemplate(self._obj_mng.load_object_type(json.load(f)), scene_dir)
+                self._scene_templates[scene_name] = SceneTemplate(self._obj_mng.load_object_type('', json.load(f)), scene_dir)
                 print('{} loaded'.format(self._scene_templates[scene_name]._definition._name))
 
     def get_scene_template(self, key: str) -> SceneTemplate:
