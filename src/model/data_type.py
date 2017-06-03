@@ -70,7 +70,6 @@ class StringDataType(DataType[str]):
         return self.min_length <= len(value) <= self.max_length and (value in self.one_of if self.one_of else True)
 
 
-# todo: mock implementation
 class IntegerDataType(DataType[int]):
     def __init__(self, default: int=0, min_value: int=0, max_value: int=sys.maxsize, one_of=None):
         super().__init__(default)
@@ -117,8 +116,6 @@ class IntegerDataType(DataType[int]):
 
     def is_valid(self, value: int):
         return self.min <= value <= self.max and (value in self.one_of if self.one_of else True)
-
-
 
 
 class ObjectDataType(DataType[ObjectValue]):
