@@ -92,7 +92,8 @@ class Schedule:
 
 
 class Scene:
-    def __init__(self, template: SceneTemplate, object_value: ObjectValue, duration: int=10, transition: TransitionType=TransitionType.NONE,
+    def __init__(self, template: SceneTemplate, object_value: ObjectValue, duration: int=10,
+                 transition: TransitionType=TransitionType.NONE,
                  schedule: Schedule=None):
         if schedule is None:
             schedule = Schedule(ScheduleType.ALWAYS_VISIBLE)
@@ -311,7 +312,7 @@ class Signage:
         to_delete.on_value_change = lambda: None
         self._scenes.remove(to_delete)
 
-    def rearrange_scene(self, index_1:int, index_2: int) -> None:
+    def rearrange_scene(self, index_1: int, index_2: int) -> None:
         self._scenes[index_1], self._scenes[index_2] = self._scenes[index_2], self._scenes[index_1]
         self._value_change_handler()
 

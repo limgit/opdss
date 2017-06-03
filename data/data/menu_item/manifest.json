@@ -11,7 +11,8 @@
     }],
     "price": ["Menu Price", "a price of the menu", {
       "type": "int",
-      "default": 0
+      "default": 0,
+      "min_value": 0
     }]
   }
 }

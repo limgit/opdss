@@ -1,5 +1,6 @@
 import copy
 import sys
+from datetime import datetime
 from typing import TypeVar, Generic, Sequence
 
 from model.data_value import ObjectValue
@@ -39,7 +40,7 @@ class StringDataType(DataType[str]):
 
     @min_length.setter
     def min_length(self, new_value: int):
-        if new_value < 0 or len(self.default) < new_value or self.min_length > self.max_length:
+        if new_value < 0 or len(self.default) < new_value or self._min_length > self._max_length:
             raise AttributeError()
 
         self._min_length = new_value
@@ -50,7 +51,7 @@ class StringDataType(DataType[str]):
 
     @max_length.setter
     def max_length(self, new_value: int):
-        if new_value > sys.maxsize or len(self.default) > new_value or self.min_length > self.max_length:
+        if new_value > sys.maxsize or len(self.default) > new_value or self._min_length > self._max_length:
             raise AttributeError()
 
         self._max_length = new_value
@@ -67,13 +68,55 @@ class StringDataType(DataType[str]):
         self._one_of = new_value[:]
 
     def is_valid(self, value: str):
-        return self.min_length <= len(value) <= self.max_length and (value in self.one_of if self.one_of else True)
+        return self._min_length <= len(value) <= self._max_length and (value in self._one_of if self._one_of else True)
 
 
-# todo: mock implementation
 class IntegerDataType(DataType[int]):
-    def __init__(self, default: int=0):
+    def __init__(self, default: int=0, min_value: int=0, max_value: int=sys.maxsize, one_of=None):
         super().__init__(default)
+
+        if one_of is None:
+            one_of = []
+
+        self._min = min_value
+        self._max = max_value
+        self._one_of = one_of
+
+    @property
+    def min(self) -> int:
+        return self._min
+
+    @min.setter
+    def min(self, new_value: int):
+        if self.default < new_value or self._min > self._max:
+            raise AttributeError()
+
+        self._min = new_value
+
+    @property
+    def max(self) -> int:
+        return self._max
+
+    @max.setter
+    def max(self, new_value: int):
+        if self.default > new_value or new_value > sys.maxsize:
+            raise AttributeError()
+
+        self._max = new_value
+
+    @property
+    def one_of(self) -> Sequence[int]:
+        return self._one_of
+
+    @one_of.setter
+    def one_of(self, new_value: Sequence[int]):
+        if self.default not in new_value:
+            raise AttributeError
+
+        self._one_of = new_value[:]
+
+    def is_valid(self, value: int):
+        return self._min <= value <= self._max and (value in self._one_of if self._one_of else True)
 
 
 class ObjectDataType(DataType[ObjectValue]):
@@ -90,10 +133,79 @@ class ObjectDataType(DataType[ObjectValue]):
         self._description = description
         self._fields = fields
 
-        super().__init__({key: value.default for key, value in fields.items()})
+        super().__init__('')
+        # super().__init__({key: value.default for key, value in fields.items()})
+
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def dev_name(self):
+        return self._dev_name
+
+    @property
+    def dev_homepage(self):
+        return self._dev_homepage
+
+    @property
+    def description(self):
+        return self._description
+
+    @property
+    def fields(self):
+        return copy.copy(self._fields)
 
     def is_valid(self, value: ObjectValue):
+        if value is None:
+            return True
+
         return all([field_type.is_valid(value.get_value(field_key)) for field_key, field_type in self._fields.items()])
+
+
+class BooleanDataType(DataType[bool]):
+    def __init__(self, default: bool=False):
+        super().__init__(default)
+
+
+class DateDataType(DataType[datetime]):
+    def __init__(self, default: datetime,
+                 min_value: datetime=datetime(1, 1, 1, 1, 1, 1),
+                 max_value: datetime=datetime(9999, 12, 31, 23, 59, 59)):
+
+        super().__init__(default)
+
+        self._min = min_value
+        self._max = max_value
+
+    @property
+    def min(self) -> datetime:
+        return self._min
+
+    @min.setter
+    def min(self, new_value: datetime):
+        if self.default < new_value or self._min > self._max:
+            raise AttributeError()
+
+        self._min = new_value
+
+    @property
+    def max(self) -> datetime:
+        return self._max
+
+    @max.setter
+    def max(self, new_value: datetime):
+        if self.default > new_value or new_value > self._max:
+            raise AttributeError()
+
+        self._max = new_value
+
+    def is_valid(self, value: datetime):
+        return self._min <= value <= self._max
 
 
 class ListDataType(DataType[list]):
@@ -110,5 +222,6 @@ class ListDataType(DataType[list]):
 
 STR_TO_PRIMITIVE_TYPE = {
     'str': StringDataType,
-    'int': IntegerDataType
+    'int': IntegerDataType,
+    'bool': BooleanDataType
 }

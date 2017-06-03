@@ -29,7 +29,7 @@ class ObjectManager:
         return self._object_types[type_id]
 
     def get_object_value(self, type_instance: ObjectDataType, value_id: str) -> ObjectValue:
-        return self._object_values[type_instance][value_id]
+        return self._object_values[type_instance][value_id] if value_id else None
 
     def get_object_values(self, type_instance: ObjectDataType) -> Dict[str, ObjectValue]:
         return copy.copy(self._object_values[type_instance])
@@ -68,7 +68,7 @@ class ObjectManager:
 
                 self.add_object_value(new_object)
 
-            print('{} loaded'.format(new_type._name))
+            print('{} loaded'.format(new_type.name))
 
     def load_object_type(self, type_id: str, data: dict) -> ObjectDataType:
             # populate raw fields values to real python objects
@@ -116,7 +116,7 @@ class ObjectManager:
         return new_object
 
     def add_object_value(self, new_object: ObjectValue) -> None:
-        object_dir = self._dir_root / new_object.data_type._id
+        object_dir = self._dir_root / new_object.data_type.id
 
         def id_change_handler(old_id, new_id):
             del self._object_values[new_object.data_type][old_id]
@@ -169,9 +169,9 @@ class TemplateManager:
         for scene_tpl_id, scene_dir in [(x.name, x) for x in scenes_dir]:
             with (scene_dir / 'manifest.json').open() as f:
                 self._scene_templates[scene_tpl_id] = SceneTemplate(scene_tpl_id,
-                                                                  self._obj_mng.load_object_type('', json.load(f)),
-                                                                  scene_dir)
-                print('{} loaded'.format(self._scene_templates[scene_tpl_id].definition._name))
+                                                                    self._obj_mng.load_object_type('', json.load(f)),
+                                                                    scene_dir)
+                print('{} loaded'.format(self._scene_templates[scene_tpl_id].definition.name))
 
         # load frames
         frame_path = self._dir_root / 'frame'
@@ -182,7 +182,7 @@ class TemplateManager:
                 self._frame_templates[frame_tpl_id] = FrameTemplate(frame_tpl_id,
                                                                     self._obj_mng.load_object_type('', json.load(f)),
                                                                     frame_dir)
-                print('{} loaded'.format(self._frame_templates[frame_tpl_id].definition._name))
+                print('{} loaded'.format(self._frame_templates[frame_tpl_id].definition.name))
 
 
 class SignageManager:

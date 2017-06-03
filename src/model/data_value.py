@@ -18,8 +18,8 @@ class ObjectValue:
 
         self.id = object_id
 
-        for field_key, field_type in data_type._fields.items():
-            self._values[field_key] = field_type.default
+        for field_key, field_type in data_type.fields.items():
+            self.set_value(field_key, field_type.default)
 
     def set_value(self, key: str, value: Any) -> None:
         self._set_value(key, value)
@@ -34,18 +34,17 @@ class ObjectValue:
         self._value_change_handler()
 
     def _set_value(self, key: str, value: Any):
-        if key not in self._data_type._fields.keys():
+        if key not in self._data_type.fields.keys():
             raise KeyError
 
-        field_type = self._data_type._fields[key]
+        field_type = self._data_type.fields[key]
 
         if isinstance(field_type, data_type.ObjectDataType):
             value = self._obj_mng.get_object_value(field_type, value)
-        elif isinstance(field_type, data_type.ListDataType) and isinstance(field_type._data_type, data_type.ObjectDataType):
-            value = [self._obj_mng.get_object_value(field_type._data_type, x) for x in value]
+        elif isinstance(field_type, data_type.ListDataType) and isinstance(field_type.data_type, data_type.ObjectDataType):
+            value = [self._obj_mng.get_object_value(field_type.data_type, x) for x in value]
 
-
-        if not self._data_type._fields[key].is_valid(value):
+        if not self._data_type.fields[key].is_valid(value):
             raise AttributeError
 
         self._values[key] = value
@@ -97,5 +96,3 @@ class ObjectValue:
     @on_value_change.setter
     def on_value_change(self, handler: Callable[[None], None]) -> None:
         self._value_change_handler = handler
-
-
