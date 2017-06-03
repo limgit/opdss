@@ -137,6 +137,10 @@ class ObjectDataType(DataType[ObjectValue]):
         # super().__init__({key: value.default for key, value in fields.items()})
 
     @property
+    def id(self):
+        return self._id
+
+    @property
     def name(self):
         return self._name
 
@@ -211,6 +215,18 @@ class ListDataType(DataType[list]):
         self._data_type = data_type
 
         super().__init__([data_type.default for _ in range(min_len)])
+
+    @property
+    def min_len(self) -> int:
+        return self._min_len
+
+    @property
+    def max_len(self) -> int:
+        return self._max_len
+
+    @property
+    def data_type(self) -> ObjectDataType:
+        return self._data_type
 
     def is_valid(self, value: list):
         return all([self._data_type.is_valid(x) for x in value])

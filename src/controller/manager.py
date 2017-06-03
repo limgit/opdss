@@ -17,7 +17,7 @@ import webserver.logger
 
 
 class ObjectManager:
-    def __init__(self, dir_root: object) -> object:
+    def __init__(self, dir_root: Path):
         self._dir_root = dir_root
         self._object_types = dict()
         self._object_values = dict()
@@ -71,7 +71,7 @@ class ObjectManager:
                 self.add_object_value(new_object)
             #print('{} loaded'.format(new_type._name))
             log_level = 1
-            log1 = webserver.logger.Logger(new_type._name, 1, log_level)
+            log1 = webserver.logger.Logger(new_type.name, 1, log_level)
 
     def load_object_type(self, type_id: str, data: dict) -> ObjectDataType:
             # populate raw fields values to real python objects
@@ -119,7 +119,7 @@ class ObjectManager:
         return new_object
 
     def add_object_value(self, new_object: ObjectValue) -> None:
-        object_dir = self._dir_root / new_object.data_type._id
+        object_dir = self._dir_root / new_object.data_type.id
 
         def id_change_handler(old_id, new_id):
             del self._object_values[new_object.data_type][old_id]
@@ -176,7 +176,7 @@ class TemplateManager:
                                                                   scene_dir)
                 #print('{} loaded'.format(self._scene_templates[scene_tpl_id].definition._name))
                 log_level = 2
-                log2 = webserver.logger.Logger(self._scene_templates[scene_tpl_id].definition._name, 2, log_level)
+                log2 = webserver.logger.Logger(self._scene_templates[scene_tpl_id].definition.name, 2, log_level)
 
         # load frames
         frame_path = self._dir_root / 'frame'
@@ -189,7 +189,7 @@ class TemplateManager:
                                                                     frame_dir)
                 #print('{} loaded'.format(self._frame_templates[frame_tpl_id].definition._name))
                 log_level = 3
-                log3 = webserver.logger.Logger(self._scene_templates[scene_tpl_id].definition._name, 2, log_level)
+                log3 = webserver.logger.Logger(self._scene_templates[scene_tpl_id].definition.name, 2, log_level)
 
 class SignageManager:
     def __init__(self, dir_root: Path, obj_mng: ObjectManager, tpl_mng: TemplateManager):
