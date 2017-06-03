@@ -182,8 +182,9 @@ class SignageManagementTab(QWidget):
                     self._btn_up.setEnabled(False)
                     self._btn_down.setEnabled(False)
 
+                    frame_tpl_id = Utils.ui_text_to_id(item_text[2:])
                     idx = self._widget_idx['frame']
-                    self._stacked_widget.widget(idx).load_data_on_ui()
+                    self._stacked_widget.widget(idx).load_data_on_ui(frame_tpl_id)
                     self._stacked_widget.setCurrentIndex(idx)
                 elif item_text == '+':
                     # Add scene to signage
@@ -333,16 +334,21 @@ class FrameWidget(QWidget):
         self._res = ResourceManager()
         self.init_ui()
 
-    def load_data_on_ui(self) -> None:
-        # TODO: Maybe more functionality?
+    def load_data_on_ui(self, tpl_id: str) -> None:
+        # Change combobox item to frame's template
+        tpl = self._tpl_mng.frame_templates[tpl_id]
+        idx = self._cbox_tpl.findText(Utils.gen_ui_text(tpl.definition.name, tpl.id))
+        self._cbox_tpl.setCurrentIndex(idx)
         self._tab_data.load_data_on_ui()
 
     def init_ui(self) -> None:
+        # Template list on combobox
         tpl_list = list()
         for tpl_id in self._tpl_mng.frame_templates:
             template = self._tpl_mng.frame_templates[tpl_id]
             tpl_list.append(Utils.gen_ui_text(template.definition.name, template.id))
         self._cbox_tpl.addItems(tpl_list)
+
         # Tab widget
         tab_frame_manage = QTabWidget()
         tab_frame_manage.addTab(self._tab_data, self._res['dataTabText'])
