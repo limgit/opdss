@@ -134,6 +134,26 @@ class ObjectDataType(DataType[ObjectValue]):
 
         super().__init__({key: value.default for key, value in fields.items()})
 
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def dev_name(self):
+        return self._dev_name
+
+    @property
+    def dev_homepage(self):
+        return self._dev_homepage
+
+    @property
+    def description(self):
+        return self._description
+
+    @property
+    def fields(self):
+        return copy.copy(self._fields)
+
     def is_valid(self, value: ObjectValue):
         return all([field_type.is_valid(value.get_value(field_key)) for field_key, field_type in self._fields.items()])
 
