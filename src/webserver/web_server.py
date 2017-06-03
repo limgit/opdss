@@ -20,7 +20,7 @@ class WebServer:
         self._app.run()
 
     def handle_signage_list(self) -> str:
-        return ' '.join(['<a href="/{0}">{0}</a>'.format(str(x)) for x in self._sgn_mng._signages.keys()])
+        return ' '.join(['<a href="/{0}">{0}</a>'.format(str(x)) for x in self._sgn_mng.signages.keys()])
 
     def handle_signage(self, signage_id: str) -> str:
         return self._sgn_mng.get_signage(signage_id).render()
