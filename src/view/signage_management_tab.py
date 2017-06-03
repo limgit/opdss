@@ -23,23 +23,33 @@ class SignageManagementTab(QWidget):
         self._widget_idx['scene'] = self._stacked_widget.addWidget(SceneWidget())
         self.init_ui()
 
-    def signage_to_tree_item(self):
+    def signage_to_tree_item(self) -> [QTreeWidgetItem]:
         signage_items = []
         # For all signage
-        for signage_id in self._sgn_mng._signages.keys():
+        for signage_id in self._sgn_mng.signages.keys():
             signage_item = QTreeWidgetItem([signage_id])
-            frame_item = QTreeWidgetItem(["F:"])  # Add frame
+            signage = self._sgn_mng.get_signage(signage_id)
+
+            # Add frame
+            frame = signage.frame
+            frame_tpl_name = frame.template.definition._name  # TODO: Need getter
+            frame_item = QTreeWidgetItem(["F:" + frame_tpl_name])
             signage_item.addChild(frame_item)
-            idx = 1
+
             # Add scene
-            for scene in self._sgn_mng._signages[signage_id]._scene:
-                scene_template_name = scene._template._definition._name
-                scene_item = QTreeWidgetItem([str(idx) + ":" + scene_template_name])
+            idx = 1
+            for scene in signage.scenes:
+                scene_tpl_name = scene.template.definition._name  # TODO: Need getter
+                scene_item = QTreeWidgetItem([str(idx) + ":" + scene_tpl_name])
                 signage_item.addChild(scene_item)
                 idx += 1
+
+            # Add scene addition button
             scene_addition_item = QTreeWidgetItem(["+"])
             signage_item.addChild(scene_addition_item)
             signage_items.append(signage_item)
+
+        # Add signage addition button
         signage_addition_item = QTreeWidgetItem(["+"])
         signage_items.append(signage_addition_item)
         return signage_items
