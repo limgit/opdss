@@ -130,8 +130,8 @@ class SignageManagementTab(QWidget):
         elif direction == Direction.UP:
             offset = -1
         target_item = parent.child(sel_idx + offset)
-        target_text = target_item.text(0).split(':')[1]
-        sel_text = selected_item.text(0).split(':')[1]
+        target_text = ':'.join(target_item.text(0).split(':')[1:])
+        sel_text = ':'.join(selected_item.text(0).split(':')[1:])
 
         parent.child(sel_idx).setText(0, str(sel_idx + offset) + ':' + sel_text)
         parent.removeChild(parent.child(sel_idx + offset))
@@ -162,7 +162,7 @@ class SignageManagementTab(QWidget):
             item = get_selected[0]
             item_text = item.text(0)
             if item.parent() is None:
-                # It is at topmost level
+                # Selected one is at topmost level
                 # Signage cannot move up or down, so disable UP/DOWN button
                 self._btn_up.setEnabled(False)
                 self._btn_up.setEnabled(False)
