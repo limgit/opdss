@@ -40,7 +40,7 @@ class StringDataType(DataType[str]):
 
     @min_length.setter
     def min_length(self, new_value: int):
-        if new_value < 0 or len(self.default) < new_value or self.min_length > self.max_length:
+        if new_value < 0 or len(self.default) < new_value or self._min_length > self._max_length:
             raise AttributeError()
 
         self._min_length = new_value
@@ -51,7 +51,7 @@ class StringDataType(DataType[str]):
 
     @max_length.setter
     def max_length(self, new_value: int):
-        if new_value > sys.maxsize or len(self.default) > new_value or self.min_length > self.max_length:
+        if new_value > sys.maxsize or len(self.default) > new_value or self._min_length > self._max_length:
             raise AttributeError()
 
         self._max_length = new_value
@@ -68,7 +68,7 @@ class StringDataType(DataType[str]):
         self._one_of = new_value[:]
 
     def is_valid(self, value: str):
-        return self.min_length <= len(value) <= self.max_length and (value in self.one_of if self.one_of else True)
+        return self._min_length <= len(value) <= self._max_length and (value in self._one_of if self._one_of else True)
 
 
 class IntegerDataType(DataType[int]):
