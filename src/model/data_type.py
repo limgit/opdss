@@ -137,6 +137,10 @@ class ObjectDataType(DataType[ObjectValue]):
         # super().__init__({key: value.default for key, value in fields.items()})
 
     @property
+    def id(self):
+        return self._id
+
+    @property
     def name(self):
         return self._name
 
