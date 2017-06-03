@@ -13,9 +13,11 @@ from model.data_value import ObjectValue
 from model.signage import Signage, Scene, TransitionType, Frame, Schedule, ScheduleType
 from model.template import SceneTemplate, FrameTemplate
 
+import webserver.logger
+
 
 class ObjectManager:
-    def __init__(self, dir_root: Path):
+    def __init__(self, dir_root: object) -> object:
         self._dir_root = dir_root
         self._object_types = dict()
         self._object_values = dict()
@@ -67,8 +69,9 @@ class ObjectManager:
                     new_object = self.load_object_value(value_id, new_type, json.load(f))
 
                 self.add_object_value(new_object)
-
-            print('{} loaded'.format(new_type._name))
+            #print('{} loaded'.format(new_type._name))
+            log_level = 1
+            log1 = webserver.logger.Logger(new_type._name, 1, log_level)
 
     def load_object_type(self, type_id: str, data: dict) -> ObjectDataType:
             # populate raw fields values to real python objects
@@ -171,7 +174,9 @@ class TemplateManager:
                 self._scene_templates[scene_tpl_id] = SceneTemplate(scene_tpl_id,
                                                                   self._obj_mng.load_object_type('', json.load(f)),
                                                                   scene_dir)
-                print('{} loaded'.format(self._scene_templates[scene_tpl_id].definition._name))
+                #print('{} loaded'.format(self._scene_templates[scene_tpl_id].definition._name))
+                log_level = 2
+                log2 = webserver.logger.Logger(self._scene_templates[scene_tpl_id].definition._name, 2, log_level)
 
         # load frames
         frame_path = self._dir_root / 'frame'
@@ -182,8 +187,9 @@ class TemplateManager:
                 self._frame_templates[frame_tpl_id] = FrameTemplate(frame_tpl_id,
                                                                     self._obj_mng.load_object_type('', json.load(f)),
                                                                     frame_dir)
-                print('{} loaded'.format(self._frame_templates[frame_tpl_id].definition._name))
-
+                #print('{} loaded'.format(self._frame_templates[frame_tpl_id].definition._name))
+                log_level = 3
+                log3 = webserver.logger.Logger(self._scene_templates[scene_tpl_id].definition._name, 2, log_level)
 
 class SignageManager:
     def __init__(self, dir_root: Path, obj_mng: ObjectManager, tpl_mng: TemplateManager):
@@ -241,7 +247,9 @@ class SignageManager:
             new_signage = Signage(signage_id, signage_mnf.parent, dct['title'], dct['description'], frame, scenes)
             self.add_signage(new_signage)
 
-            print('{} loaded'.format(new_signage.title))
+            #print('{} loaded'.format(new_signage.title))
+            log_level = 4
+            log4 = webserver.logger.Logger(new_signage.title, 3, log_level)
 
     def add_signage(self, new_signage: Signage) -> None:
         signage_path = self._dir_root / (new_signage.id + '.json')
