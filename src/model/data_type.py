@@ -216,6 +216,18 @@ class ListDataType(DataType[list]):
 
         super().__init__([data_type.default for _ in range(min_len)])
 
+    @property
+    def min_len(self) -> int:
+        return self._min_len
+
+    @property
+    def max_len(self) -> int:
+        return self._max_len
+
+    @property
+    def data_type(self) -> ObjectDataType:
+        return self._data_type
+
     def is_valid(self, value: list):
         return all([self._data_type.is_valid(x) for x in value])
 
