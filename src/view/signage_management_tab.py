@@ -17,6 +17,11 @@ class ChangeType(Enum):
     SAVE = auto()
 
 
+class Direction(Enum):
+    UP = auto()
+    DOWN = auto()
+
+
 class SignageManagementTab(QWidget):
     def __init__(self, obj_mng: ObjectManager, tpl_mng: TemplateManager, sgn_mng: SignageManager):
         super().__init__()
@@ -72,7 +77,7 @@ class SignageManagementTab(QWidget):
         self._signage_list.setHeaderLabel(self._res['signageListLabel'])
         self._signage_list.addTopLevelItems(self.signage_to_tree_item())
         self._signage_list.expandAll()
-        self._signage_list.itemSelectionChanged.connect(self.list_item_clicked)
+        self._signage_list.itemSelectionChanged.connect(self.update_ui_component)
 
         # Buttons
         self._btn_up.clicked.connect(self.move_button_clicked)
@@ -110,22 +115,25 @@ class SignageManagementTab(QWidget):
 
         self.setLayout(hbox_outmost)
 
-    # Given selected_item and offset, swap selected_item with item at offset
-    # For example, if offset is -1, given item is swapped with item at above
-    # or if offset is 1, given item is swapped with item at below
-    def _swap_scene_item(self, selected_item: QTreeWidgetItem, offset: int) -> None:
+    # Move given item up or down
+    def _move_scene_item(self, selected_item: QTreeWidgetItem, direction: Direction) -> None:
         # UI Modification
         parent = selected_item.parent()  # Signage of selected scene
         sel_idx = int(selected_item.text(0).split(':')[0])
 
+        if direction == Direction.DOWN:
+            offset = +1
+        elif direction == Direction.UP:
+            offset = -1
         target_item = parent.child(sel_idx + offset)
         target_id = target_item.text(0).split(':')[1]
         sel_id = selected_item.text(0).split(':')[1]
 
-        parent.child(sel_idx).setText(0, str(sel_idx) + ':' + target_id)
-        parent.child(sel_idx + offset).setText(0, str(sel_idx + offset) + ':' + sel_id)
-        parent.child(sel_idx).setSelected(False)
-        parent.child(sel_idx + offset).setSelected(True)
+        parent.child(sel_idx).setText(0, str(sel_idx + offset) + ':' + sel_id)
+        parent.removeChild(parent.child(sel_idx + offset))
+        moved_item = QTreeWidgetItem([str(sel_idx) + ':' + target_id])
+        parent.insertChild(sel_idx, moved_item)
+        self.update_ui_component()  # Update UI status
 
         # Data Modification
         signage = self._sgn_mng.get_signage(parent.text(0))
@@ -138,13 +146,13 @@ class SignageManagementTab(QWidget):
             item = get_selected[0]
             if button_text == self._res['upButtonText']:
                 # Up button clicked. Guaranteed it can be moved up
-                self._swap_scene_item(item, -1)
+                self._move_scene_item(item, Direction.UP)
             elif button_text == self._res['downButtonText']:
                 # Down button clicked. Guaranteed it can be moved down
-                self._swap_scene_item(item, +1)
+                self._move_scene_item(item, Direction.DOWN)
 
-    def list_item_clicked(self):
-        get_selected = self.sender().selectedItems()
+    def update_ui_component(self):
+        get_selected = self._signage_list.selectedItems()
         if get_selected:
             item = get_selected[0]
             item_text = item.text(0)
@@ -182,6 +190,8 @@ class SignageManagementTab(QWidget):
                     num_child = parent.childCount()
                     item.setText(0, str(num_child - 1) + ":" + new_scene.template.definition._name)
                     parent.addChild(QTreeWidgetItem(['+']))
+
+                    self.update_ui_component()  # Update UI status
                 else:
                     # Selected one is scene
                     scene_idx = int(item_text.split(':')[0])
