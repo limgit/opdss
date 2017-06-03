@@ -307,6 +307,7 @@ class Signage:
     def add_scene(self, new_scene: Scene) -> None:
         new_scene.on_value_change = self._handler_wrapper
         self._scenes.append(new_scene)
+        self._value_change_handler()
 
     def remove_scene(self, to_delete: Scene) -> None:
         to_delete.on_value_change = lambda: None
