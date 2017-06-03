@@ -8,17 +8,57 @@
         <script>
             $(document).ready(function(){
                 var durations = [{% for duration in _durations %}{{duration*1000}},{% endfor %}];
+                var schedules = [{% for schedule in _schedules %}{{ schedule }},{% endfor %}];
 
-                $('#main_slides').slick({
+                var slides = $('#main_slides');
+                slides.slick({
                     autoplay: true,
                     autoplaySpeed: 1000,
                     arrows: false,
                     pauseOnFocus: false,
-                    pauseOnHover: false
+                    pauseOnHover: false,
+
                 });
 
-                $('#main_slides').on('afterChange', function(event, slick, currentSlide, nextSlide){
-                   slick.slickSetOption('autoplaySpeed', durations[currentSlide]);
+                var lastSlide = 0;
+                slides.on('afterChange', function(event, slick, currentSlide, nextSlide){
+                    console.log('update');
+                    lastSlide = currentSlide;
+                    slick.slickSetOption('autoplaySpeed', durations[currentSlide]);
+                    slick.slickUnfilter();
+                    slick.slickFilter(function (index) {
+                        var schedule_type = schedules[index]['type'];
+                        var schedule_from = schedules[index]['from'].split(':');
+                        var schedule_to = schedules[index]['to'].split(':');
+                        var schedule_dow = schedules[index]['day_of_week'];
+
+                        if (schedule_type == 'ALWAYS_VISIBLE') {
+                            return true;
+                        } else if (schedule_type == 'ALWAYS_HIDDEN') {
+                            return false;
+                        }
+
+                        var default_visibility = schedule_type == 'HIDDEN_ON_TIME';
+                        var now_time = new Date();
+                        var from_time = new Date();
+                        from_time.setHours(...schedule_from);
+
+                        var to_time = new Date();
+                        to_time.setHours(...schedule_to);
+
+                        console.log(from_time.getTime());
+                        console.log(now_time.getTime());
+                        console.log(to_time.getTime());
+
+                        var on_schedule = schedule_dow[now_time.getDay()] &&
+                                (from_time.getTime() <= now_time.getTime() && now_time.getTime() <= to_time.getTime());
+
+                        return default_visibility ^ on_schedule;
+                    });
+
+                    if (slick.slideCount < 2) {
+                        setTimeout(function (){slides.trigger('afterChange', [slick, currentSlide, nextSlide]);}, 10000);
+                    }
                 });
             });
         </script>
