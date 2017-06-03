@@ -88,7 +88,7 @@ class IntegerDataType(DataType[int]):
 
     @min.setter
     def min(self, new_value: int):
-        if self.default < new_value or self.min > self.max:
+        if self.default < new_value or self._min > self._max:
             raise AttributeError()
 
         self._min = new_value
@@ -109,14 +109,14 @@ class IntegerDataType(DataType[int]):
         return self._one_of
 
     @one_of.setter
-    def one_of(self, new_value:Sequence[int]):
+    def one_of(self, new_value: Sequence[int]):
         if self.default not in new_value:
             raise AttributeError
 
-        self.one_of = new_value[:]
+        self._one_of = new_value[:]
 
     def is_valid(self, value: int):
-        return self.min <= value <= self.max and (value in self.one_of if self.one_of else True)
+        return self._min <= value <= self._max and (value in self._one_of if self._one_of else True)
 
 
 class ObjectDataType(DataType[ObjectValue]):
