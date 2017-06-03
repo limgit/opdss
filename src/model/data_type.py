@@ -72,8 +72,53 @@ class StringDataType(DataType[str]):
 
 # todo: mock implementation
 class IntegerDataType(DataType[int]):
-    def __init__(self, default: int=0):
+    def __init__(self, default: int=0, min_value: int=0, max_value: int=sys.maxsize, one_of=None):
         super().__init__(default)
+
+        if one_of is None:
+            one_of = []
+
+        self._min = min_value
+        self._max = max_value
+        self._one_of = one_of
+
+    @property
+    def min(self) -> int:
+        return self._min
+
+    @min.setter
+    def min(self, new_value: int):
+        if self.default < new_value or self.min > self.max:
+            raise AttributeError()
+
+        self._min = new_value
+
+    @property
+    def max(self) -> int:
+        return self._max
+
+    @max.setter
+    def max(self, new_value: int):
+        if self.default > new_value or new_value > sys.maxsize:
+            raise AttributeError()
+
+        self._max = new_value
+
+    @property
+    def one_of(self) -> Sequence[int]:
+        return self._one_of
+
+    @one_of.setter
+    def one_of(self, new_value:Sequence[int]):
+        if self.default not in new_value:
+            raise AttributeError
+
+        self.one_of = new_value[:]
+
+    def is_valid(self, value: int):
+        return self.min <= value <= self.max and (value in self.one_of if self.one_of else True)
+
+
 
 
 class ObjectDataType(DataType[ObjectValue]):
