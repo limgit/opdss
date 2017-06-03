@@ -177,5 +177,6 @@ class ListDataType(DataType[list]):
 
 STR_TO_PRIMITIVE_TYPE = {
     'str': StringDataType,
-    'int': IntegerDataType
+    'int': IntegerDataType,
+    'bool': BooleanDataType
 }
