@@ -108,7 +108,8 @@ class SignageManagementTab(QWidget):
                     item.setText(0, sgn_text)
         signage_widget = SignageWidget(self._sgn_mng, signage_change_handler)
         self._widget_idx['signage'] = self._stacked_widget.addWidget(signage_widget)
-        self._widget_idx['frame'] = self._stacked_widget.addWidget(FrameWidget())
+        frame_widget = FrameWidget(self._tpl_mng)
+        self._widget_idx['frame'] = self._stacked_widget.addWidget(frame_widget)
         self._widget_idx['scene'] = self._stacked_widget.addWidget(SceneWidget())
 
         # Gather altogether
@@ -321,8 +322,10 @@ class SignageWidget(QWidget):
 
 
 class FrameWidget(QWidget):
-    def __init__(self):
+    def __init__(self, tpl_mng: TemplateManager):
         super().__init__()
+
+        self._tpl_mng = tpl_mng
 
         self._cbox_tpl = QComboBox()
         self._tab_data = FrameDataTab()
@@ -330,12 +333,16 @@ class FrameWidget(QWidget):
         self._res = ResourceManager()
         self.init_ui()
 
-    def load_data_on_ui(self):
+    def load_data_on_ui(self) -> None:
         # TODO: Maybe more functionality?
         self._tab_data.load_data_on_ui()
 
-    def init_ui(self):
-        # TODO: Read template list and add it by cbox.addItems(list)
+    def init_ui(self) -> None:
+        tpl_list = list()
+        for tpl_id in self._tpl_mng.frame_templates:
+            template = self._tpl_mng.frame_templates[tpl_id]
+            tpl_list.append(Utils.gen_ui_text(template.definition.name, template.id))
+        self._cbox_tpl.addItems(tpl_list)
         # Tab widget
         tab_frame_manage = QTabWidget()
         tab_frame_manage.addTab(self._tab_data, self._res['dataTabText'])

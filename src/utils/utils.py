@@ -13,4 +13,4 @@ def gen_ui_text(name: str, id: str) -> str:
 
 
 def ui_text_to_id(text: str) -> str:
-    return text.split('[')[1].split(']')[0]
+    return text.split('[')[-1].split(']')[0]
