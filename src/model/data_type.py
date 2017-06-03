@@ -1,5 +1,6 @@
 import copy
 import sys
+from datetime import datetime
 from typing import TypeVar, Generic, Sequence
 
 from model.data_value import ObjectValue
@@ -161,6 +162,42 @@ class ObjectDataType(DataType[ObjectValue]):
 class BooleanDataType(DataType[bool]):
     def __init__(self, default: bool=False):
         super().__init__(default)
+
+
+class DateDataType(DataType[datetime]):
+    def __init__(self, default: datetime,
+                 min_value: datetime=datetime(1, 1, 1, 1, 1, 1),
+                 max_value: datetime=datetime(12, 31, 23, 59, 59, 9999)):
+
+        super().__init__(default)
+
+        self._min = min_value
+        self._max = max_value
+
+    @property
+    def min(self) -> datetime:
+        return self._min
+
+    @min.setter
+    def min(self, new_value: datetime):
+        if self.default < new_value or self._min > self._max:
+            raise AttributeError()
+
+        self._min = new_value
+
+    @property
+    def max(self) -> datetime:
+        return self._max
+
+    @max.setter
+    def max(self, new_value: datetime):
+        if self.default > new_value or new_value > self._max:
+            raise AttributeError()
+
+        self._max = new_value
+
+    def is_valid(self, value: datetime):
+        return self._min <= value <= self._max
 
 
 class ListDataType(DataType[list]):
