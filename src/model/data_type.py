@@ -158,6 +158,11 @@ class ObjectDataType(DataType[ObjectValue]):
         return all([field_type.is_valid(value.get_value(field_key)) for field_key, field_type in self._fields.items()])
 
 
+class BooleanDataType(DataType[bool]):
+    def __init__(self, default: bool=False):
+        super().__init__(default)
+
+
 class ListDataType(DataType[list]):
     def __init__(self, data_type: DataType, min_len: int, max_len: int):
         self._min_len = min_len
