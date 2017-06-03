@@ -2,9 +2,16 @@ from PyQt5.QtWidgets import (QWidget, QTreeWidget, QTreeWidgetItem,
                              QStackedWidget, QHBoxLayout, QVBoxLayout,
                              QLabel, QLineEdit, QPlainTextEdit, QGroupBox,
                              QPushButton, QComboBox, QTabWidget)
+from typing import Callable
+from enum import Enum, auto
 
 from controller.manager import ObjectManager, TemplateManager, SignageManager
 from view.resource_manager import ResourceManager
+
+
+class ChangeType(Enum):
+    DELETE = auto()
+    SAVE = auto()
 
 
 class SignageManagementTab(QWidget):
@@ -80,7 +87,16 @@ class SignageManagementTab(QWidget):
         vbox_left.addLayout(hbox_buttons)
 
         # Right side of screen
-        self._widget_idx['signage'] = self._stacked_widget.addWidget(SignageWidget())
+        def signage_change_handler(change_type: ChangeType, sgn_id: str) -> None:
+            # Get selected signage item
+            get_selected = self._signage_list.selectedItems()
+            if get_selected:
+                item = get_selected[0]
+                if change_type == ChangeType.SAVE:
+                    # Update QTreeWidgetItem
+                    item.setText(0, sgn_id)
+        signage_widget = SignageWidget(self._sgn_mng, signage_change_handler)
+        self._widget_idx['signage'] = self._stacked_widget.addWidget(signage_widget)
         self._widget_idx['frame'] = self._stacked_widget.addWidget(FrameWidget())
         self._widget_idx['scene'] = self._stacked_widget.addWidget(SceneWidget())
 
@@ -139,7 +155,7 @@ class SignageManagementTab(QWidget):
                 else:
                     # Selected one is signage
                     idx = self._widget_idx['signage']
-                    self._stacked_widget.widget(idx).load_data_on_ui(self._sgn_mng, item_text)
+                    self._stacked_widget.widget(idx).load_data_on_ui(item_text)
                     self._stacked_widget.setCurrentIndex(idx)
             else:
                 if item_text.startswith("F:"):
@@ -172,23 +188,28 @@ class SignageManagementTab(QWidget):
 
 
 class SignageWidget(QWidget):
-    def __init__(self):
+    def __init__(self, sgn_mng: SignageManager, value_change_handler: Callable[[ChangeType, str], None]):
         super().__init__()
+
+        self._value_change_handler = value_change_handler
+        self._sgn_mng = sgn_mng
 
         self._ledit_id = QLineEdit()
         self._ledit_name = QLineEdit()
         self._ptedit_descript = QPlainTextEdit()
 
+        self._sgn_id = None
         self._res = ResourceManager()
         self.init_ui()
 
-    def load_data_on_ui(self, sgn_mng: SignageManager, sgn_id: str):
-        signage = sgn_mng._signages[sgn_id]
+    def load_data_on_ui(self, sgn_id: str) -> None:
+        self._sgn_id = sgn_id
+        signage = self._sgn_mng.get_signage(sgn_id)
         self._ledit_id.setText(sgn_id)
-        self._ledit_name.setText(signage._title)
-        self._ptedit_descript.setPlainText(signage._description)
+        self._ledit_name.setText(signage.title)
+        self._ptedit_descript.setPlainText(signage.description)
 
-    def init_ui(self):
+    def init_ui(self) -> None:
         # ID display
         label_id = QLabel(self._res['idLabel'])
 
@@ -212,11 +233,11 @@ class SignageWidget(QWidget):
 
         # Buttons
         btn_delete = QPushButton(self._res['deleteButtonText'])
-        # TODO: Add functionality
+        btn_delete.clicked.connect(self.button_clicked)
         btn_save = QPushButton(self._res['saveButtonText'])
-        # TODO: Add functionality
+        btn_save.clicked.connect(self.button_clicked)
         btn_cancel = QPushButton(self._res['cancelButtonText'])
-        # TODO: Add functionality
+        btn_cancel.clicked.connect(self.button_clicked)
 
         hbox_buttons = QHBoxLayout()
         hbox_buttons.addStretch(1)
@@ -233,6 +254,27 @@ class SignageWidget(QWidget):
         vbox_outmost.addLayout(hbox_buttons)
 
         self.setLayout(vbox_outmost)
+
+    def button_clicked(self) -> None:
+        button_text = self.sender().text()
+        if button_text == self._res['deleteButtonText']:
+            # TODO: Delete selected signage
+            self._value_change_handler(ChangeType.DELETE)
+        elif button_text == self._res['saveButtonText']:
+            # Save to signage
+            signage = self._sgn_mng.get_signage(self._sgn_id)
+            signage.id = self._ledit_id.text()
+            signage.title = self._ledit_name.text()
+            signage.description = self._ptedit_descript.toPlainText()
+
+            # Update the signage id
+            self._sgn_id = self._ledit_id.text()
+
+            # Invoke value change handler to edit QTreeWidgetItem
+            self._value_change_handler(ChangeType.SAVE, self._sgn_id)
+        elif button_text == self._res['cancelButtonText']:
+            # Load the previous data
+            self.load_data_on_ui(self._sgn_id)
 
 
 class FrameWidget(QWidget):
