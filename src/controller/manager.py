@@ -1,4 +1,5 @@
 import os
+from datetime import time
 
 from typing import Optional, Dict
 
@@ -9,7 +10,7 @@ from pathlib import Path
 
 from model.data_type import ObjectDataType, ListDataType, STR_TO_PRIMITIVE_TYPE, DataType
 from model.data_value import ObjectValue
-from model.signage import Signage, Scene, TransitionType, Frame
+from model.signage import Signage, Scene, TransitionType, Frame, Schedule, ScheduleType
 from model.template import SceneTemplate, FrameTemplate
 
 
@@ -212,11 +213,23 @@ class SignageManager:
                 scene_template = self._tpl_mng.get_scene_template(scene_value['id'])
                 scene_data = self._obj_mng.load_object_value(None, scene_template.definition, scene_value['data'])
 
+                schedule_value = scene_value['scheduling']
+                scene_schedule = Schedule(ScheduleType[schedule_value['type']])
+
+                if 'from' in schedule_value.keys():
+                    scene_schedule.from_time = time(*[int(x) for x in schedule_value['from'].split(':')])
+
+                if 'to' in schedule_value.keys():
+                    scene_schedule.to_time = time(*[int(x) for x in schedule_value['to'].split(':')])
+
+                if 'day_of_week' in schedule_value.keys():
+                    scene_schedule.date_of_week = schedule_value['day_of_week']
+
                 scenes.append(Scene(scene_template,
                                     scene_data,
                                     scene_value['duration'],
                                     TransitionType[scene_value['transition']],
-                                    None  # todo
+                                    scene_schedule
                                     )
                               )
             # load a frame
