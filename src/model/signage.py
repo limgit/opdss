@@ -1,7 +1,8 @@
+from datetime import time
 from pathlib import Path
 
 from enum import Enum, auto
-from typing import Callable, Tuple
+from typing import Callable, Tuple, List
 
 from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
@@ -26,7 +27,67 @@ class TransitionType(Enum):
 
 class Schedule:
     def __init__(self, type: ScheduleType):
-        pass  # todo: mock initializer
+        self._type = type
+        self._from = time(0, 0, 0)
+        self._to = time(23, 59, 59)
+        self._day_of_week = [True] * 7  # Mon ~ Sun
+
+        self._on_change_handler = lambda: None
+
+    @property
+    def type(self) -> ScheduleType:
+        return self._type
+
+    @type.setter
+    def type(self, new_type: ScheduleType) -> None:
+        self._type = new_type
+        self._on_change_handler()
+
+    @property
+    def from_time(self) -> time:
+        return self._from
+
+    @from_time.setter
+    def from_time(self, new_time: time) -> None:
+        self._from = new_time
+        self._on_change_handler()
+
+    @property
+    def to_time(self) -> time:
+        return self._to
+
+    @to_time.setter
+    def to_time(self, new_time: time) -> None:
+        self._to = new_time
+        self._on_change_handler()
+
+    @property
+    def day_of_week(self) -> List[bool]:
+        return self._day_of_week[:]  # return copied value
+
+    @day_of_week.setter
+    def day_of_week(self, new_value: List[bool]) -> None:
+        if not len(new_value) == 7:
+            raise AttributeError()
+
+        self._day_of_week = new_value
+        self._on_change_handler()
+
+    @property
+    def on_value_change(self) -> None:
+        raise ValueError  # don't try to access!
+
+    @on_value_change.setter
+    def on_value_change(self, handler: Callable[[None], None]) -> None:
+        self._on_change_handler = handler
+
+    def to_dict(self) -> dict:
+        return {
+            "type": self.type.name,
+            "from": '{}:{}:{}'.format(self._from.hour, self._from.minute, self._from.second),
+            "to": '{}:{}:{}'.format(self._to.hour, self._to.minute, self._to.second),
+            "day_of_week": self.day_of_week
+        }
 
 
 class Scene:
@@ -46,6 +107,7 @@ class Scene:
             self._on_change_handler()
 
         self._values.on_value_change = object_value_change_handler
+        self._schedule.on_value_change = object_value_change_handler
 
     @property
     def template(self) -> SceneTemplate:
@@ -79,6 +141,10 @@ class Scene:
         self._on_change_handler()
 
     @property
+    def schedule(self) -> Schedule:
+        return self._schedule
+
+    @property
     def values(self) -> ObjectValue:
         return self._values
 
@@ -95,7 +161,7 @@ class Scene:
             "id": self.template.id,
             "duration": self.duration,
             "transition": self.transition_type.name,
-            "scheduling": {"type": "ALWAYS_VISIBLE"},  # todo: mock data
+            "scheduling": self._schedule.to_dict(),
             "data": self.values.get_values(False)
         }
 
