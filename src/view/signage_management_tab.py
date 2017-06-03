@@ -4,8 +4,11 @@ from PyQt5.QtWidgets import (QWidget, QTreeWidget, QTreeWidgetItem,
                              QPushButton, QComboBox, QTabWidget)
 from typing import Callable
 from enum import Enum, auto
+import random
 
 from controller.manager import ObjectManager, TemplateManager, SignageManager
+from model.data_value import ObjectValue
+from model.signage import Scene
 from view.resource_manager import ResourceManager
 
 
@@ -168,7 +171,17 @@ class SignageManagementTab(QWidget):
                     self._stacked_widget.widget(idx).load_data_on_ui()
                     self._stacked_widget.setCurrentIndex(idx)
                 elif item_text == '+':
-                    pass  # TODO: Add scene addition logic
+                    # Add scene to signage
+                    parent = item.parent()
+                    signage = self._sgn_mng.get_signage(parent.text(0))
+                    new_scene = self._create_scene()
+                    signage.add_scene(new_scene)
+
+                    # Add scene to list on UI
+                    # Make current item's text as added scene
+                    num_child = parent.childCount()
+                    item.setText(0, str(num_child - 1) + ":" + new_scene.template.definition._name)
+                    parent.addChild(QTreeWidgetItem(['+']))
                 else:
                     # Selected one is scene
                     scene_idx = int(item_text.split(':')[0])
@@ -185,6 +198,17 @@ class SignageManagementTab(QWidget):
                     idx = self._widget_idx['scene']
                     self._stacked_widget.widget(idx).load_data_on_ui()
                     self._stacked_widget.setCurrentIndex(idx)
+
+    def _create_scene(self):
+        scene_tpls = list(self._tpl_mng.scene_templates.keys())
+        initial_tpl_id = random.choice(scene_tpls)
+        # Default template
+        initial_tpl = self._tpl_mng.scene_templates[initial_tpl_id]
+
+        # Default values
+        obj_value = ObjectValue(None, initial_tpl.definition, self._obj_mng)
+
+        return Scene(initial_tpl, obj_value)
 
 
 class SignageWidget(QWidget):
