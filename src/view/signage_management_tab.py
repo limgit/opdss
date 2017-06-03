@@ -16,11 +16,14 @@ class SignageManagementTab(QWidget):
         self._sgn_mng = sgn_mng
 
         self._res = ResourceManager()
+        # Left part of screen
+        self._signage_list = QTreeWidget()
+        self._btn_up = QPushButton(self._res['upButtonText'])
+        self._btn_down = QPushButton(self._res['downButtonText'])
+        # Right part of screen
         self._stacked_widget = QStackedWidget()
         self._widget_idx = dict()
-        self._widget_idx['signage'] = self._stacked_widget.addWidget(SignageWidget())
-        self._widget_idx['frame'] = self._stacked_widget.addWidget(FrameWidget())
-        self._widget_idx['scene'] = self._stacked_widget.addWidget(SceneWidget())
+
         self.init_ui()
 
     def signage_to_tree_item(self) -> [QTreeWidgetItem]:
@@ -54,33 +57,51 @@ class SignageManagementTab(QWidget):
         signage_items.append(signage_addition_item)
         return signage_items
 
-    def init_ui(self):
+    def init_ui(self) -> None:
         # Left side of screen
-        signage_list = QTreeWidget()
-        signage_list.setHeaderLabel(self._res['signageListLabel'])
-        signage_list.addTopLevelItems(self.signage_to_tree_item())
-        signage_list.expandAll()
-        signage_list.itemSelectionChanged.connect(self.list_item_clicked)
+        self._signage_list.setHeaderLabel(self._res['signageListLabel'])
+        self._signage_list.addTopLevelItems(self.signage_to_tree_item())
+        self._signage_list.expandAll()
+        self._signage_list.itemSelectionChanged.connect(self.list_item_clicked)
 
         # Buttons
-        btn_up = QPushButton(self._res['upButtonText'])
-        # TODO: Add functionality
-        btn_down = QPushButton(self._res['downButtonText'])
-        # TODO: Add functionality
+        self._btn_up.clicked.connect(self.button_clicked)
+        self._btn_down.clicked.connect(self.button_clicked)
+        # Disable at first
+        self._btn_up.setEnabled(False)
+        self._btn_down.setEnabled(False)
 
         hbox_buttons = QHBoxLayout()
-        hbox_buttons.addWidget(btn_up)
-        hbox_buttons.addWidget(btn_down)
+        hbox_buttons.addWidget(self._btn_up)
+        hbox_buttons.addWidget(self._btn_down)
 
         vbox_left = QVBoxLayout()
-        vbox_left.addWidget(signage_list)
+        vbox_left.addWidget(self._signage_list)
         vbox_left.addLayout(hbox_buttons)
+
+        # Right side of screen
+        self._widget_idx['signage'] = self._stacked_widget.addWidget(SignageWidget())
+        self._widget_idx['frame'] = self._stacked_widget.addWidget(FrameWidget())
+        self._widget_idx['scene'] = self._stacked_widget.addWidget(SceneWidget())
 
         # Gather altogether
         hbox_outmost = QHBoxLayout()
         hbox_outmost.addLayout(vbox_left, 1)
         hbox_outmost.addWidget(self._stacked_widget, 5)
+
         self.setLayout(hbox_outmost)
+
+    def button_clicked(self):
+        button_text = self.sender().text()
+        get_selected = self._signage_list.selectedItems()
+        if get_selected:
+            item = get_selected[0]
+            if button_text == self._res['upButtonText']:
+                # Up button clicked
+                pass
+            elif button_text == self.res['downButtonText']:
+                # Down button clicked
+                pass
 
     def list_item_clicked(self):
         get_selected = self.sender().selectedItems()
@@ -89,6 +110,9 @@ class SignageManagementTab(QWidget):
             item_text = item.text(0)
             if item.parent() is None:
                 # It is at topmost level
+                # Signage cannot move up or down, so disable UP/DOWN button
+                self._btn_up.setEnabled(False)
+                self._btn_up.setEnabled(False)
                 if item_text == "+":
                     pass  # TODO: Add signage addition logic
                 else:
@@ -99,6 +123,10 @@ class SignageManagementTab(QWidget):
             else:
                 if item_text.startswith("F:"):
                     # Selected one is frame
+                    # Frame cannot move up or down, so disable UP/DOWN button
+                    self._btn_up.setEnabled(False)
+                    self._btn_down.setEnabled(False)
+
                     idx = self._widget_idx['frame']
                     self._stacked_widget.widget(idx).load_data_on_ui()
                     self._stacked_widget.setCurrentIndex(idx)
@@ -106,6 +134,17 @@ class SignageManagementTab(QWidget):
                     pass  # TODO: Add scene addition logic
                 else:
                     # Selected one is scene
+                    scene_idx = int(item_text.split(':')[0])
+                    signage = self._sgn_mng.get_signage(item.parent().text(0))
+                    # First, scene can be moved
+                    self._btn_up.setEnabled(True)
+                    self._btn_down.setEnabled(True)
+                    if scene_idx == 1:
+                        # Scene at top. Cannot move up
+                        self._btn_up.setEnabled(False)
+                    if scene_idx == len(signage.scenes):
+                        # Scene at bottom. Cannot move down
+                        self._btn_down.setEnabled(False)
                     idx = self._widget_idx['scene']
                     self._stacked_widget.widget(idx).load_data_on_ui()
                     self._stacked_widget.setCurrentIndex(idx)
