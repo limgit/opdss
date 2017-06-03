@@ -6,6 +6,7 @@ from typing import Callable
 from enum import Enum, auto
 import random
 
+import utils.utils as Utils
 from controller.manager import ObjectManager, TemplateManager, SignageManager
 from model.data_value import ObjectValue
 from model.signage import Scene
@@ -45,20 +46,22 @@ class SignageManagementTab(QWidget):
         signage_items = []
         # For all signage
         for signage_id in self._sgn_mng.signages.keys():
-            signage_item = QTreeWidgetItem([signage_id])
             signage = self._sgn_mng.get_signage(signage_id)
+            signage_text = Utils.gen_ui_text(signage.title, signage.id)
+            signage_item = QTreeWidgetItem([signage_text])
 
             # Add frame
-            frame = signage.frame
-            frame_tpl_name = frame.template.definition._name  # TODO: Need getter
-            frame_item = QTreeWidgetItem(["F:" + frame_tpl_name])
+            frame_tpl = signage.frame.template
+            frame_text = Utils.gen_ui_text(frame_tpl.definition.name, frame_tpl.id)
+            frame_item = QTreeWidgetItem(["F:" + frame_text])
             signage_item.addChild(frame_item)
 
             # Add scene
             idx = 1
             for scene in signage.scenes:
-                scene_tpl_name = scene.template.definition._name  # TODO: Need getter
-                scene_item = QTreeWidgetItem([str(idx) + ":" + scene_tpl_name])
+                scene_tpl = scene.template
+                scene_text = Utils.gen_ui_text(scene_tpl.definition.name, scene_tpl.id)
+                scene_item = QTreeWidgetItem([str(idx) + ":" + scene_text])
                 signage_item.addChild(scene_item)
                 idx += 1
 
@@ -95,14 +98,14 @@ class SignageManagementTab(QWidget):
         vbox_left.addLayout(hbox_buttons)
 
         # Right side of screen
-        def signage_change_handler(change_type: ChangeType, sgn_id: str) -> None:
+        def signage_change_handler(change_type: ChangeType, sgn_text: str) -> None:
             # Get selected signage item
             get_selected = self._signage_list.selectedItems()
             if get_selected:
                 item = get_selected[0]
                 if change_type == ChangeType.SAVE:
                     # Update QTreeWidgetItem
-                    item.setText(0, sgn_id)
+                    item.setText(0, sgn_text)
         signage_widget = SignageWidget(self._sgn_mng, signage_change_handler)
         self._widget_idx['signage'] = self._stacked_widget.addWidget(signage_widget)
         self._widget_idx['frame'] = self._stacked_widget.addWidget(FrameWidget())
@@ -126,20 +129,21 @@ class SignageManagementTab(QWidget):
         elif direction == Direction.UP:
             offset = -1
         target_item = parent.child(sel_idx + offset)
-        target_id = target_item.text(0).split(':')[1]
-        sel_id = selected_item.text(0).split(':')[1]
+        target_text = target_item.text(0).split(':')[1]
+        sel_text = selected_item.text(0).split(':')[1]
 
-        parent.child(sel_idx).setText(0, str(sel_idx + offset) + ':' + sel_id)
+        parent.child(sel_idx).setText(0, str(sel_idx + offset) + ':' + sel_text)
         parent.removeChild(parent.child(sel_idx + offset))
-        moved_item = QTreeWidgetItem([str(sel_idx) + ':' + target_id])
+        moved_item = QTreeWidgetItem([str(sel_idx) + ':' + target_text])
         parent.insertChild(sel_idx, moved_item)
         self.update_ui_component()  # Update UI status
 
         # Data Modification
-        signage = self._sgn_mng.get_signage(parent.text(0))
+        sgn_id = Utils.ui_text_to_id(parent.text(0))
+        signage = self._sgn_mng.get_signage(sgn_id)
         signage.rearrange_scene(sel_idx - 1, sel_idx - 1 + offset)  # Index starts from 0 here
 
-    def move_button_clicked(self):
+    def move_button_clicked(self) -> None:
         button_text = self.sender().text()
         get_selected = self._signage_list.selectedItems()
         if get_selected:
@@ -151,7 +155,7 @@ class SignageManagementTab(QWidget):
                 # Down button clicked. Guaranteed it can be moved down
                 self._move_scene_item(item, Direction.DOWN)
 
-    def update_ui_component(self):
+    def update_ui_component(self) -> None:
         get_selected = self._signage_list.selectedItems()
         if get_selected:
             item = get_selected[0]
@@ -165,10 +169,12 @@ class SignageManagementTab(QWidget):
                     pass  # TODO: Add signage addition logic
                 else:
                     # Selected one is signage
+                    sgn_id = Utils.ui_text_to_id(item_text)
                     idx = self._widget_idx['signage']
-                    self._stacked_widget.widget(idx).load_data_on_ui(item_text)
+                    self._stacked_widget.widget(idx).load_data_on_ui(sgn_id)
                     self._stacked_widget.setCurrentIndex(idx)
             else:
+                sgn_id = Utils.ui_text_to_id(item.parent().text(0))
                 if item_text.startswith("F:"):
                     # Selected one is frame
                     # Frame cannot move up or down, so disable UP/DOWN button
@@ -181,21 +187,23 @@ class SignageManagementTab(QWidget):
                 elif item_text == '+':
                     # Add scene to signage
                     parent = item.parent()
-                    signage = self._sgn_mng.get_signage(parent.text(0))
+                    signage = self._sgn_mng.get_signage(sgn_id)
                     new_scene = self._create_scene()
                     signage.add_scene(new_scene)
 
                     # Add scene to list on UI
                     # Make current item's text as added scene
                     num_child = parent.childCount()
-                    item.setText(0, str(num_child - 1) + ":" + new_scene.template.definition._name)
+                    scene_tpl = new_scene.template
+                    scene_text = Utils.gen_ui_text(scene_tpl.definition.name, scene_tpl.id)
+                    item.setText(0, str(num_child - 1) + ":" + scene_text)
                     parent.addChild(QTreeWidgetItem(['+']))
 
                     self.update_ui_component()  # Update UI status
                 else:
                     # Selected one is scene
                     scene_idx = int(item_text.split(':')[0])
-                    signage = self._sgn_mng.get_signage(item.parent().text(0))
+                    signage = self._sgn_mng.get_signage(sgn_id)
                     # First, scene can be moved
                     self._btn_up.setEnabled(True)
                     self._btn_down.setEnabled(True)
@@ -209,7 +217,7 @@ class SignageManagementTab(QWidget):
                     self._stacked_widget.widget(idx).load_data_on_ui()
                     self._stacked_widget.setCurrentIndex(idx)
 
-    def _create_scene(self):
+    def _create_scene(self) -> Scene:
         scene_tpls = list(self._tpl_mng.scene_templates.keys())
         initial_tpl_id = random.choice(scene_tpls)
         # Default template
@@ -305,7 +313,8 @@ class SignageWidget(QWidget):
             self._sgn_id = self._ledit_id.text()
 
             # Invoke value change handler to edit QTreeWidgetItem
-            self._value_change_handler(ChangeType.SAVE, self._sgn_id)
+            sgn_text = Utils.gen_ui_text(signage.title, self._sgn_id)
+            self._value_change_handler(ChangeType.SAVE, sgn_text)
         elif button_text == self._res['cancelButtonText']:
             # Load the previous data
             self.load_data_on_ui(self._sgn_id)
