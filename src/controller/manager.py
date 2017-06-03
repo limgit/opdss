@@ -29,7 +29,7 @@ class ObjectManager:
         return self._object_types[type_id]
 
     def get_object_value(self, type_instance: ObjectDataType, value_id: str) -> ObjectValue:
-        return self._object_values[type_instance][value_id]
+        return self._object_values[type_instance][value_id] if value_id else None
 
     def get_object_values(self, type_instance: ObjectDataType) -> Dict[str, ObjectValue]:
         return copy.copy(self._object_values[type_instance])

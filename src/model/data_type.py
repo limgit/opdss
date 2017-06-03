@@ -133,7 +133,8 @@ class ObjectDataType(DataType[ObjectValue]):
         self._description = description
         self._fields = fields
 
-        super().__init__({key: value.default for key, value in fields.items()})
+        super().__init__('')
+        # super().__init__({key: value.default for key, value in fields.items()})
 
     @property
     def name(self):
@@ -156,6 +157,9 @@ class ObjectDataType(DataType[ObjectValue]):
         return copy.copy(self._fields)
 
     def is_valid(self, value: ObjectValue):
+        if value is None:
+            return True
+
         return all([field_type.is_valid(value.get_value(field_key)) for field_key, field_type in self._fields.items()])
 
 

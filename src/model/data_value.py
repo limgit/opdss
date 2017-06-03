@@ -19,7 +19,7 @@ class ObjectValue:
         self.id = object_id
 
         for field_key, field_type in data_type._fields.items():
-            self._values[field_key] = field_type.default
+            self.set_value(field_key, field_type.default)
 
     def set_value(self, key: str, value: Any) -> None:
         self._set_value(key, value)
