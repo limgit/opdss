@@ -65,8 +65,8 @@ class SignageManagementTab(QWidget):
         self._signage_list.itemSelectionChanged.connect(self.list_item_clicked)
 
         # Buttons
-        self._btn_up.clicked.connect(self.button_clicked)
-        self._btn_down.clicked.connect(self.button_clicked)
+        self._btn_up.clicked.connect(self.move_button_clicked)
+        self._btn_down.clicked.connect(self.move_button_clicked)
         # Disable at first
         self._btn_up.setEnabled(False)
         self._btn_down.setEnabled(False)
@@ -91,17 +91,38 @@ class SignageManagementTab(QWidget):
 
         self.setLayout(hbox_outmost)
 
-    def button_clicked(self):
+    # Given selected_item and offset, swap selected_item with item at offset
+    # For example, if offset is -1, given item is swapped with item at above
+    # or if offset is 1, given item is swapped with item at below
+    def _swap_scene_item(self, selected_item: QTreeWidgetItem, offset: int) -> None:
+        # UI Modification
+        parent = selected_item.parent()  # Signage of selected scene
+        sel_idx = int(selected_item.text(0).split(':')[0])
+
+        target_item = parent.child(sel_idx + offset)
+        target_id = target_item.text(0).split(':')[1]
+        sel_id = selected_item.text(0).split(':')[1]
+
+        parent.child(sel_idx).setText(0, str(sel_idx) + ':' + target_id)
+        parent.child(sel_idx + offset).setText(0, str(sel_idx + offset) + ':' + sel_id)
+        parent.child(sel_idx).setSelected(False)
+        parent.child(sel_idx + offset).setSelected(True)
+
+        # Data Modification
+        signage = self._sgn_mng.get_signage(parent.text(0))
+        signage.rearrange_scene(sel_idx - 1, sel_idx - 1 + offset)  # Index starts from 0 here
+
+    def move_button_clicked(self):
         button_text = self.sender().text()
         get_selected = self._signage_list.selectedItems()
         if get_selected:
             item = get_selected[0]
             if button_text == self._res['upButtonText']:
-                # Up button clicked
-                pass
-            elif button_text == self.res['downButtonText']:
-                # Down button clicked
-                pass
+                # Up button clicked. Guaranteed it can be moved up
+                self._swap_scene_item(item, -1)
+            elif button_text == self._res['downButtonText']:
+                # Down button clicked. Guaranteed it can be moved down
+                self._swap_scene_item(item, +1)
 
     def list_item_clicked(self):
         get_selected = self.sender().selectedItems()
