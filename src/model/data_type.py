@@ -167,7 +167,7 @@ class BooleanDataType(DataType[bool]):
 class DateDataType(DataType[datetime]):
     def __init__(self, default: datetime,
                  min_value: datetime=datetime(1, 1, 1, 1, 1, 1),
-                 max_value: datetime=datetime(12, 31, 23, 59, 59, 9999)):
+                 max_value: datetime=datetime(9999, 12, 31, 23, 59, 59)):
 
         super().__init__(default)
 
