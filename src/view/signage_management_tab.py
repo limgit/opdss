@@ -110,7 +110,8 @@ class SignageManagementTab(QWidget):
         self._widget_idx['signage'] = self._stacked_widget.addWidget(signage_widget)
         frame_widget = FrameWidget(self._sgn_mng, self._tpl_mng)
         self._widget_idx['frame'] = self._stacked_widget.addWidget(frame_widget)
-        self._widget_idx['scene'] = self._stacked_widget.addWidget(SceneWidget())
+        scene_widget = SceneWidget(self._sgn_mng, self._tpl_mng)
+        self._widget_idx['scene'] = self._stacked_widget.addWidget(scene_widget)
 
         # Gather altogether
         hbox_outmost = QHBoxLayout()
@@ -381,16 +382,19 @@ class FrameDataTab(QWidget):
         self._res = ResourceManager()
         self.init_ui()
 
-    def load_data_on_ui(self):
+    def load_data_on_ui(self) -> None:
         pass  # TODO: Add functionality
 
-    def init_ui(self):
+    def init_ui(self) -> None:
         pass  # TODO: Add functionality
 
 
 class SceneWidget(QWidget):
-    def __init__(self):
+    def __init__(self, sgn_mng: SignageManager, tpl_mng: TemplateManager):
         super().__init__()
+
+        self._sgn_mng = sgn_mng
+        self._tpl_mng = tpl_mng
 
         self._cbox_tpl = QComboBox()
         self._tab_data = SceneDataTab()
@@ -400,11 +404,19 @@ class SceneWidget(QWidget):
         self._res = ResourceManager()
         self.init_ui()
 
-    def load_data_on_ui(self):
-        pass  # TODO: Add functionality
+    def load_data_on_ui(self) -> None:
+        self._tab_data.load_data_on_ui()
+        self._tab_transition.load_data_on_ui()
+        self._tab_scheduling.load_data_on_ui()
 
-    def init_ui(self):
-        # TODO: Read template list and add it by cbox.addItems(list)
+    def init_ui(self) -> None:
+        # Template list on combobox
+        tpl_list = list()
+        for tpl_id in self._tpl_mng.scene_templates:
+            template = self._tpl_mng.scene_templates[tpl_id]
+            tpl_list.append(Utils.gen_ui_text(template.definition.name, template.id))
+        self._cbox_tpl.addItems(tpl_list)
+
         # Tab widget
         tab_scene_manage = QTabWidget()
         tab_scene_manage.addTab(self._tab_data, self._res['dataTabText'])
@@ -442,7 +454,10 @@ class SceneDataTab(QWidget):
         self._res = ResourceManager()
         self.init_ui()
 
-    def init_ui(self):
+    def load_data_on_ui(self) -> None:
+        pass  # TODO: Add functionality
+
+    def init_ui(self) -> None:
         pass  # TODO: Add functionality
 
 
@@ -453,7 +468,10 @@ class SceneTransitionTab(QWidget):
         self._res = ResourceManager()
         self.init_ui()
 
-    def init_ui(self):
+    def load_data_on_ui(self) -> None:
+        pass  # TODO: Add functionality
+
+    def init_ui(self) -> None:
         pass  # TODO: Add functionality
 
 
@@ -464,5 +482,8 @@ class SceneSchedulingTab(QWidget):
         self._res = ResourceManager()
         self.init_ui()
 
-    def init_ui(self):
+    def load_data_on_ui(self) -> None:
+        pass  # TODO: Add functionality
+
+    def init_ui(self) -> None:
         pass  # TODO: Add functionality
