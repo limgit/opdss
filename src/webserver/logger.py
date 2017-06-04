@@ -1,31 +1,15 @@
-import os
 import logging
 import logging.handlers
 import datetime
-
-
-
 
 class Logger:
 
     def __init__(self, new_type: str, select: int, log_level: int):
 
-
-        logger = logging.getLogger('mylogger')
-        logger.setLevel(logging.DEBUG)
-
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.DEBUG)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        #fomatter = logging.Formatter('[%(levelname)s|%(filename)s:%(lineno)s] %(asctime)s > %(message)s')
-        ch.setFormatter(formatter)
-        logger.addHandler(ch)
-        current_time = datetime.datetime.now()
-        currentDatetime = current_time.strftime('%Y_%m_%d_%H_%M_%S')
-
-        #filename = 'C:/Users/sumin/PycharmProjects/guess/data/log/('current_time').log'
+        self.current_time = datetime.datetime.now()
+        current_datetime = self.current_time.strftime('%Y_%m_%d_%H_%M_%S')
         pathname = 'C:/Users/sumin/PycharmProjects/guess/data/log/'
-        fullname = pathname + currentDatetime
+        fullname = pathname + current_datetime
 
         filename = fullname + ".log"
 
@@ -34,33 +18,28 @@ class Logger:
         elif select == 2:
             self.template_manage(new_type, filename, log_level)
         elif select == 3:
-            self.signamge_manage(new_type, filename, log_level)
+            self.signage_manage(new_type, filename, log_level)
         else:
             AttributeError()
 
     def object_manage(self, new_type: str, filename: str, log_level: int):
-        """f = open(filename, 'a')
-        f.write('{} loaded\n'.format(new_type))
-        print('{} loaded'.format(new_type))
-        f.close()"""
         self.manage(new_type, filename, log_level)
 
     def template_manage(self, new_type: str, filename: str, log_level: int):
-        """f = open(filename, 'a')
-        f.write('{} loaded\n'.format(new_type))
-        print('{} loaded'.format(new_type))
-        f.close()"""
         self.manage(new_type, filename, log_level)
 
-    def signamge_manage(self, new_type: str, filename: str, log_level: int):
-        """f = open(filename, 'a')
-        f.write('{} loaded\n'.format(new_type))
-        print('{} loaded'.format(new_type))
-        f.close()"""
+    def signage_manage(self, new_type: str, filename: str, log_level: int):
         self.manage(new_type, filename, log_level)
 
     def manage(self, new_type: str, filename: str, log_level: int):
         level = ''
+        logger = logging.getLogger('mylogger')
+        logger.setLevel(logging.DEBUG)
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
         f = open(filename, 'a')
         if log_level == 1:
             level = 'info'
@@ -72,6 +51,6 @@ class Logger:
             level = 'critical'
         else:
             AttributeError()
-        f.write('log_level :' + level + '   ==> ' + '{} loaded\n'.format(new_type))
-        print('{} loaded'.format(new_type))
+        time = self.current_time.strftime('%Y-%m-%d %H:%M:%S')
+        f.write('{0} {1:10}: {2} loaded\n'.format(str(time), '[{}]'.format(level), new_type))
         f.close()
