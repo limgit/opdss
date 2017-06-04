@@ -8,12 +8,50 @@ import json
 from collections import deque
 from pathlib import Path
 
-from model.data_type import ObjectDataType, ListDataType, STR_TO_PRIMITIVE_TYPE, DataType
-from model.data_value import ObjectValue
+from model.data_type import ObjectDataType, ListDataType, STR_TO_PRIMITIVE_TYPE, DataType, FileDataType
+from model.data_value import ObjectValue, FileValue
 from model.signage import Signage, Scene, TransitionType, Frame, Schedule, ScheduleType
 from model.template import SceneTemplate, FrameTemplate
 
 import webserver.logger
+
+
+class MultimediaManager:
+    def __init__(self, root_dir: Path):
+        self._root_Dir = root_dir
+        self._image_type = FileDataType(root_dir / 'image')
+        self._video_type = FileDataType(root_dir / 'video')
+        self._images = dict()
+        self._videos = dict()
+
+    def load_all(self) -> None:
+        image_files = self._image_type.root_dir.iterdir()
+        video_files = self._video_type.root_dir.iterdir()
+
+        for image_file in image_files:
+            self.add_image(image_file)
+
+        for video_file in video_files:
+            self.add_video(video_file)
+
+    def add_image(self, new_file_path: Path):
+        # if new file is out of the media folder, copy the file to the media folder.
+        if not new_file_path.parent.resolve().samefile(self._image_type.root_dir.parent):
+            pass  # todo: copy file
+
+        new_image = FileValue(self._image_type, new_file_path.name)
+
+        def id_change_handler(old_name, new_name):
+            pass  # todo: if new_image.file_name is changed, rename the file in the media folder.
+
+        new_image.on_id_change = id_change_handler
+
+        self._images[new_image.file_name] = new_image
+
+    def add_video(self, new_file_path: Path):
+        pass  # todo
+
+    # todo: add getter of image/video_type and images/videos and remove_image/video(self, to_delete: FileValue)
 
 
 class ObjectManager:
