@@ -108,7 +108,7 @@ class SignageManagementTab(QWidget):
                     item.setText(0, sgn_text)
         signage_widget = SignageWidget(self._sgn_mng, signage_change_handler)
         self._widget_idx['signage'] = self._stacked_widget.addWidget(signage_widget)
-        frame_widget = FrameWidget(self._tpl_mng)
+        frame_widget = FrameWidget(self._sgn_mng, self._tpl_mng)
         self._widget_idx['frame'] = self._stacked_widget.addWidget(frame_widget)
         self._widget_idx['scene'] = self._stacked_widget.addWidget(SceneWidget())
 
@@ -182,9 +182,8 @@ class SignageManagementTab(QWidget):
                     self._btn_up.setEnabled(False)
                     self._btn_down.setEnabled(False)
 
-                    frame_tpl_id = Utils.ui_text_to_id(item_text[2:])
                     idx = self._widget_idx['frame']
-                    self._stacked_widget.widget(idx).load_data_on_ui(frame_tpl_id)
+                    self._stacked_widget.widget(idx).load_data_on_ui(sgn_id)
                     self._stacked_widget.setCurrentIndex(idx)
                 elif item_text == '+':
                     # Add scene to signage
@@ -323,9 +322,10 @@ class SignageWidget(QWidget):
 
 
 class FrameWidget(QWidget):
-    def __init__(self, tpl_mng: TemplateManager):
+    def __init__(self, sgn_mng: SignageManager, tpl_mng: TemplateManager):
         super().__init__()
 
+        self._sgn_mng = sgn_mng
         self._tpl_mng = tpl_mng
 
         self._cbox_tpl = QComboBox()
@@ -334,9 +334,9 @@ class FrameWidget(QWidget):
         self._res = ResourceManager()
         self.init_ui()
 
-    def load_data_on_ui(self, tpl_id: str) -> None:
+    def load_data_on_ui(self, sgn_id: str) -> None:
         # Change combobox item to frame's template
-        tpl = self._tpl_mng.frame_templates[tpl_id]
+        tpl = self._sgn_mng.get_signage(sgn_id).frame.template
         idx = self._cbox_tpl.findText(Utils.gen_ui_text(tpl.definition.name, tpl.id))
         self._cbox_tpl.setCurrentIndex(idx)
         self._tab_data.load_data_on_ui()
@@ -385,9 +385,7 @@ class FrameDataTab(QWidget):
         pass  # TODO: Add functionality
 
     def init_ui(self):
-        # TODO: This is dummy code. Have to edit it
-        vbox = QVBoxLayout()
-        self.setLayout(vbox)
+        pass  # TODO: Add functionality
 
 
 class SceneWidget(QWidget):
