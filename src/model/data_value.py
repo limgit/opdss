@@ -53,7 +53,7 @@ class ObjectValue:
         self.id = object_id
 
         for field_key, field_type in data_type.fields.items():
-            self.set_value(field_key, field_type.default)
+            self.set_value(field_key, field_type[0].default)
 
     def set_value(self, key: str, value: Any) -> None:
         self._set_value(key, value)
@@ -71,14 +71,14 @@ class ObjectValue:
         if key not in self._data_type.fields.keys():
             raise KeyError
 
-        field_type = self._data_type.fields[key]
+        field_type = self._data_type.fields[key][0]
 
         if isinstance(field_type, data_type.ObjectDataType):
             value = self._obj_mng.get_object_value(field_type, value)
         elif isinstance(field_type, data_type.ListDataType) and isinstance(field_type.data_type, data_type.ObjectDataType):
             value = [self._obj_mng.get_object_value(field_type.data_type, x) for x in value]
 
-        if not self._data_type.fields[key].is_valid(value):
+        if not self._data_type.fields[key][0].is_valid(value):
             raise AttributeError
 
         self._values[key] = value

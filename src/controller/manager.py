@@ -117,7 +117,7 @@ class ObjectManager:
                 fields = {}
                 for field_id, field_value in data['fields'].items():
                     try:
-                        fields[field_id] = self.dict_to_type(field_value[2])
+                        fields[field_id] = (self.dict_to_type(field_value[2]), field_value[0], field_value[1])
                     except KeyError:
                         return None
 

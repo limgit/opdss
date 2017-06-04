@@ -2,7 +2,7 @@ import copy
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import TypeVar, Generic, Sequence
+from typing import TypeVar, Generic, Sequence, Dict, Tuple
 
 from model.data_value import ObjectValue
 
@@ -122,7 +122,7 @@ class IntegerDataType(DataType[int]):
 
 class ObjectDataType(DataType[ObjectValue]):
     def __init__(self, type_id: str, name: str='', dev_name: str='', dev_homepage: str='', description: str='',
-                 fields=None):
+                 fields: Dict[str, Tuple[DataType, str, str]]=None):
 
         if fields is None:
             fields = dict()
@@ -158,14 +158,14 @@ class ObjectDataType(DataType[ObjectValue]):
         return self._description
 
     @property
-    def fields(self):
+    def fields(self) -> Dict[str, Tuple[DataType, str, str]]:
         return copy.copy(self._fields)
 
     def is_valid(self, value: ObjectValue):
         if value is None:
             return True
 
-        return all([field_type.is_valid(value.get_value(field_key)) for field_key, field_type in self._fields.items()])
+        return all([field_type[0].is_valid(value.get_value(field_key)) for field_key, field_type in self._fields.items()])
 
 
 class BooleanDataType(DataType[bool]):
