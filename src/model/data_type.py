@@ -1,6 +1,7 @@
 import copy
 import sys
 from datetime import datetime
+from pathlib import Path
 from typing import TypeVar, Generic, Sequence
 
 from model.data_value import ObjectValue
@@ -230,6 +231,19 @@ class ListDataType(DataType[list]):
 
     def is_valid(self, value: list):
         return all([self._data_type.is_valid(x) for x in value])
+
+
+class FileDataType(DataType[str]):
+    def __init__(self, root_dir: Path):
+        self._root_dir = root_dir
+        super().__init__('my_file')
+
+    @property
+    def root_dir(self) -> Path:
+        return self._root_dir
+
+    def is_valid(self, value: str) -> bool:
+        return (self._root_dir / value).exists()
 
 
 STR_TO_PRIMITIVE_TYPE = {

@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import TypeVar, Callable, Any, Optional
 
 from controller import manager
@@ -5,6 +6,39 @@ from model import data_type
 from utils import utils
 
 T = TypeVar('T')
+
+
+class FileValue:
+    def __init__(self, file_type: 'data_type.FileDataType', file_name: str):
+        self._data_type = file_type
+        self._file_name = ''
+        self._on_id_change_handler = lambda old_id, new_id: None
+
+        self._file_name = file_name  # set with is_valid methods
+
+    @property
+    def file_name(self) -> str:
+        return self._file_name
+
+    @file_name.setter
+    def file_name(self, new_name: str) -> None:
+        self._data_type.is_valid(new_name)
+
+        old_name = self._file_name
+        self._file_name = new_name
+        self._on_id_change_handler(old_name, new_name)
+
+    @property
+    def file_path(self) -> Path:
+        return self._data_type.root_dir / self._file_name
+
+    @property
+    def on_id_change(self) -> None:
+        raise ValueError  # don't try to access!
+
+    @on_id_change.setter
+    def on_id_change(self, handler: Callable[[str, str], None]) -> None:
+        self._on_id_change_handler = handler
 
 
 class ObjectValue:
