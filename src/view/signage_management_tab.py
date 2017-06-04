@@ -138,12 +138,14 @@ class SignageManagementTab(QWidget):
         parent.removeChild(parent.child(sel_idx + offset))
         moved_item = QTreeWidgetItem([str(sel_idx) + ':' + target_text])
         parent.insertChild(sel_idx, moved_item)
-        self.update_ui_component()  # Update UI status
 
         # Data Modification
         sgn_id = Utils.ui_text_to_id(parent.text(0))
         signage = self._sgn_mng.get_signage(sgn_id)
         signage.rearrange_scene(sel_idx - 1, sel_idx - 1 + offset)  # Index starts from 0 here
+
+        # Update UI status
+        self.update_ui_component()
 
     def move_button_clicked(self) -> None:
         button_text = self.sender().text()
