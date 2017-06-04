@@ -216,7 +216,7 @@ class SignageManagementTab(QWidget):
                         # Scene at bottom. Cannot move down
                         self._btn_down.setEnabled(False)
                     idx = self._widget_idx['scene']
-                    self._stacked_widget.widget(idx).load_data_on_ui()
+                    self._stacked_widget.widget(idx).load_data_on_ui(sgn_id, scene_idx - 1)
                     self._stacked_widget.setCurrentIndex(idx)
 
     def _create_scene(self) -> Scene:
@@ -404,7 +404,13 @@ class SceneWidget(QWidget):
         self._res = ResourceManager()
         self.init_ui()
 
-    def load_data_on_ui(self) -> None:
+    def load_data_on_ui(self, sgn_id: str, scene_idx: int) -> None:
+        # scene_idx from 0
+        # Set current item of combobox
+        tpl = self._sgn_mng.get_signage(sgn_id).scenes[scene_idx].template
+        idx = self._cbox_tpl.findText(Utils.gen_ui_text(tpl.definition.name, tpl.id))
+        self._cbox_tpl.setCurrentIndex(idx)
+
         self._tab_data.load_data_on_ui()
         self._tab_transition.load_data_on_ui()
         self._tab_scheduling.load_data_on_ui()
