@@ -1,6 +1,10 @@
 import logging
 import logging.handlers
 import datetime
+from pathlib import Path
+
+root_path = Path('../data/log/')
+
 
 class Logger:
 
@@ -8,11 +12,10 @@ class Logger:
 
         self.current_time = datetime.datetime.now()
         current_datetime = self.current_time.strftime('%Y_%m_%d_%H_%M_%S')
-        pathname = 'C:/Users/sumin/PycharmProjects/guess/data/log/'
-        fullname = pathname + current_datetime
-
-        filename = fullname + ".log"
-
+        pathname = root_path
+        fullname = pathname / current_datetime
+        filename = str(fullname) + ".log"
+        print(filename)
         if select == 1:
             self.object_manage(new_type, filename, log_level)
         elif select == 2:
