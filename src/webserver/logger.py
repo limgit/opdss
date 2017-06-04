@@ -15,7 +15,7 @@ class Logger:
         pathname = root_path
         fullname = pathname / current_datetime
         filename = str(fullname) + ".log"
-        print(filename)
+
         if select == 1:
             self.object_manage(new_type, filename, log_level)
         elif select == 2:
