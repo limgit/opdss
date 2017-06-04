@@ -8,10 +8,50 @@ import json
 from collections import deque
 from pathlib import Path
 
-from model.data_type import ObjectDataType, ListDataType, STR_TO_PRIMITIVE_TYPE, DataType
-from model.data_value import ObjectValue
+from model.data_type import ObjectDataType, ListDataType, STR_TO_PRIMITIVE_TYPE, DataType, FileDataType
+from model.data_value import ObjectValue, FileValue
 from model.signage import Signage, Scene, TransitionType, Frame, Schedule, ScheduleType
 from model.template import SceneTemplate, FrameTemplate
+
+import webserver.logger
+
+
+class MultimediaManager:
+    def __init__(self, root_dir: Path):
+        self._root_Dir = root_dir
+        self._image_type = FileDataType(root_dir / 'image')
+        self._video_type = FileDataType(root_dir / 'video')
+        self._images = dict()
+        self._videos = dict()
+
+    def load_all(self) -> None:
+        image_files = self._image_type.root_dir.iterdir()
+        video_files = self._video_type.root_dir.iterdir()
+
+        for image_file in image_files:
+            self.add_image(image_file)
+
+        for video_file in video_files:
+            self.add_video(video_file)
+
+    def add_image(self, new_file_path: Path):
+        # if new file is out of the media folder, copy the file to the media folder.
+        if not new_file_path.parent.resolve().samefile(self._image_type.root_dir.parent):
+            pass  # todo: copy file
+
+        new_image = FileValue(self._image_type, new_file_path.name)
+
+        def id_change_handler(old_name, new_name):
+            pass  # todo: if new_image.file_name is changed, rename the file in the media folder.
+
+        new_image.on_id_change = id_change_handler
+
+        self._images[new_image.file_name] = new_image
+
+    def add_video(self, new_file_path: Path):
+        pass  # todo
+
+    # todo: add getter of image/video_type and images/videos and remove_image/video(self, to_delete: FileValue)
 
 
 class ObjectManager:
@@ -67,8 +107,9 @@ class ObjectManager:
                     new_object = self.load_object_value(value_id, new_type, json.load(f))
 
                 self.add_object_value(new_object)
-
-            print('{} loaded'.format(new_type.name))
+            #print('{} loaded'.format(new_type._name))
+            log_level = 1
+            log1 = webserver.logger.Logger(new_type.name, 1, log_level)
 
     def load_object_type(self, type_id: str, data: dict) -> ObjectDataType:
             # populate raw fields values to real python objects
@@ -76,7 +117,7 @@ class ObjectManager:
                 fields = {}
                 for field_id, field_value in data['fields'].items():
                     try:
-                        fields[field_id] = self.dict_to_type(field_value[2])
+                        fields[field_id] = (self.dict_to_type(field_value[2]), field_value[0], field_value[1])
                     except KeyError:
                         return None
 
@@ -169,9 +210,11 @@ class TemplateManager:
         for scene_tpl_id, scene_dir in [(x.name, x) for x in scenes_dir]:
             with (scene_dir / 'manifest.json').open() as f:
                 self._scene_templates[scene_tpl_id] = SceneTemplate(scene_tpl_id,
-                                                                    self._obj_mng.load_object_type('', json.load(f)),
-                                                                    scene_dir)
-                print('{} loaded'.format(self._scene_templates[scene_tpl_id].definition.name))
+                                                                  self._obj_mng.load_object_type('', json.load(f)),
+                                                                  scene_dir)
+                #print('{} loaded'.format(self._scene_templates[scene_tpl_id].definition._name))
+                log_level = 2
+                log2 = webserver.logger.Logger(self._scene_templates[scene_tpl_id].definition.name, 2, log_level)
 
         # load frames
         frame_path = self._dir_root / 'frame'
@@ -182,8 +225,9 @@ class TemplateManager:
                 self._frame_templates[frame_tpl_id] = FrameTemplate(frame_tpl_id,
                                                                     self._obj_mng.load_object_type('', json.load(f)),
                                                                     frame_dir)
-                print('{} loaded'.format(self._frame_templates[frame_tpl_id].definition.name))
-
+                #print('{} loaded'.format(self._frame_templates[frame_tpl_id].definition._name))
+                log_level = 3
+                log3 = webserver.logger.Logger(self._scene_templates[scene_tpl_id].definition.name, 2, log_level)
 
 class SignageManager:
     def __init__(self, dir_root: Path, obj_mng: ObjectManager, tpl_mng: TemplateManager):
@@ -241,7 +285,9 @@ class SignageManager:
             new_signage = Signage(signage_id, signage_mnf.parent, dct['title'], dct['description'], frame, scenes)
             self.add_signage(new_signage)
 
-            print('{} loaded'.format(new_signage.title))
+            #print('{} loaded'.format(new_signage.title))
+            log_level = 4
+            log4 = webserver.logger.Logger(new_signage.title, 3, log_level)
 
     def add_signage(self, new_signage: Signage) -> None:
         signage_path = self._dir_root / (new_signage.id + '.json')
