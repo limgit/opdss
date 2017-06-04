@@ -1,4 +1,7 @@
+import threading
+
 import flask
+import flask_socketio
 
 from controller.manager import ObjectManager, TemplateManager, SignageManager
 
@@ -16,8 +19,16 @@ class WebServer:
         self._tpl_mng = tpl_mng
         self._sgn_mng = sgn_mng
 
+        self._socket_io = flask_socketio.SocketIO(self._app)
+        self._io_server = FlaskIOServer()
+
+        self._socket_io.on_namespace(self._io_server)
+
+        super().__init__()
+
     def start(self):
-        self._app.run()
+        threading.Thread(target=self._app.run).start()
+        threading.Thread(target=self._socket_io.run, args=(self._app, None, 5100)).start()
 
     def handle_signage_list(self) -> str:
         return ' '.join(['<a href="/{0}">{0}</a>'.format(str(x)) for x in self._sgn_mng.signages.keys()])
@@ -27,6 +38,11 @@ class WebServer:
 
     def handle_template_static(self, path: str) -> str:
         return self._app.send_static_file(path)
+
+
+class FlaskIOServer(flask_socketio.Namespace):
+    def on_connect(self):
+        return True
 
 
 class Client:

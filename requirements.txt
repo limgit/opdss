@@ -6,4 +6,4 @@ MarkupSafe==1.0
 Werkzeug==0.12.2
 PyQt5==5.8.2
 sip==4.19.2
-
+flask-socketio==2.8.6
