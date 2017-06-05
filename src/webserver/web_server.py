@@ -83,11 +83,3 @@ class FlaskIOServer(flask_socketio.Namespace):
             return 0
 
         return self._connections[room_id]
-
-
-class Client:
-    pass
-
-
-class Scheduler:
-    pass
