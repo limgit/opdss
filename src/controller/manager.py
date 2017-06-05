@@ -107,25 +107,25 @@ class ObjectManager:
                     new_object = self.load_object_value(value_id, new_type, json.load(f))
 
                 self.add_object_value(new_object)
-            #print('{} loaded'.format(new_type._name))
+            # print('{} loaded'.format(new_type._name))
             log_level = 1
             log1 = webserver.logger.Logger(new_type.name, 1, log_level)
 
     def load_object_type(self, type_id: str, data: dict) -> ObjectDataType:
-            # populate raw fields values to real python objects
-            if 'fields' in data.keys():
-                fields = {}
-                for field_id, field_value in data['fields'].items():
-                    try:
-                        fields[field_id] = (self.dict_to_type(field_value[2]), field_value[0], field_value[1])
-                    except KeyError:
-                        return None
+        # populate raw fields values to real python objects
+        if 'fields' in data.keys():
+            fields = {}
+            for field_id, field_value in data['fields'].items():
+                try:
+                    fields[field_id] = (self.dict_to_type(field_value[2]), field_value[0], field_value[1])
+                except KeyError:
+                    return None
 
-                data['fields'] = fields
+            data['fields'] = fields
 
-            new_type = ObjectDataType(type_id=type_id, **data)
+        new_type = ObjectDataType(type_id=type_id, **data)
 
-            return new_type
+        return new_type
 
     def dict_to_type(self, json_data: dict) -> DataType:
         target_type = json_data['type']
@@ -176,10 +176,6 @@ class ObjectManager:
         self._object_values[new_object.data_type][new_object.id] = new_object
 
 
-class MultimediaManager:
-    pass
-
-
 class TemplateManager:
     def __init__(self, dir_root: Path, obj_mng: ObjectManager):
         self._dir_root = dir_root
@@ -210,11 +206,10 @@ class TemplateManager:
         for scene_tpl_id, scene_dir in [(x.name, x) for x in scenes_dir]:
             with (scene_dir / 'manifest.json').open() as f:
                 self._scene_templates[scene_tpl_id] = SceneTemplate(scene_tpl_id,
-                                                                  self._obj_mng.load_object_type('', json.load(f)),
-                                                                  scene_dir)
-                #print('{} loaded'.format(self._scene_templates[scene_tpl_id].definition._name))
-                log_level = 2
-                log2 = webserver.logger.Logger(self._scene_templates[scene_tpl_id].definition.name, 2, log_level)
+                                                                    self._obj_mng.load_object_type('', json.load(f)),
+                                                                    scene_dir)
+
+                webserver.logger.Logger(self._scene_templates[scene_tpl_id].definition.name, 2, 2)
 
         # load frames
         frame_path = self._dir_root / 'frame'
@@ -225,9 +220,9 @@ class TemplateManager:
                 self._frame_templates[frame_tpl_id] = FrameTemplate(frame_tpl_id,
                                                                     self._obj_mng.load_object_type('', json.load(f)),
                                                                     frame_dir)
-                #print('{} loaded'.format(self._frame_templates[frame_tpl_id].definition._name))
-                log_level = 3
-                log3 = webserver.logger.Logger(self._scene_templates[scene_tpl_id].definition.name, 2, log_level)
+
+                webserver.logger.Logger(self._frame_templates[frame_tpl_id].definition.name, 2, 3)
+
 
 class SignageManager:
     def __init__(self, dir_root: Path, obj_mng: ObjectManager, tpl_mng: TemplateManager):
@@ -285,9 +280,7 @@ class SignageManager:
             new_signage = Signage(signage_id, signage_mnf.parent, dct['title'], dct['description'], frame, scenes)
             self.add_signage(new_signage)
 
-            #print('{} loaded'.format(new_signage.title))
-            log_level = 4
-            log4 = webserver.logger.Logger(new_signage.title, 3, log_level)
+            webserver.logger.Logger(new_signage.title, 3, 4)
 
     def add_signage(self, new_signage: Signage) -> None:
         signage_path = self._dir_root / (new_signage.id + '.json')

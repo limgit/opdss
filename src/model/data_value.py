@@ -42,17 +42,19 @@ class FileValue:
 
 
 class ObjectValue:
-    def __init__(self, object_id: Optional[str], data_type: 'data_type.ObjectDataType', obj_mng: 'manager.ObjectManager'):
+    def __init__(self, object_id: Optional[str],
+                 object_type: 'data_type.ObjectDataType',
+                 obj_mng: 'manager.ObjectManager'):
         self._id = ''
         self._values = {}
-        self._data_type = data_type
+        self._data_type = object_type
         self._id_change_handler = lambda x, y: None
         self._value_change_handler = lambda: None
         self._obj_mng = obj_mng  # I hope this reference could be removed...
 
         self.id = object_id
 
-        for field_key, field_type in data_type.fields.items():
+        for field_key, field_type in object_type.fields.items():
             self.set_value(field_key, field_type[0].default)
 
     def set_value(self, key: str, value: Any) -> None:
@@ -75,7 +77,8 @@ class ObjectValue:
 
         if isinstance(field_type, data_type.ObjectDataType):
             value = self._obj_mng.get_object_value(field_type, value)
-        elif isinstance(field_type, data_type.ListDataType) and isinstance(field_type.data_type, data_type.ObjectDataType):
+        elif isinstance(field_type, data_type.ListDataType) and \
+                isinstance(field_type.data_type, data_type.ObjectDataType):
             value = [self._obj_mng.get_object_value(field_type.data_type, x) for x in value]
 
         if not self._data_type.fields[key][0].is_valid(value):

@@ -226,7 +226,7 @@ class ListDataType(DataType[list]):
         return self._max_len
 
     @property
-    def data_type(self) -> ObjectDataType:
+    def data_type(self) -> DataType:
         return self._data_type
 
     def is_valid(self, value: list):

@@ -27,8 +27,8 @@ class TransitionType(Enum):
 
 
 class Schedule:
-    def __init__(self, type: ScheduleType):
-        self._type = type
+    def __init__(self, schedule_type: ScheduleType):
+        self._type = schedule_type
         self._from = time(0, 0, 0)
         self._to = time(23, 59, 59)
         self._day_of_week = [True] * 7  # Mon ~ Sun
@@ -180,11 +180,11 @@ class Frame:
         self._values.on_value_change = object_value_change_handler
 
     @property
-    def template(self) -> SceneTemplate:
+    def template(self) -> FrameTemplate:
         return self._template
 
     @template.setter
-    def template(self, new_template: SceneTemplate) -> None:
+    def template(self, new_template: FrameTemplate) -> None:
         self._template = new_template
         self._values = new_template.definition.default
         self._on_change_handler()
