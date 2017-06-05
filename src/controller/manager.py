@@ -18,7 +18,7 @@ import webserver.logger
 
 class MultimediaManager:
     def __init__(self, root_dir: Path):
-        self._root_Dir = root_dir
+        self._root_dir = root_dir
         self._image_type = FileDataType(root_dir / 'image')
         self._video_type = FileDataType(root_dir / 'video')
         self._images = dict()
@@ -37,11 +37,11 @@ class MultimediaManager:
     def add_image(self, new_file_path: Path):
         # if new file is out of the media folder, copy the file to the media folder.
         if not new_file_path.parent.resolve().samefile(self._image_type.root_dir.parent):
-            pass  # todo: copy file
+            pass  # todo: copy file 폴더로 copy
 
         new_image = FileValue(self._image_type, new_file_path.name)
 
-        def id_change_handler(old_name, new_name):
+        def id_change_handler(old_name: str, new_name: str):
             pass  # todo: if new_image.file_name is changed, rename the file in the media folder.
 
         new_image.on_id_change = id_change_handler
@@ -51,7 +51,36 @@ class MultimediaManager:
     def add_video(self, new_file_path: Path):
         pass  # todo
 
-    # todo: add getter of image/video_type and images/videos and remove_image/video(self, to_delete: FileValue)
+    # del a['fdas'] --> a dictionary의 fdas라는 키를 가진 얘를 날려줌
+    # todo: add getter of image/video_type and images/videos 5개 and remove_image/video(self, to_delete: FileValue)
+
+    @property
+    def root_path(self) -> Path:
+        return self._root_path
+
+    @property
+    def image_type(self) -> FileDataType:
+        return self._image_type
+
+    @property
+    def video_type(self) -> FileDataType:
+        return self._video_type
+
+    @property
+    def images(self) -> Dict[str, FileDataType]:
+        return copy.copy(self._images)
+
+    @property
+    def videos(self) -> Dict[str, FileDataType]:
+        return copy.copy(self._videos)
+
+    def remove_image(self, file_name: str):
+        del self._images[file_name]
+        os.remove(self._images[file_name])
+
+    def remove_video(self, file_name: str):
+        del self.videos[file_name]
+        os.remove(self._videos[file_name])
 
 
 class ObjectManager:
