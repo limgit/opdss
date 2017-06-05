@@ -283,15 +283,15 @@ class SignageManager:
             webserver.logger.Logger(new_signage.title, 3, 4)
 
     def add_signage(self, new_signage: Signage) -> None:
-        signage_path = self._dir_root / (new_signage.id + '.json')
-
         def id_change_handler(old_id, new_id):
+            signage_path = self._dir_root / (old_id + '.json')
             del self._signages[old_id]
             self._signages[new_id] = new_signage
 
             os.remove(str(signage_path))
 
         def value_change_handler():
+            signage_path = self._dir_root / (new_signage.id + '.json')
             with signage_path.open('w') as f:
                 f.write(json.dumps(new_signage.to_dict()))
 
