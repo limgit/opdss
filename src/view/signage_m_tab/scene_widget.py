@@ -3,7 +3,11 @@ from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout,
 
 import utils.utils as Utils
 from controller.manager import TemplateManager, SignageManager
+from model.signage import Signage
+from model.template import SceneTemplate
+from model.data_type import StringDataType
 from view.resource_manager import ResourceManager
+from view.ui_components import StringDataWidget
 
 
 class SceneWidget(QWidget):
@@ -24,11 +28,12 @@ class SceneWidget(QWidget):
     def load_data_on_ui(self, sgn_id: str, scene_idx: int) -> None:
         # scene_idx from 0
         # Set current item of combobox
-        tpl = self._sgn_mng.get_signage(sgn_id).scenes[scene_idx].template
+        signage = self._sgn_mng.get_signage(sgn_id)
+        tpl = signage.scenes[scene_idx].template
         idx = self._cbox_tpl.findText(Utils.gen_ui_text(tpl.definition.name, tpl.id))
         self._cbox_tpl.setCurrentIndex(idx)
 
-        self._tab_data.load_data_on_ui()
+        self._tab_data.load_data_on_ui(signage, scene_idx)
         self._tab_transition.load_data_on_ui()
         self._tab_scheduling.load_data_on_ui()
 
@@ -74,14 +79,41 @@ class SceneDataTab(QWidget):
     def __init__(self):
         super().__init__()
 
+        self._vbox_data = QVBoxLayout()
+        self._component_widgets = dict()  # id -> ComponentWidget
+
         self._res = ResourceManager()
         self.init_ui()
 
-    def load_data_on_ui(self) -> None:
-        pass  # TODO: Add functionality
+    def load_ui(self, template: SceneTemplate) -> None:
+        # Clean the previous layout
+        self._component_widgets = dict()
+        for i in range(self._vbox_data.count()):
+            self._vbox_data.itemAt(0).widget().setParent(None)
+
+        # Load the new layout
+        fields = template.definition.fields
+        for field_id in fields.keys():
+            field = fields[field_id]  # Tuple[DataType, name, description]
+            if isinstance(field[0], StringDataType):
+                widget = StringDataWidget(field[0], field[1], field[2])
+                self._component_widgets[field_id] = widget
+                self._vbox_data.addWidget(widget)
+            # TODO: Add more UI components according to data type
+
+        self.setLayout(self._vbox_data)
+
+    def load_data_on_ui(self, signage: Signage, scene_idx: int) -> None:
+        # scene_idx from 0
+        scene = signage.scenes[scene_idx]
+        self.load_ui(scene.template)
+        for field_id in scene.values.get_values().keys():
+            field_value = scene.values.get_value(field_id)
+            if field_id in self._component_widgets:  # TODO: This line should be removed
+                self._component_widgets[field_id].value = field_value
 
     def init_ui(self) -> None:
-        pass  # TODO: Add functionality
+        pass  # Nothing needed
 
 
 class SceneTransitionTab(QWidget):
