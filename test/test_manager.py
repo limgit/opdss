@@ -1,13 +1,25 @@
 import sys
-sys.path.append("../src")
 
 import unittest
 from pathlib import Path
 
-from controller.manager import ObjectManager, TemplateManager, SignageManager
+from controller.manager import ObjectManager, TemplateManager, SignageManager, ChannelManager
 from webserver.web_server import WebServer
 
+sys.path.append("../src")
 root_path = Path('../data')
+
+
+class TestChannelManager(unittest.TestCase):
+    def test_channel_manager(self):
+        obj_mng = ObjectManager(root_path / 'data')
+        tpl_mng = TemplateManager(root_path / 'template', obj_mng)
+        sgn_mng = SignageManager(root_path / 'signage', obj_mng, tpl_mng)
+        chn_mng = ChannelManager(root_path / 'channel', sgn_mng)
+
+        channel = chn_mng.get_channel('default_channel')
+        channel.id = 'test'
+        channel.id = 'default_channel'
 
 
 class TestObjectManager(unittest.TestCase):
@@ -52,7 +64,9 @@ class TestWebServer(unittest.TestCase):
         obj_mng = ObjectManager(root_path / 'data')
         tpl_mng = TemplateManager(root_path / 'template', obj_mng)
         sgn_mng = SignageManager(root_path / 'signage', obj_mng, tpl_mng)
-        server = WebServer(obj_mng, tpl_mng, sgn_mng)
+        chn_mng = ChannelManager(root_path / 'channel', sgn_mng)
+
+        server = WebServer(chn_mng, obj_mng, tpl_mng, sgn_mng)
         server.start()  # todo: causes infinite loop
 
 
