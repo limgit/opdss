@@ -80,6 +80,7 @@ class SignageWidget(QWidget):
             # TODO: Delete selected signage
             self._value_change_handler(Utils.ChangeType.DELETE)
         elif button_text == self._res['saveButtonText']:
+            # TODO: Need ID Validation
             # Save to signage
             self._signage.id = self._ledit_id.text()
             self._signage.title = self._ledit_name.text()

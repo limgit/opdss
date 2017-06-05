@@ -122,11 +122,13 @@ class SignageManagementTab(QWidget):
         parent = selected_item.parent()  # Signage of selected scene
         sel_idx = int(selected_item.text(0).split(':')[0])
 
-        offset = 0
+        offset = 0  # Default value
         if direction == Direction.DOWN:
             offset = +1
         elif direction == Direction.UP:
             offset = -1
+        else:
+            Exception("Direction not provided")  # Should NEVER be reached
         target_item = parent.child(sel_idx + offset)
         target_text = ':'.join(target_item.text(0).split(':')[1:])
         sel_text = ':'.join(selected_item.text(0).split(':')[1:])
