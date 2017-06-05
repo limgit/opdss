@@ -1,21 +1,17 @@
 from PyQt5.QtWidgets import (QWidget, QTreeWidget, QTreeWidgetItem,
                              QStackedWidget, QHBoxLayout, QVBoxLayout,
-                             QLabel, QLineEdit, QPlainTextEdit, QGroupBox,
-                             QPushButton, QComboBox, QTabWidget)
-from typing import Callable
+                             QPushButton)
 from enum import Enum, auto
 import random
 
 import utils.utils as Utils
+from .signage_widget import SignageWidget
+from .frame_widget import FrameWidget
+from .scene_widget import SceneWidget
 from controller.manager import ObjectManager, TemplateManager, SignageManager
 from model.data_value import ObjectValue
 from model.signage import Scene
 from view.resource_manager import ResourceManager
-
-
-class ChangeType(Enum):
-    DELETE = auto()
-    SAVE = auto()
 
 
 class Direction(Enum):
@@ -98,12 +94,12 @@ class SignageManagementTab(QWidget):
         vbox_left.addLayout(hbox_buttons)
 
         # Right side of screen
-        def signage_change_handler(change_type: ChangeType, sgn_text: str) -> None:
+        def signage_change_handler(change_type: Utils.ChangeType, sgn_text: str) -> None:
             # Get selected signage item
             get_selected = self._signage_list.selectedItems()
             if get_selected:
                 item = get_selected[0]
-                if change_type == ChangeType.SAVE:
+                if change_type == Utils.ChangeType.SAVE:
                     # Update QTreeWidgetItem
                     item.setText(0, sgn_text)
         signage_widget = SignageWidget(self._sgn_mng, signage_change_handler)
@@ -231,267 +227,3 @@ class SignageManagementTab(QWidget):
         obj_value = ObjectValue(None, initial_tpl.definition, self._obj_mng)
 
         return Scene(initial_tpl, obj_value)
-
-
-class SignageWidget(QWidget):
-    def __init__(self, sgn_mng: SignageManager, value_change_handler: Callable[[ChangeType, str], None]):
-        super().__init__()
-
-        self._value_change_handler = value_change_handler
-        self._sgn_mng = sgn_mng
-
-        self._ledit_id = QLineEdit()
-        self._ledit_name = QLineEdit()
-        self._ptedit_descript = QPlainTextEdit()
-
-        self._sgn_id = None
-        self._res = ResourceManager()
-        self.init_ui()
-
-    def load_data_on_ui(self, sgn_id: str) -> None:
-        self._sgn_id = sgn_id
-        signage = self._sgn_mng.get_signage(sgn_id)
-        self._ledit_id.setText(sgn_id)
-        self._ledit_name.setText(signage.title)
-        self._ptedit_descript.setPlainText(signage.description)
-
-    def init_ui(self) -> None:
-        # ID display
-        label_id = QLabel(self._res['idLabel'])
-
-        hbox_id = QHBoxLayout()
-        hbox_id.addWidget(label_id)
-        hbox_id.addWidget(self._ledit_id)
-
-        # Name display
-        vbox_name = QVBoxLayout()
-        vbox_name.addWidget(self._ledit_name)
-
-        group_name = QGroupBox(self._res['signageNameLabel'])
-        group_name.setLayout(vbox_name)
-
-        # Description display
-        vbox_descript = QVBoxLayout()
-        vbox_descript.addWidget(self._ptedit_descript)
-
-        group_descript = QGroupBox(self._res['signageDescriptionLabel'])
-        group_descript.setLayout(vbox_descript)
-
-        # Buttons
-        btn_delete = QPushButton(self._res['deleteButtonText'])
-        btn_delete.clicked.connect(self.button_clicked)
-        btn_save = QPushButton(self._res['saveButtonText'])
-        btn_save.clicked.connect(self.button_clicked)
-        btn_cancel = QPushButton(self._res['cancelButtonText'])
-        btn_cancel.clicked.connect(self.button_clicked)
-
-        hbox_buttons = QHBoxLayout()
-        hbox_buttons.addStretch(1)
-        hbox_buttons.addWidget(btn_delete)
-        hbox_buttons.addWidget(btn_save)
-        hbox_buttons.addWidget(btn_cancel)
-
-        # Getting altogether
-        vbox_outmost = QVBoxLayout()
-        vbox_outmost.addLayout(hbox_id)
-        vbox_outmost.addWidget(group_name)
-        vbox_outmost.addWidget(group_descript)
-        vbox_outmost.addStretch(1)
-        vbox_outmost.addLayout(hbox_buttons)
-
-        self.setLayout(vbox_outmost)
-
-    def button_clicked(self) -> None:
-        button_text = self.sender().text()
-        if button_text == self._res['deleteButtonText']:
-            # TODO: Delete selected signage
-            self._value_change_handler(ChangeType.DELETE)
-        elif button_text == self._res['saveButtonText']:
-            # Save to signage
-            signage = self._sgn_mng.get_signage(self._sgn_id)
-            signage.id = self._ledit_id.text()
-            signage.title = self._ledit_name.text()
-            signage.description = self._ptedit_descript.toPlainText()
-
-            # Update the signage id
-            self._sgn_id = self._ledit_id.text()
-
-            # Invoke value change handler to edit QTreeWidgetItem
-            sgn_text = Utils.gen_ui_text(signage.title, self._sgn_id)
-            self._value_change_handler(ChangeType.SAVE, sgn_text)
-        elif button_text == self._res['cancelButtonText']:
-            # Load the previous data
-            self.load_data_on_ui(self._sgn_id)
-
-
-class FrameWidget(QWidget):
-    def __init__(self, sgn_mng: SignageManager, tpl_mng: TemplateManager):
-        super().__init__()
-
-        self._sgn_mng = sgn_mng
-        self._tpl_mng = tpl_mng
-
-        self._cbox_tpl = QComboBox()
-        self._tab_data = FrameDataTab()
-
-        self._res = ResourceManager()
-        self.init_ui()
-
-    def load_data_on_ui(self, sgn_id: str) -> None:
-        # Change combobox item to frame's template
-        tpl = self._sgn_mng.get_signage(sgn_id).frame.template
-        idx = self._cbox_tpl.findText(Utils.gen_ui_text(tpl.definition.name, tpl.id))
-        self._cbox_tpl.setCurrentIndex(idx)
-        self._tab_data.load_data_on_ui()
-
-    def init_ui(self) -> None:
-        # Template list on combobox
-        tpl_list = list()
-        for tpl_id in self._tpl_mng.frame_templates:
-            template = self._tpl_mng.frame_templates[tpl_id]
-            tpl_list.append(Utils.gen_ui_text(template.definition.name, template.id))
-        self._cbox_tpl.addItems(tpl_list)
-
-        # Tab widget
-        tab_frame_manage = QTabWidget()
-        tab_frame_manage.addTab(self._tab_data, self._res['dataTabText'])
-
-        # Buttons
-        btn_save = QPushButton(self._res['saveButtonText'])
-        # TODO: Add functionality
-        btn_cancel = QPushButton(self._res['cancelButtonText'])
-        # TODO: Add functionality
-
-        hbox_buttons = QHBoxLayout()
-        hbox_buttons.addStretch(1)
-        hbox_buttons.addWidget(btn_save)
-        hbox_buttons.addWidget(btn_cancel)
-
-        # Getting altogether
-        vbox_outmost = QVBoxLayout()
-        vbox_outmost.addWidget(self._cbox_tpl)
-        vbox_outmost.addWidget(tab_frame_manage)
-        vbox_outmost.addStretch(1)
-        vbox_outmost.addLayout(hbox_buttons)
-
-        self.setLayout(vbox_outmost)
-
-
-class FrameDataTab(QWidget):
-    def __init__(self):
-        super().__init__()
-
-        self._res = ResourceManager()
-        self.init_ui()
-
-    def load_data_on_ui(self) -> None:
-        pass  # TODO: Add functionality
-
-    def init_ui(self) -> None:
-        pass  # TODO: Add functionality
-
-
-class SceneWidget(QWidget):
-    def __init__(self, sgn_mng: SignageManager, tpl_mng: TemplateManager):
-        super().__init__()
-
-        self._sgn_mng = sgn_mng
-        self._tpl_mng = tpl_mng
-
-        self._cbox_tpl = QComboBox()
-        self._tab_data = SceneDataTab()
-        self._tab_transition = SceneTransitionTab()
-        self._tab_scheduling = SceneSchedulingTab()
-
-        self._res = ResourceManager()
-        self.init_ui()
-
-    def load_data_on_ui(self, sgn_id: str, scene_idx: int) -> None:
-        # scene_idx from 0
-        # Set current item of combobox
-        tpl = self._sgn_mng.get_signage(sgn_id).scenes[scene_idx].template
-        idx = self._cbox_tpl.findText(Utils.gen_ui_text(tpl.definition.name, tpl.id))
-        self._cbox_tpl.setCurrentIndex(idx)
-
-        self._tab_data.load_data_on_ui()
-        self._tab_transition.load_data_on_ui()
-        self._tab_scheduling.load_data_on_ui()
-
-    def init_ui(self) -> None:
-        # Template list on combobox
-        tpl_list = list()
-        for tpl_id in self._tpl_mng.scene_templates:
-            template = self._tpl_mng.scene_templates[tpl_id]
-            tpl_list.append(Utils.gen_ui_text(template.definition.name, template.id))
-        self._cbox_tpl.addItems(tpl_list)
-
-        # Tab widget
-        tab_scene_manage = QTabWidget()
-        tab_scene_manage.addTab(self._tab_data, self._res['dataTabText'])
-        tab_scene_manage.addTab(self._tab_transition, self._res['transitionTabText'])
-        tab_scene_manage.addTab(self._tab_scheduling, self._res['schedulingTabText'])
-
-        # Buttons
-        btn_delete = QPushButton(self._res['deleteButtonText'])
-        # TODO: Add functionality
-        btn_save = QPushButton(self._res['saveButtonText'])
-        # TODO: Add functionality
-        btn_cancel = QPushButton(self._res['cancelButtonText'])
-        # TODO: Add functionality
-
-        hbox_buttons = QHBoxLayout()
-        hbox_buttons.addStretch(1)
-        hbox_buttons.addWidget(btn_delete)
-        hbox_buttons.addWidget(btn_save)
-        hbox_buttons.addWidget(btn_cancel)
-
-        # Getting altogether
-        vbox_outmost = QVBoxLayout()
-        vbox_outmost.addWidget(self._cbox_tpl)
-        vbox_outmost.addWidget(tab_scene_manage)
-        vbox_outmost.addStretch(1)
-        vbox_outmost.addLayout(hbox_buttons)
-
-        self.setLayout(vbox_outmost)
-
-
-class SceneDataTab(QWidget):
-    def __init__(self):
-        super().__init__()
-
-        self._res = ResourceManager()
-        self.init_ui()
-
-    def load_data_on_ui(self) -> None:
-        pass  # TODO: Add functionality
-
-    def init_ui(self) -> None:
-        pass  # TODO: Add functionality
-
-
-class SceneTransitionTab(QWidget):
-    def __init__(self):
-        super().__init__()
-
-        self._res = ResourceManager()
-        self.init_ui()
-
-    def load_data_on_ui(self) -> None:
-        pass  # TODO: Add functionality
-
-    def init_ui(self) -> None:
-        pass  # TODO: Add functionality
-
-
-class SceneSchedulingTab(QWidget):
-    def __init__(self):
-        super().__init__()
-
-        self._res = ResourceManager()
-        self.init_ui()
-
-    def load_data_on_ui(self) -> None:
-        pass  # TODO: Add functionality
-
-    def init_ui(self) -> None:
-        pass  # TODO: Add functionality

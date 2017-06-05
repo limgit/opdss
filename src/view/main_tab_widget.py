@@ -2,12 +2,12 @@ from PyQt5.QtWidgets import QTabWidget
 
 from controller.manager import ObjectManager, TemplateManager, SignageManager
 from view.resource_manager import ResourceManager
-from view.signage_management_tab import SignageManagementTab
-from view.data_management_tab import DataManagementTab
-from view.multimedia_management_tab import MultimediaManagementTab
-from view.template_management_tab import TemplateManagementTab
-from view.status_management_tab import StatusManagementTab
-from view.log_management_tab import LogManagementTab
+from view.signage_m_tab import SignageManagementTab
+from view.data_m_tab import DataManagementTab
+from view.multimedia_m_tab import MultimediaManagementTab
+from view.template_m_tab import TemplateManagementTab
+from view.status_m_tab import StatusManagementTab
+from view.log_m_tab import LogManagementTab
 
 
 class MainTabWidget(QTabWidget):
