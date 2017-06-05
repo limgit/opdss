@@ -22,7 +22,7 @@ class TemplateManagementTab(QWidget):
         # TODO: This is dummy code. Add functionality
         frame_label_item = QTreeWidgetItem([self._res['frameLabel']])
         scene_label_item = QTreeWidgetItem([self._res['sceneLabel']])
-        for scene_tpl_id in self._tpl_mng._scene_templates.keys():
+        for scene_tpl_id in self._tpl_mng.scene_templates.keys():
             scene_item = QTreeWidgetItem([scene_tpl_id])
             scene_label_item.addChild(scene_item)
         return [frame_label_item, scene_label_item]

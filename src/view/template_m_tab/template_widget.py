@@ -27,13 +27,13 @@ class TemplateWidget(QWidget):
             pass  # TODO: Add functionality
         else:
             # Scene
-            scene_tpl = tpl_mng._scene_templates[tpl_id]
-            scene_tpl_metadata = scene_tpl._definition
+            scene_tpl = tpl_mng.get_scene_template(tpl_id)
+            scene_tpl_metadata = scene_tpl.definition
             self._ledit_id.setText(tpl_id)
-            self._ledit_name.setText(scene_tpl_metadata._name)
-            self._ledit_author.setText(scene_tpl_metadata._dev_name)
-            self._ledit_homepage.setText(scene_tpl_metadata._dev_homepage)
-            self._ptedit_descript.setPlainText(scene_tpl_metadata._description)
+            self._ledit_name.setText(scene_tpl_metadata.name)
+            self._ledit_author.setText(scene_tpl_metadata.dev_name)
+            self._ledit_homepage.setText(scene_tpl_metadata.dev_homepage)
+            self._ptedit_descript.setPlainText(scene_tpl_metadata.description)
             # TODO: Show user data type dependency
 
     def init_ui(self):
