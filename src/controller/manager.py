@@ -175,6 +175,8 @@ class ObjectManager:
 
         self._object_values[new_object.data_type][new_object.id] = new_object
 
+        value_change_handler()  # save to file
+
 
 class TemplateManager:
     def __init__(self, dir_root: Path, obj_mng: ObjectManager):
@@ -300,6 +302,8 @@ class SignageManager:
 
         self._signages[new_signage.id] = new_signage
 
+        value_change_handler()  # save to file
+
 
 class ChannelManager:
     from model.channel import Channel  # due to cyclic import problem, import Channel class locally.
@@ -372,6 +376,8 @@ class ChannelManager:
         new_channel.count_event_handler = lambda channel: self._count_event_handler(channel)
 
         self._channels[new_channel.id] = new_channel
+
+        value_change_handler(new_channel)  # save to file
 
     def remove_channel(self, to_delete: Channel):
         pass
