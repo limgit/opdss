@@ -21,12 +21,12 @@ class DataTypeWidget(QWidget):
         self.init_ui()
 
     def load_data_on_ui(self, obj_mng: ObjectManager, data_type_id: str):
-        data_type = obj_mng._object_types[data_type_id]
+        data_type = obj_mng.get_object_type(data_type_id)
         self._ledit_id.setText(data_type_id)
-        self._ledit_name.setText(data_type._name)
-        self._ledit_author.setText(data_type._dev_name)
-        self._ledit_homepage.setText(data_type._dev_homepage)
-        self._ptedit_descript.setPlainText(data_type._description)
+        self._ledit_name.setText(data_type.name)
+        self._ledit_author.setText(data_type.dev_name)
+        self._ledit_homepage.setText(data_type.dev_homepage)
+        self._ptedit_descript.setPlainText(data_type.description)
         # TODO: Show user data type dependency
 
     def init_ui(self):

@@ -36,7 +36,7 @@ class SceneWidget(QWidget):
         # Template list on combobox
         tpl_list = list()
         for tpl_id in self._tpl_mng.scene_templates:
-            template = self._tpl_mng.scene_templates[tpl_id]
+            template = self._tpl_mng.get_scene_template(tpl_id)
             tpl_list.append(Utils.gen_ui_text(template.definition.name, template.id))
         self._cbox_tpl.addItems(tpl_list)
 

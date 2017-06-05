@@ -25,10 +25,11 @@ class DataManagementTab(QWidget):
     def data_to_tree_item(self):
         data_type_items = []
         # For all data type
-        for data_type_id in self._obj_mng._object_types.keys():
+        for data_type_id in self._obj_mng.object_types.keys():
             data_type_item = QTreeWidgetItem([data_type_id])
             # Add data
-            for data_id in self._obj_mng._object_values[self._obj_mng._object_types[data_type_id]].keys():
+            type_instance = self._obj_mng.get_object_type(data_type_id)
+            for data_id in self._obj_mng.get_object_values(type_instance).keys():
                 data_item = QTreeWidgetItem([data_id])
                 data_type_item.addChild(data_item)
             data_addition_item = QTreeWidgetItem(["+"])

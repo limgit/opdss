@@ -221,7 +221,7 @@ class SignageManagementTab(QWidget):
         scene_tpls = list(self._tpl_mng.scene_templates.keys())
         initial_tpl_id = random.choice(scene_tpls)
         # Default template
-        initial_tpl = self._tpl_mng.scene_templates[initial_tpl_id]
+        initial_tpl = self._tpl_mng.get_scene_template(initial_tpl_id)
 
         # Default values
         obj_value = ObjectValue(None, initial_tpl.definition, self._obj_mng)
