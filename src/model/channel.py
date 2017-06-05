@@ -88,11 +88,8 @@ class Channel:
     def request_refresh(self):
         self._redirect_event_handler(self, self.id)
 
-    def request_connection_count(self, callback: Callable[[int], None]):
-        def request():
-            callback(self._count_event_handler(self))
-
-        threading.Thread(target=request).start()
+    def request_connection_count(self):
+        return self._count_event_handler(self)
 
     def to_dict(self) -> dict:
         return {

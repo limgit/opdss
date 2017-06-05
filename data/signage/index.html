@@ -23,7 +23,6 @@
 
                 var lastSlide = 0;
                 slides.on('afterChange', function(event, slick, currentSlide, nextSlide){
-                    console.log('update');
                     lastSlide = currentSlide;
                     slick.slickSetOption('autoplaySpeed', durations[currentSlide]);
                     slick.slickUnfilter();
@@ -47,10 +46,6 @@
                         var to_time = new Date();
                         to_time.setHours(...schedule_to);
 
-                        console.log(from_time.getTime());
-                        console.log(now_time.getTime());
-                        console.log(to_time.getTime());
-
                         var on_schedule = schedule_dow[now_time.getDay()] &&
                                 (from_time.getTime() <= now_time.getTime() && now_time.getTime() <= to_time.getTime());
 
@@ -63,9 +58,14 @@
                 });
             });
 
-            var socket = io.connect('http://' + window.location.hostname + ':5100');
+            var socket = io.connect('http://' + window.location.hostname + ':5000');
             socket.on('connect', function() {
-                console.log('connected!');
+                socket.emit('enter', {'room': window.location.pathname.substr(1)});
+                console.log('connect!');
+            });
+
+            socket.on('redirect', function(json) {
+               window.location.pathname = '/' + json['to'];
             });
         </script>
         <style>
