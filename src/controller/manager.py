@@ -1,7 +1,7 @@
 import os
 from datetime import time
 
-from typing import Optional, Dict
+from typing import Optional, Dict, Callable
 
 import copy
 import json
@@ -299,3 +299,79 @@ class SignageManager:
         new_signage.on_value_change = value_change_handler
 
         self._signages[new_signage.id] = new_signage
+
+
+class ChannelManager:
+    from model.channel import Channel  # due to cyclic import problem, import Channel class locally.
+
+    def __init__(self, root_path: Path, sgn_mng: SignageManager):
+        self._root_path = root_path
+        self._channels = dict()
+        self._sgn_mng = sgn_mng
+
+        self._refresh_event_handler = lambda channel: None
+        self._count_event_handler = lambda channel: 0
+
+        self.load_all()
+
+    @property
+    def root_path(self) -> Path:
+        return self._root_path
+
+    @property
+    def channels(self) -> Dict[str, Channel]:
+        return copy.copy(self._channels)
+
+    @property
+    def refresh_event_handler(self) -> Callable[['Channel'], None]:
+        return self._refresh_event_handler
+
+    @refresh_event_handler.setter
+    def refresh_event_handler(self, new_handler: Callable[['Channel'], None]) -> None:
+        self._refresh_event_handler = new_handler
+
+    @property
+    def count_event_handler(self) -> Callable[['Channel'], int]:
+        return self._count_event_handler
+
+    @count_event_handler.setter
+    def count_event_handler(self, new_handler: Callable[['Channel'], int]) -> None:
+        self._count_event_handler = new_handler
+
+    def get_channel(self, channel_id: str) -> Channel:
+        return self._channels[channel_id]
+
+    def load_all(self):
+        for channel_id, channel_file in [(x.stem, x) for x in self._root_path.glob('*.json')]:
+            # load from the signage file
+            with channel_file.open() as f:
+                dct = json.load(f)
+
+            from model.channel import Channel
+            new_channel = Channel(channel_id, dct['description'], self._sgn_mng.get_signage(dct['signage']))
+            self.add_channel(new_channel)
+
+    def add_channel(self, new_channel: Channel) -> None:
+        def id_change_handler(channel, old_id):
+            channel_path = self._root_path / (old_id + '.json')
+
+            del self._channels[old_id]
+            self._channels[channel.id] = channel
+
+            os.remove(str(channel_path))
+
+        def value_change_handler(channel):
+            channel_path = self._root_path / (channel.id + '.json')
+
+            with channel_path.open('w') as f:
+                f.write(json.dumps(channel.to_dict()))
+
+        new_channel.id_change_handler = id_change_handler
+        new_channel.value_change_handler = value_change_handler
+        new_channel.refresh_event_handler = lambda channel: self._refresh_event_handler(channel)
+        new_channel.count_event_handler = lambda channel: self._count_event_handler(channel)
+
+        self._channels[new_channel.id] = new_channel
+
+    def remove_channel(self, to_delete: Channel):
+        pass
