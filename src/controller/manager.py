@@ -108,8 +108,8 @@ class ObjectManager:
 
                 self.add_object_value(new_object)
             # print('{} loaded'.format(new_type._name))
-            log_level = 1
-            log1 = webserver.logger.Logger(new_type.name, 1, log_level)
+
+            webserver.logger.Logger().info(new_type.name)
 
     def load_object_type(self, type_id: str, data: dict) -> ObjectDataType:
         # populate raw fields values to real python objects
@@ -209,7 +209,7 @@ class TemplateManager:
                                                                     self._obj_mng.load_object_type('', json.load(f)),
                                                                     scene_dir)
 
-                webserver.logger.Logger(self._scene_templates[scene_tpl_id].definition.name, 2, 2)
+                webserver.logger.Logger().info(self._scene_templates[scene_tpl_id].definition.name)
 
         # load frames
         frame_path = self._dir_root / 'frame'
@@ -221,7 +221,7 @@ class TemplateManager:
                                                                     self._obj_mng.load_object_type('', json.load(f)),
                                                                     frame_dir)
 
-                webserver.logger.Logger(self._frame_templates[frame_tpl_id].definition.name, 2, 3)
+                webserver.logger.Logger().info(self._frame_templates[frame_tpl_id].definition.name)
 
 
 class SignageManager:
@@ -280,7 +280,7 @@ class SignageManager:
             new_signage = Signage(signage_id, signage_mnf.parent, dct['title'], dct['description'], frame, scenes)
             self.add_signage(new_signage)
 
-            webserver.logger.Logger(new_signage.title, 3, 4)
+            webserver.logger.Logger().info(new_signage.title)
 
     def add_signage(self, new_signage: Signage) -> None:
         def id_change_handler(old_id, new_id):
