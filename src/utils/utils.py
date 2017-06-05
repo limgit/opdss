@@ -1,4 +1,5 @@
 from typing import Optional
+from enum import Enum, auto
 
 import re
 
@@ -8,9 +9,15 @@ def validate_id(id_value: Optional[str]) -> None:
         raise AttributeError()
 
 
+# Utils for view
 def gen_ui_text(name: str, id: str) -> str:
     return name + " [" + id + "]"
 
 
 def ui_text_to_id(text: str) -> str:
     return text.split('[')[-1].split(']')[0]
+
+
+class ChangeType(Enum):
+    DELETE = auto()
+    SAVE = auto()

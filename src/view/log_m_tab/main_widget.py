@@ -1,5 +1,4 @@
-from PyQt5.QtWidgets import (QWidget, QGroupBox, QLabel, QComboBox,
-                             QVBoxLayout, QListWidget)
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QListWidget)
 
 from controller.manager import ObjectManager, TemplateManager, SignageManager
 from view.resource_manager import ResourceManager
