@@ -309,7 +309,7 @@ class ChannelManager:
         self._channels = dict()
         self._sgn_mng = sgn_mng
 
-        self._refresh_event_handler = lambda channel: None
+        self._redirect_event_handler = lambda channel, old_id: None
         self._count_event_handler = lambda channel: 0
 
         self.load_all()
@@ -323,12 +323,12 @@ class ChannelManager:
         return copy.copy(self._channels)
 
     @property
-    def refresh_event_handler(self) -> Callable[['Channel'], None]:
-        return self._refresh_event_handler
+    def redirect_event_handler(self) -> Callable[['Channel', str], None]:
+        return self._redirect_event_handler
 
-    @refresh_event_handler.setter
-    def refresh_event_handler(self, new_handler: Callable[['Channel'], None]) -> None:
-        self._refresh_event_handler = new_handler
+    @redirect_event_handler.setter
+    def redirect_event_handler(self, new_handler: Callable[['Channel', str], None]) -> None:
+        self._redirect_event_handler = new_handler
 
     @property
     def count_event_handler(self) -> Callable[['Channel'], int]:
@@ -368,7 +368,7 @@ class ChannelManager:
 
         new_channel.id_change_handler = id_change_handler
         new_channel.value_change_handler = value_change_handler
-        new_channel.refresh_event_handler = lambda channel: self._refresh_event_handler(channel)
+        new_channel.refresh_event_handler = lambda channel, old_id: self._redirect_event_handler(channel, old_id)
         new_channel.count_event_handler = lambda channel: self._count_event_handler(channel)
 
         self._channels[new_channel.id] = new_channel

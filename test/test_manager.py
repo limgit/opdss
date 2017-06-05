@@ -64,7 +64,9 @@ class TestWebServer(unittest.TestCase):
         obj_mng = ObjectManager(root_path / 'data')
         tpl_mng = TemplateManager(root_path / 'template', obj_mng)
         sgn_mng = SignageManager(root_path / 'signage', obj_mng, tpl_mng)
-        server = WebServer(obj_mng, tpl_mng, sgn_mng)
+        chn_mng = ChannelManager(root_path / 'channel', sgn_mng)
+
+        server = WebServer(chn_mng, obj_mng, tpl_mng, sgn_mng)
         server.start()  # todo: causes infinite loop
 
 

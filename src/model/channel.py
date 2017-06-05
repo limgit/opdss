@@ -14,7 +14,7 @@ class Channel:
 
         self._id_change_handler = lambda channel, old_id: None
         self._value_change_handler = lambda channel: None
-        self._refresh_event_handler = lambda channel: None
+        self._redirect_event_handler = lambda channel, old_id: None
         self._count_event_handler = lambda channel: 0
 
     @property
@@ -30,6 +30,7 @@ class Channel:
 
         self._id_change_handler(self, old_id)
         self._value_change_handler(self)
+        self._redirect_event_handler(self, old_id)
 
     @property
     def description(self) -> str:
@@ -50,7 +51,7 @@ class Channel:
         self._signage = new_value
 
         self._value_change_handler(self)
-        self._refresh_event_handler(self)
+        self.request_refresh()
 
     @property
     def id_change_handler(self) -> Callable[['Channel', str], None]:
@@ -69,12 +70,12 @@ class Channel:
         self._value_change_handler = new_handler
 
     @property
-    def refresh_event_handler(self) -> Callable[['Channel'], None]:
-        return self._refresh_event_handler
+    def redirect_event_handler(self) -> Callable[['Channel', str], None]:
+        return self._redirect_event_handler
 
-    @refresh_event_handler.setter
-    def refresh_event_handler(self, new_handler: Callable[['Channel'], None]) -> None:
-        self._refresh_event_handler = new_handler
+    @redirect_event_handler.setter
+    def redirect_event_handler(self, new_handler: Callable[['Channel', str], None]) -> None:
+        self._redirect_event_handler = new_handler
 
     @property
     def count_event_handler(self) -> Callable[['Channel'], int]:
@@ -85,13 +86,10 @@ class Channel:
         self._count_event_handler = new_handler
 
     def request_refresh(self):
-        self._refresh_event_handler(self)
+        self._redirect_event_handler(self, self.id)
 
-    def request_connection_count(self, callback: Callable[[int], None]):
-        def request():
-            callback(self._count_event_handler(self))
-
-        threading.Thread(target=request).start()
+    def request_connection_count(self):
+        return self._count_event_handler(self)
 
     def to_dict(self) -> dict:
         return {
