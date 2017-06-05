@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QTabWidget
+from PyQt5.QtWidgets import QTabWidget
 
 from controller.manager import ObjectManager, TemplateManager, SignageManager
 from view.resource_manager import ResourceManager
