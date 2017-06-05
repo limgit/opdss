@@ -4,29 +4,27 @@ from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout,
 from typing import Callable
 
 import utils.utils as Utils
-from controller.manager import SignageManager
+from model.signage import Signage
 from view.resource_manager import ResourceManager
 
 
 class SignageWidget(QWidget):
-    def __init__(self, sgn_mng: SignageManager, value_change_handler: Callable[[Utils.ChangeType, str], None]):
+    def __init__(self, value_change_handler: Callable[[Utils.ChangeType, str], None]):
         super().__init__()
 
         self._value_change_handler = value_change_handler
-        self._sgn_mng = sgn_mng
 
         self._ledit_id = QLineEdit()
         self._ledit_name = QLineEdit()
         self._ptedit_descript = QPlainTextEdit()
 
-        self._sgn_id = None
+        self._signage = None
         self._res = ResourceManager()
         self.init_ui()
 
-    def load_data_on_ui(self, sgn_id: str) -> None:
-        self._sgn_id = sgn_id
-        signage = self._sgn_mng.get_signage(sgn_id)
-        self._ledit_id.setText(sgn_id)
+    def load_data_on_ui(self, signage: Signage) -> None:
+        self._signage = signage
+        self._ledit_id.setText(signage.id)
         self._ledit_name.setText(signage.title)
         self._ptedit_descript.setPlainText(signage.description)
 
@@ -83,17 +81,13 @@ class SignageWidget(QWidget):
             self._value_change_handler(Utils.ChangeType.DELETE)
         elif button_text == self._res['saveButtonText']:
             # Save to signage
-            signage = self._sgn_mng.get_signage(self._sgn_id)
-            signage.id = self._ledit_id.text()
-            signage.title = self._ledit_name.text()
-            signage.description = self._ptedit_descript.toPlainText()
-
-            # Update the signage id
-            self._sgn_id = self._ledit_id.text()
+            self._signage.id = self._ledit_id.text()
+            self._signage.title = self._ledit_name.text()
+            self._signage.description = self._ptedit_descript.toPlainText()
 
             # Invoke value change handler to edit QTreeWidgetItem
-            sgn_text = Utils.gen_ui_text(signage.title, self._sgn_id)
+            sgn_text = Utils.gen_ui_text(self._signage.title, self._signage.id)
             self._value_change_handler(Utils.ChangeType.SAVE, sgn_text)
         elif button_text == self._res['cancelButtonText']:
             # Load the previous data
-            self.load_data_on_ui(self._sgn_id)
+            self.load_data_on_ui(self._signage)
