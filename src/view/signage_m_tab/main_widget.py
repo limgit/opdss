@@ -102,11 +102,11 @@ class SignageManagementTab(QWidget):
                 if change_type == Utils.ChangeType.SAVE:
                     # Update QTreeWidgetItem
                     item.setText(0, sgn_text)
-        signage_widget = SignageWidget(self._sgn_mng, signage_change_handler)
+        signage_widget = SignageWidget(signage_change_handler)
         self._widget_idx['signage'] = self._stacked_widget.addWidget(signage_widget)
-        frame_widget = FrameWidget(self._sgn_mng, self._tpl_mng)
+        frame_widget = FrameWidget(self._tpl_mng)
         self._widget_idx['frame'] = self._stacked_widget.addWidget(frame_widget)
-        scene_widget = SceneWidget(self._sgn_mng, self._tpl_mng)
+        scene_widget = SceneWidget(self._tpl_mng)
         self._widget_idx['scene'] = self._stacked_widget.addWidget(scene_widget)
 
         # Gather altogether
@@ -122,6 +122,7 @@ class SignageManagementTab(QWidget):
         parent = selected_item.parent()  # Signage of selected scene
         sel_idx = int(selected_item.text(0).split(':')[0])
 
+        offset = 0
         if direction == Direction.DOWN:
             offset = +1
         elif direction == Direction.UP:
@@ -170,11 +171,13 @@ class SignageManagementTab(QWidget):
                 else:
                     # Selected one is signage
                     sgn_id = Utils.ui_text_to_id(item_text)
+                    signage = self._sgn_mng.get_signage(sgn_id)
                     idx = self._widget_idx['signage']
-                    self._stacked_widget.widget(idx).load_data_on_ui(sgn_id)
+                    self._stacked_widget.widget(idx).load_data_on_ui(signage)
                     self._stacked_widget.setCurrentIndex(idx)
             else:
                 sgn_id = Utils.ui_text_to_id(item.parent().text(0))
+                signage = self._sgn_mng.get_signage(sgn_id)
                 if item_text.startswith("F:"):
                     # Selected one is frame
                     # Frame cannot move up or down, so disable UP/DOWN button
@@ -182,28 +185,27 @@ class SignageManagementTab(QWidget):
                     self._btn_down.setEnabled(False)
 
                     idx = self._widget_idx['frame']
-                    self._stacked_widget.widget(idx).load_data_on_ui(sgn_id)
+                    self._stacked_widget.widget(idx).load_data_on_ui(signage)
                     self._stacked_widget.setCurrentIndex(idx)
                 elif item_text == '+':
                     # Add scene to signage
-                    parent = item.parent()
-                    signage = self._sgn_mng.get_signage(sgn_id)
                     new_scene = self._create_scene()
                     signage.add_scene(new_scene)
 
                     # Add scene to list on UI
                     # Make current item's text as added scene
+                    parent = item.parent()
                     num_child = parent.childCount()
                     scene_tpl = new_scene.template
                     scene_text = Utils.gen_ui_text(scene_tpl.definition.name, scene_tpl.id)
                     item.setText(0, str(num_child - 1) + ":" + scene_text)
+                    # Add + button at last
                     parent.addChild(QTreeWidgetItem(['+']))
 
                     self.update_ui_component()  # Update UI status
                 else:
                     # Selected one is scene
                     scene_idx = int(item_text.split(':')[0])
-                    signage = self._sgn_mng.get_signage(sgn_id)
                     # First, scene can be moved
                     self._btn_up.setEnabled(True)
                     self._btn_down.setEnabled(True)
@@ -214,7 +216,7 @@ class SignageManagementTab(QWidget):
                         # Scene at bottom. Cannot move down
                         self._btn_down.setEnabled(False)
                     idx = self._widget_idx['scene']
-                    self._stacked_widget.widget(idx).load_data_on_ui(sgn_id, scene_idx - 1)
+                    self._stacked_widget.widget(idx).load_data_on_ui(signage, scene_idx - 1)
                     self._stacked_widget.setCurrentIndex(idx)
 
     def _create_scene(self) -> Scene:
