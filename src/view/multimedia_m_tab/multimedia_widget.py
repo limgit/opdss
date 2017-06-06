@@ -1,15 +1,18 @@
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout,
-                             QLabel, QLineEdit, QPushButton)
+                             QLabel, QLineEdit, QPushButton, QMessageBox)
 
+from controller.manager import MultimediaManager
 from model.data_value import FileValue
 from view.resource_manager import ResourceManager
 
 
 class MultimediaWidget(QWidget):
-    def __init__(self):
+    def __init__(self, mtm_mng: MultimediaManager):
         super().__init__()
 
         self._ledit_name = QLineEdit()
+        self._mtm_mng = mtm_mng
+        self._mtm = None
 
         self._res = ResourceManager()
         self.init_ui()
@@ -18,6 +21,7 @@ class MultimediaWidget(QWidget):
         self._ledit_name.setText('')
 
     def load_data_on_ui(self, mtm: FileValue):
+        self._mtm = mtm
         self._ledit_name.setText(mtm.file_name)
 
     def init_ui(self):
@@ -47,4 +51,16 @@ class MultimediaWidget(QWidget):
     def button_clicked(self):
         button_text = self.sender().text()
         if button_text == self._res['deleteButtonText']:
-            pass  # TODO: Add deletion logic
+            try:
+                if self._mtm.file_name.endswith('.jpeg') or \
+                   self._mtm.file_name.endswith('.jpg') or \
+                   self._mtm.file_name.endswith('.png'):
+                    self._mtm_mng.remove_image(self._mtm_mng.get_image(self._mtm))
+                else:
+                    self._mtm_mng.remove_video(self._mtm_mng.get_video(self._mtm))
+            except ReferenceError as e:
+                QMessageBox.warning(self, "Can't delete",
+                                    "This data can't be deleted. " + ', '.join(e.args[0].keys()) + " reference this",
+                                    QMessageBox.Ok, QMessageBox.Ok)
+                return
+
