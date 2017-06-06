@@ -16,7 +16,6 @@ class TemplateWidget(QWidget):
         self._gview_thumbnail = QGraphicsView()
         self._ledit_homepage = QLineEdit()
         self._ptedit_descript = QPlainTextEdit()
-        self._ptedit_depend = QPlainTextEdit()
 
         self._res = ResourceManager()
         self.init_ui()
@@ -34,7 +33,6 @@ class TemplateWidget(QWidget):
             self._ledit_author.setText(scene_tpl_metadata.dev_name)
             self._ledit_homepage.setText(scene_tpl_metadata.dev_homepage)
             self._ptedit_descript.setPlainText(scene_tpl_metadata.description)
-            # TODO: Show user data type dependency
 
     def init_ui(self):
         # ID display
@@ -86,14 +84,6 @@ class TemplateWidget(QWidget):
         group_descript = QGroupBox(self._res['templateDescriptionLabel'])
         group_descript.setLayout(vbox_descript)
 
-        # Dependency display
-        self._ptedit_depend.setEnabled(False)
-        vbox_depend = QVBoxLayout()
-        vbox_depend.addWidget(self._ptedit_depend)
-
-        group_depend = QGroupBox(self._res['templateDependencyLabel'])
-        group_depend.setLayout(vbox_depend)
-
         # Button
         btn_delete = QPushButton(self._res['deleteButtonText'])
         # TODO: Add functionality
@@ -108,7 +98,6 @@ class TemplateWidget(QWidget):
         vbox_outmost.addLayout(hbox_wrapper)
         vbox_outmost.addWidget(group_homepage)
         vbox_outmost.addWidget(group_descript)
-        vbox_outmost.addWidget(group_depend)
         vbox_outmost.addStretch(1)
         vbox_outmost.addLayout(hbox_buttons)
 
