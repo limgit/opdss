@@ -121,7 +121,7 @@ class SignageManagementTab(QWidget):
         frame_widget = FrameWidget(self._tpl_mng, frame_change_handler)
         self._widget_idx['frame'] = self._stacked_widget.addWidget(frame_widget)
 
-        def scene_change_handler(change_type: utils.ChangeType, scene_text: str) -> None:
+        def scene_change_handler(change_type: utils.ChangeType, scene_text: str='') -> None:
             # Get selected scene item
             get_selected = self._signage_list.selectedItems()
             if get_selected:
@@ -130,6 +130,15 @@ class SignageManagementTab(QWidget):
                     # Update QTreeWidgetItem
                     idx = item.text(0).split(':')[0]
                     item.setText(0, idx + ':' + scene_text)
+                elif change_type == utils.ChangeType.DELETE:
+                    scene_idx = int(scene_text)
+                    parent = item.parent()
+                    for i in range(parent.childCount() - 1):
+                        if i > scene_idx + 1:
+                            it = parent.child(i)
+                            it_text = ':'.join(it.text(0).split(':')[1:])
+                            it.setText(0, str(i - 1) + ':' + it_text)
+                    parent.removeChild(item)
         scene_widget = SceneWidget(self._tpl_mng, scene_change_handler)
         self._widget_idx['scene'] = self._stacked_widget.addWidget(scene_widget)
 
@@ -276,8 +285,7 @@ class SignageManagementTab(QWidget):
                         # Scene at bottom. Cannot move down
                         self._btn_down.setEnabled(False)
                     idx = self._widget_idx['scene']
-                    scene = signage.scenes[scene_idx - 1]
-                    self._stacked_widget.widget(idx).load_data_on_ui(scene)
+                    self._stacked_widget.widget(idx).load_data_on_ui(signage, scene_idx - 1)
                     self._stacked_widget.setCurrentIndex(idx)
 
     def _create_scene(self) -> Scene:

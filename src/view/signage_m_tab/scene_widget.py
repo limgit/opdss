@@ -7,7 +7,7 @@ from datetime import datetime
 
 import utils.utils as utils
 from controller.manager import TemplateManager
-from model.signage import Scene, TransitionType, ScheduleType
+from model.signage import Scene, TransitionType, ScheduleType, Signage
 from model.template import SceneTemplate
 from model.data_type import (StringDataType, BooleanDataType,
                              IntegerDataType, DateDataType)
@@ -27,23 +27,26 @@ class SceneWidget(QWidget):
         self._tab_transition = SceneTransitionTab()
         self._tab_scheduling = SceneSchedulingTab()
 
-        self._scene = None
+        self._signage = None
+        self._scene_idx = 0
         self._value_change_handler = value_change_handler
 
         self._res = ResourceManager()
         self.init_ui()
 
-    def load_data_on_ui(self, scene: Scene) -> None:
+    def load_data_on_ui(self, signage: Signage, scene_idx: int) -> None:
         # scene_idx from 0
-        self._scene = scene
+        self._signage = signage
+        self._scene_idx = scene_idx
+        scene = signage.scenes[scene_idx]
         # Set current item of combobox
-        tpl = self._scene.template
+        tpl = scene.template
         idx = self._cbox_tpl.findText(utils.gen_ui_text(tpl.definition.name, tpl.id))
         self._cbox_tpl.setCurrentIndex(idx)
 
-        self._tab_data.load_data_on_ui(self._scene)
-        self._tab_transition.load_data_on_ui(self._scene)
-        self._tab_scheduling.load_data_on_ui(self._scene)
+        self._tab_data.load_data_on_ui(scene)
+        self._tab_transition.load_data_on_ui(scene)
+        self._tab_scheduling.load_data_on_ui(scene)
 
     def init_ui(self) -> None:
         # Template list on combobox
@@ -92,7 +95,14 @@ class SceneWidget(QWidget):
     def button_clicked(self) -> None:
         button_text = self.sender().text()
         if button_text == self._res['deleteButtonText']:
-            pass  # TODO: Add scene deletion functionality
+            try:
+                self._signage.remove_scene(self._signage.scenes[self._scene_idx])
+            except ReferenceError as e:
+                QMessageBox.warning(self, "Can't delete",
+                                    "This scene can't be deleted. " + ', '.join(e.args[0].keys()) + " reference this",
+                                    QMessageBox.Ok, QMessageBox.Ok)
+                return
+            self._value_change_handler(utils.ChangeType.DELETE, str(self._scene_idx))
         elif button_text == self._res['saveButtonText']:
             # Check is input data valid. If not, do not save it
             if not self._tab_data.is_data_valid() or \
