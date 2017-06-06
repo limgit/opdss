@@ -1,4 +1,5 @@
 import os
+import shutil
 from datetime import time
 
 from typing import Optional, Dict, Callable
@@ -23,6 +24,7 @@ class MultimediaManager:
         self._video_type = FileDataType(root_dir / 'video')
         self._images = dict()
         self._videos = dict()
+        self.load_all()
 
     def load_all(self) -> None:
         image_files = self._image_type.root_dir.iterdir()
@@ -36,27 +38,35 @@ class MultimediaManager:
 
     def add_image(self, new_file_path: Path):
         # if new file is out of the media folder, copy the file to the media folder.
-        if not new_file_path.parent.resolve().samefile(self._image_type.root_dir.parent):
-            pass  # todo: copy file 폴더로 copy
 
+        if not new_file_path.parent.resolve().samefile(self._image_type.root_dir.resolve()):
+            shutil.copy2(str(new_file_path), str(self._image_type.root_dir))
         new_image = FileValue(self._image_type, new_file_path.name)
 
         def id_change_handler(old_name: str, new_name: str):
-            pass  # todo: if new_image.file_name is changed, rename the file in the media folder.
+            os.rename(str(self._image_type.root_dir / old_name), str(self._image_type.root_dir / new_name))
+            del self._images[old_name]
+            self._images[new_name] = new_name
 
         new_image.on_id_change = id_change_handler
-
         self._images[new_image.file_name] = new_image
 
     def add_video(self, new_file_path: Path):
-        pass  # todo
+        if not new_file_path.parent.resolve().samefile(self._video_type.root_dir.resolve()):
+            shutil.copy2(str(new_file_path), str(self._video_type.root_dir))
+        new_video = FileValue(self._image_type, new_file_path.name)
 
-    # del a['fdas'] --> a dictionary의 fdas라는 키를 가진 얘를 날려줌
-    # todo: add getter of image/video_type and images/videos 5개 and remove_image/video(self, to_delete: FileValue)
+        def id_change_handler(old_name: str, new_name: str):
+            os.rename(str(self._video_type.root_dir / old_name), str(self._video_type.root_dir / new_name))
+            del self._videos[old_name]
+            self._videos[new_name] = new_name
+
+        new_video.on_id_change = id_change_handler
+        self._videos[new_video.file_name] = new_video
 
     @property
     def root_path(self) -> Path:
-        return self._root_path
+        return self._root_dir
 
     @property
     def image_type(self) -> FileDataType:
@@ -67,11 +77,17 @@ class MultimediaManager:
         return self._video_type
 
     @property
-    def images(self) -> Dict[str, FileDataType]:
+    def images(self) -> Dict[str, FileValue]:
         return copy.copy(self._images)
 
+    def get_images(self, file_id: str) -> FileValue:
+        return self.images[file_id]
+
+    def get_videos(self, file_id: str) -> FileValue:
+        return self.videos[file_id]
+
     @property
-    def videos(self) -> Dict[str, FileDataType]:
+    def videos(self) -> Dict[str, FileValue]:
         return copy.copy(self._videos)
 
     def remove_image(self, file_name: str):
@@ -112,7 +128,6 @@ class ObjectManager:
         self._object_values = dict()
 
         types_dir = [x for x in self._root_dir.iterdir() if x.is_dir()]
-
         # todo: currently, a method to handle dependency problem is awful.
         # -> if a dependency problem occurs, just postpone that type.
         # in worst case, infinite loop could be occurred!
