@@ -1,0 +1,20 @@
+{
+  "name": "Menu Group Scene",
+  "dev_name": "Noddle",
+  "dev_homepage": "https://cs.kaist.ac.kr",
+  "description": "prints a formatted menu group",
+  "fields": {
+    "bullet": ["List Bullet", "a bullet to print ahead of a menu name", {
+      "type": "str",
+      "default": "*",
+      "max_length": 3
+    }],
+    "hide_menu_group_name": ["Hide menu group name", "hide menu group name if true", {
+      "type": "bool",
+      "default": false
+    }],
+    "menu_group": ["Menu Group", "menus to show", {
+      "type": "$menu_group"
+    }]
+  }
+}
