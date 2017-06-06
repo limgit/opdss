@@ -3,6 +3,7 @@ from pathlib import Path
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget,
                              QPushButton, QHBoxLayout, QVBoxLayout)
 
+from webserver.web_server import WebServer
 from controller.manager import (ObjectManager, TemplateManager,
                                 SignageManager, MultimediaManager,
                                 ChannelManager)
@@ -22,38 +23,61 @@ class MainWidget(QWidget):
         self._chn_mng = chn_mng
 
         self._res = ResourceManager()
+
+        self._web_server = WebServer(self._chn_mng, self._obj_mng, self._tpl_mng, self._sgn_mng, self._mtm_mng)
+
+        self._btn_run = QPushButton(self._res['runButtonText'])
+        self._btn_stop = QPushButton(self._res['stopButtonText'])
+
+        self._vbox_outmost = QVBoxLayout()
+
         self.init_ui()
 
     def init_ui(self):
         # Run button
-        btn_run = QPushButton(self._res['runButtonText'])
-        # TODO: Add functionality: btn_run.clicked.connect(self.handler)
+        self._btn_run.clicked.connect(self.button_clicked)
 
         # Stop button
-        btn_stop = QPushButton(self._res['stopButtonText'])
-        # TODO: Add functionality: btn_run.clicked.connect(self.handler)
+        self._btn_stop.clicked.connect(self.button_clicked)
+        self._btn_stop.setEnabled(False)
 
         # Refresh button
         btn_refresh = QPushButton(self._res['refreshButtonText'])
-        # TODO: Add functionality: btn_run.clicked.connect(self.handler)
-
-        # Layout buttons
-        hbox_buttons = QHBoxLayout()
-        hbox_buttons.addWidget(btn_run)
-        hbox_buttons.addWidget(btn_stop)
-        hbox_buttons.addStretch(1)
-        hbox_buttons.addWidget(btn_refresh)
+        btn_refresh.clicked.connect(self.button_clicked)
 
         # Tab widget
         tab_widget_main = MainTabWidget(self._obj_mng, self._tpl_mng, self._sgn_mng, self._mtm_mng, self._chn_mng)
 
+        # Layout buttons
+        hbox_buttons = QHBoxLayout()
+        hbox_buttons.addWidget(self._btn_run)
+        hbox_buttons.addWidget(self._btn_stop)
+        hbox_buttons.addStretch(1)
+        hbox_buttons.addWidget(btn_refresh)
+
         # Layout buttons and tab widget
-        vbox_outmost = QVBoxLayout()
-        vbox_outmost.addLayout(hbox_buttons)
-        vbox_outmost.addWidget(tab_widget_main)
+        self._vbox_outmost.addLayout(hbox_buttons)
+        self._vbox_outmost.addWidget(tab_widget_main)
 
         # Set layout
-        self.setLayout(vbox_outmost)
+        self.setLayout(self._vbox_outmost)
+
+    def button_clicked(self):
+        button_text = self.sender().text()
+        if button_text == self._res['runButtonText']:
+            self._btn_run.setEnabled(False)
+            self._btn_stop.setEnabled(True)
+            self._web_server.start()
+        elif button_text == self._res['stopButtonText']:
+            self._btn_run.setEnabled(True)
+            self._btn_stop.setEnabled(False)
+            self._web_server.stop()
+        elif button_text == self._res['refreshButtonText']:
+            widget = self._vbox_outmost.itemAt(1).widget()
+            self._vbox_outmost.removeWidget(widget)
+            widget.deleteLater()
+            tab_widget_mainn = MainTabWidget(self._obj_mng, self._tpl_mng, self._sgn_mng, self._mtm_mng, self._chn_mng)
+            self._vbox_outmost.addWidget(tab_widget_mainn)
 
 
 class MainWindow(QMainWindow):
@@ -69,7 +93,7 @@ class MainWindow(QMainWindow):
         self._chn_mng = ChannelManager(self._root_path / 'channel', self._sgn_mng)
 
         self._mtm_mng.bind_managers(self._sgn_mng, self._obj_mng)
-        self._obj_mng.bind_managers(self._tpl_mng)
+        self._obj_mng.bind_managers(self._tpl_mng, self._sgn_mng)
 
         self._res = ResourceManager()
         self.init_ui()
