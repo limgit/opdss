@@ -94,6 +94,8 @@ class MainWindow(QMainWindow):
 
         self._mtm_mng.bind_managers(self._sgn_mng, self._obj_mng)
         self._obj_mng.bind_managers(self._tpl_mng, self._sgn_mng)
+        self._tpl_mng.bind_managers(self._sgn_mng)
+        self._sgn_mng.bind_managers(self._chn_mng)
 
         self._res = ResourceManager()
         self.init_ui()
