@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout,
-                             QPushButton, QComboBox, QTabWidget)
+                             QPushButton, QComboBox, QTabWidget,
+                             QTextBrowser)
 
 import utils.utils as Utils
 from controller.manager import TemplateManager
@@ -79,6 +80,7 @@ class SceneDataTab(QWidget):
 
         self._vbox_data = QVBoxLayout()
         self._component_widgets = dict()  # id -> ComponentWidget
+        self._tview_detail = QTextBrowser()
 
         self._res = ResourceManager()
         self.init_ui()
@@ -88,18 +90,23 @@ class SceneDataTab(QWidget):
         self._component_widgets = dict()
         for i in range(self._vbox_data.count()):
             self._vbox_data.itemAt(0).widget().setParent(None)
+        self._tview_detail.setText("")
 
         # Load the new layout
         fields = template.definition.fields
         for field_id in fields.keys():
+            def clicked_handler(name: str, description: str, constraint: str) -> None:
+                text = "<b>" + name + "</b><br />"
+                text += description + "<br />"
+                text += "Constraint: " + constraint
+                self._tview_detail.setText(text)
+
             field = fields[field_id]  # Tuple[DataType, name, description]
             if isinstance(field[0], StringDataType):
-                widget = StringDataWidget(field[0], field[1], field[2])
+                widget = StringDataWidget(field[0], field[1], field[2], clicked_handler)
                 self._component_widgets[field_id] = widget
                 self._vbox_data.addWidget(widget)
             # TODO: Add more UI components according to data type
-
-        self.setLayout(self._vbox_data)
 
     def load_data_on_ui(self, signage: Signage, scene_idx: int) -> None:
         # scene_idx from 0
@@ -111,7 +118,10 @@ class SceneDataTab(QWidget):
                 self._component_widgets[field_id].value = field_value
 
     def init_ui(self) -> None:
-        pass  # Nothing needed
+        vbox_outmost = QVBoxLayout()
+        vbox_outmost.addLayout(self._vbox_data)
+        vbox_outmost.addWidget(self._tview_detail)
+        self.setLayout(vbox_outmost)
 
 
 class SceneTransitionTab(QWidget):
