@@ -173,40 +173,48 @@ class BooleanDataType(DataType[bool]):
         super().__init__(default)
 
 
-class DateDataType(DataType[datetime]):
-    def __init__(self, default: datetime,
-                 min_value: datetime=datetime(1, 1, 1, 1, 1, 1),
-                 max_value: datetime=datetime(9999, 12, 31, 23, 59, 59)):
+class DateDataType(DataType[str]):
+    format = '%Y-%m-%d %H:%M'
 
-        super().__init__(default)
+    def __init__(self,
+                 min_value: str='1-1-1 0:0',
+                 max_value: str='9999-11-31 23:59'):
 
-        self._min = min_value
-        self._max = max_value
+        super().__init__(datetime.now().strftime(DateDataType.format))
+
+        self._min = datetime.strptime(min_value, DateDataType.format)
+        self._max = datetime.strptime(max_value, DateDataType.format)
 
     @property
-    def min(self) -> datetime:
-        return self._min
+    def min(self) -> str:
+        return self._min.strftime(DateDataType.format)
 
     @min.setter
-    def min(self, new_value: datetime):
-        if self.default < new_value or self._min > self._max:
+    def min(self, new_value: str):
+        new_datetime = datetime.strptime(new_value, DateDataType.format)
+
+        if self.default < new_datetime or self._min > self._max:
             raise AttributeError()
 
-        self._min = new_value
+        self._min = new_datetime
 
     @property
     def max(self) -> datetime:
-        return self._max
+        return self._max.strftime(DateDataType.format)
 
     @max.setter
-    def max(self, new_value: datetime):
-        if self.default > new_value or new_value > self._max:
+    def max(self, new_value: str):
+        new_datetime = datetime.strptime(new_value, DateDataType.format)
+
+        if self.default > new_datetime or new_datetime > self._max:
             raise AttributeError()
 
-        self._max = new_value
+        self._max = new_datetime
 
-    def is_valid(self, value: datetime):
-        return self._min <= value <= self._max
+    def is_valid(self, value: str):
+        new_datetime = datetime.strptime(value, DateDataType.format)
+
+        return self._min <= new_datetime <= self._max
 
 
 class ListDataType(DataType[list]):
@@ -249,5 +257,6 @@ class FileDataType(DataType[str]):
 STR_TO_PRIMITIVE_TYPE = {
     'str': StringDataType,
     'int': IntegerDataType,
-    'bool': BooleanDataType
+    'bool': BooleanDataType,
+    'datetime': DateDataType
 }
