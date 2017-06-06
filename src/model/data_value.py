@@ -1,6 +1,6 @@
 from datetime import datetime
 from pathlib import Path
-from typing import TypeVar, Callable, Any, Optional
+from typing import TypeVar, Callable, Any, Optional, List
 
 from controller import manager
 from model import data_type
@@ -112,6 +112,9 @@ class ObjectValue:
                 to_return[field_id] = field_value.file_name if use_reference else field_value.file_name # TODO
 
         return to_return
+
+    def get_references(self, to_check) -> List[str]:
+        return [key for key, value in filter(lambda tpl: tpl[1] is to_check, self._values.items())]
 
     @property
     def id(self) -> Optional[str]:

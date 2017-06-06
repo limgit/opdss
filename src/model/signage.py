@@ -312,6 +312,14 @@ class Signage:
         self._scenes[index_1], self._scenes[index_2] = self._scenes[index_2], self._scenes[index_1]
         self._value_change_handler()
 
+    def get_references(self, to_check) -> List[str]:
+        frame_references = ['{0}.{1}'.format(self.id, x) for x in self._frame.values.get_references(to_check)]
+        scene_references = ['scene{}.{}'.format(index, ref_str)
+                            for index, ref_list in enumerate([scene.values.get_references(to_check) for scene in self._scenes])
+                            for ref_str in ref_list]
+
+        return frame_references + scene_references
+
     def render(self, resource_dir: Path) -> str:
         dirs = [str(x.template.root_dir) for x in self._scenes]  # for scene template resources
         dirs.append(str(self._frame.template.root_dir))  # for frame template resources

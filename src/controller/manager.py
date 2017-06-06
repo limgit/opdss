@@ -2,7 +2,7 @@ import os
 import shutil
 from datetime import time
 
-from typing import Optional, Dict, Callable
+from typing import Optional, Dict, Callable, List
 
 import copy
 import json
@@ -46,7 +46,7 @@ class MultimediaManager:
         def id_change_handler(old_name: str, new_name: str):
             os.rename(str(self._image_type.root_dir / old_name), str(self._image_type.root_dir / new_name))
             del self._images[old_name]
-            self._images[new_name] = new_name
+            self._images[new_name] = new_image
 
         new_image.on_id_change = id_change_handler
         self._images[new_image.file_name] = new_image
@@ -59,7 +59,7 @@ class MultimediaManager:
         def id_change_handler(old_name: str, new_name: str):
             os.rename(str(self._video_type.root_dir / old_name), str(self._video_type.root_dir / new_name))
             del self._videos[old_name]
-            self._videos[new_name] = new_name
+            self._videos[new_name] = new_video
 
         new_video.on_id_change = id_change_handler
         self._videos[new_video.file_name] = new_video
@@ -90,13 +90,23 @@ class MultimediaManager:
     def videos(self) -> Dict[str, FileValue]:
         return copy.copy(self._videos)
 
-    def remove_image(self, file_name: str):
-        del self._images[file_name]
-        os.remove(self._images[file_name])
+    def remove_image(self, to_delete: FileValue, sgn_mng: 'SignageManager'):
+        refs = sgn_mng.get_references(to_delete)
 
-    def remove_video(self, file_name: str):
-        del self.videos[file_name]
-        os.remove(self._videos[file_name])
+        if refs:
+            raise ReferenceError(*refs)
+
+        del self._images[to_delete.file_name]
+        os.remove(str(to_delete.file_path))
+
+    def remove_video(self, to_delete: FileValue, sgn_mng: 'SignageManager'):
+        refs = sgn_mng.get_references(to_delete)
+
+        if refs:
+            raise ReferenceError(*refs)
+
+        del self.videos[to_delete.file_name]
+        os.remove(str(to_delete.file_path))
 
 
 class ObjectManager:
@@ -374,6 +384,11 @@ class SignageManager:
         self._signages[new_signage.id] = new_signage
 
         value_change_handler()  # save to file
+
+    def get_references(self, to_check) -> List[str]:
+        return ['{}.{}'.format(signage_id, ref_str)
+                for signage_id, ref_list in [[signage.id, signage.get_references(to_check)] for signage in self._signages.values()]
+                for ref_str in ref_list]
 
 
 class ChannelManager:
