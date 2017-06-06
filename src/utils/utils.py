@@ -10,8 +10,8 @@ def validate_id(id_value: Optional[str]) -> None:
 
 
 # Utils for view
-def gen_ui_text(name: str, id: str) -> str:
-    return name + " [" + id + "]"
+def gen_ui_text(name: str, id_value: str) -> str:
+    return name + " [" + id_value + "]"
 
 
 def ui_text_to_id(text: str) -> str:
