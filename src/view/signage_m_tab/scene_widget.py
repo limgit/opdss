@@ -1,11 +1,12 @@
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout,
                              QPushButton, QComboBox, QTabWidget,
-                             QTextBrowser, QMessageBox)
+                             QTextBrowser, QMessageBox, QLineEdit,
+                             QGroupBox)
 from typing import Callable
 
 import utils.utils as Utils
 from controller.manager import TemplateManager
-from model.signage import Scene
+from model.signage import Scene, TransitionType
 from model.template import SceneTemplate
 from model.data_type import StringDataType
 from view.resource_manager import ResourceManager
@@ -38,7 +39,7 @@ class SceneWidget(QWidget):
         self._cbox_tpl.setCurrentIndex(idx)
 
         self._tab_data.load_data_on_ui(self._scene)
-        self._tab_transition.load_data_on_ui()
+        self._tab_transition.load_data_on_ui(self._scene)
         self._tab_scheduling.load_data_on_ui()
 
     def init_ui(self) -> None:
@@ -188,20 +189,49 @@ class SceneTransitionTab(QWidget):
     def __init__(self):
         super().__init__()
 
+        self._ledit_duration = QLineEdit()
+        self._cbox_transition = QComboBox()
+
         self._res = ResourceManager()
         self.init_ui()
 
-    def load_data_on_ui(self) -> None:
-        pass  # TODO: Add functionality
+    def load_data_on_ui(self, scene: Scene) -> None:
+        self._ledit_duration.setText(str(scene.duration))
+        idx = self._cbox_transition.findText(scene.transition_type.name.capitalize())
+        self._cbox_transition.setCurrentIndex(idx)
 
     def init_ui(self) -> None:
-        pass  # TODO: Add functionality
+        vbox_duration = QVBoxLayout()
+        vbox_duration.addWidget(self._ledit_duration)
+
+        group_duration = QGroupBox(self._res['sceneDurationLabel'])
+        group_duration.setLayout(vbox_duration)
+
+        transitions = [TransitionType.NONE.name.capitalize(),
+                       TransitionType.PUSH.name.capitalize(),
+                       TransitionType.FADE.name.capitalize()]
+        self._cbox_transition.addItems(transitions)
+
+        vbox_transition = QVBoxLayout()
+        vbox_transition.addWidget(self._cbox_transition)
+
+        group_transition = QGroupBox(self._res['sceneTransitionLabel'])
+        group_transition.setLayout(vbox_transition)
+
+        vbox_outmost = QVBoxLayout()
+        vbox_outmost.addWidget(group_duration)
+        vbox_outmost.addWidget(group_transition)
+        vbox_outmost.addStretch(1)
+
+        self.setLayout(vbox_outmost)
 
     def save(self, scene: Scene) -> None:
-        pass  # TODO: Implement data save functionality
+        scene.duration = int(self._ledit_duration.text())
+        transition = self._cbox_transition.currentText()
+        scene.transition_type = TransitionType[transition.upper()]
 
     def is_data_valid(self) -> bool:
-        return True  # TODO: Check is data valid
+        return self._ledit_duration.text().isdigit()
 
 
 class SceneSchedulingTab(QWidget):
