@@ -61,7 +61,7 @@ class FlaskIOServer(flask_socketio.Namespace):
 
     def on_disconnect(self):
         for room in flask_socketio.rooms():
-            if room not in flask_socketio.rooms():
+            if room not in self._connections.keys():
                 continue
 
             self._connections[room] -= 1
