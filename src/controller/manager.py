@@ -81,10 +81,10 @@ class MultimediaManager:
         return copy.copy(self._images)
 
     def get_images(self, file_id: str) -> FileValue:
-        return self.images[file_id]
+        return self.images[file_id] if file_id else None
 
     def get_videos(self, file_id: str) -> FileValue:
-        return self.videos[file_id]
+        return self.videos[file_id] if file_id else None
 
     @property
     def videos(self) -> Dict[str, FileValue]:
@@ -100,10 +100,13 @@ class MultimediaManager:
 
 
 class ObjectManager:
-    def __init__(self, root_dir: Path):
+    def __init__(self, root_dir: Path, mtm_mng: MultimediaManager):
         self._root_dir = root_dir
+        self._mtm_mng = mtm_mng
+
         self._object_types = dict()
         self._object_values = dict()
+
         self.load_all()
 
     @property
@@ -194,13 +197,17 @@ class ObjectManager:
         elif target_type[0] == '$':
             type_id = target_type[1:]
             type_instance = self.get_object_type(type_id)
+        elif target_type == 'image':
+            type_instance = self._mtm_mng.image_type
+        elif target_type == 'video':
+            type_instance = self._mtm_mng.video_type
         else:
             type_instance = STR_TO_PRIMITIVE_TYPE[target_type](**type_params)
 
         return type_instance
 
     def load_object_value(self, object_id: Optional[str], data_type: ObjectDataType, data: dict) -> ObjectValue:
-        new_object = ObjectValue(object_id, data_type, self)
+        new_object = ObjectValue(object_id, data_type, self, self._mtm_mng)
 
         for field_id, field_value in data.items():
             new_object.set_value(field_id, field_value)

@@ -12,7 +12,8 @@ root_path = Path('../data')
 
 class TestChannelManager(unittest.TestCase):
     def test_channel_manager(self):
-        obj_mng = ObjectManager(root_path / 'data')
+        mtm_mng = MultimediaManager(root_path / 'media')
+        obj_mng = ObjectManager(root_path / 'data', mtm_mng)
         tpl_mng = TemplateManager(root_path / 'template', obj_mng)
         sgn_mng = SignageManager(root_path / 'signage', obj_mng, tpl_mng)
         chn_mng = ChannelManager(root_path / 'channel', sgn_mng)
@@ -24,7 +25,8 @@ class TestChannelManager(unittest.TestCase):
 
 class TestObjectManager(unittest.TestCase):
     def test_object_change(self):
-        obj_mng = ObjectManager(root_path / 'data')
+        mtm_mng = MultimediaManager(root_path / 'media')
+        obj_mng = ObjectManager(root_path / 'data', mtm_mng)
 
         menu_item_type = obj_mng.get_object_type('menu_item')
         milk_object = obj_mng.get_object_value(menu_item_type, 'milk')
@@ -42,7 +44,8 @@ class TestObjectManager(unittest.TestCase):
 
 class TestSignageManager(unittest.TestCase):
     def test_signage_change(self):
-        obj_mng = ObjectManager(root_path / 'data')
+        mtm_mng = MultimediaManager(root_path / 'media')
+        obj_mng = ObjectManager(root_path / 'data', mtm_mng)
         tpl_mng = TemplateManager(root_path / 'template', obj_mng)
         sgn_mng = SignageManager(root_path / 'signage', obj_mng, tpl_mng)
         default_signage = sgn_mng.get_signage('default_signage')
@@ -61,18 +64,19 @@ class TestSignageManager(unittest.TestCase):
 
 class TestWebServer(unittest.TestCase):
     def test_start(self):
-        obj_mng = ObjectManager(root_path / 'data')
+        mtm_mng = MultimediaManager(root_path / 'media')
+        obj_mng = ObjectManager(root_path / 'data', mtm_mng)
         tpl_mng = TemplateManager(root_path / 'template', obj_mng)
         sgn_mng = SignageManager(root_path / 'signage', obj_mng, tpl_mng)
         chn_mng = ChannelManager(root_path / 'channel', sgn_mng)
 
-        server = WebServer(chn_mng, obj_mng, tpl_mng, sgn_mng)
+        server = WebServer(chn_mng, obj_mng, tpl_mng, sgn_mng, mtm_mng)
         server.start()  # todo: causes infinite loop
 
 
 class TestMultimedia(unittest.TestCase):
     def test_file_change(self):
-        multi_mng = MultimediaManager(root_path / 'multimedia')
+        multi_mng = MultimediaManager(root_path / 'media')
         image_path = root_path / 'multimedia' / 'image'
         video_path = root_path / 'multimedia' / 'video'
 

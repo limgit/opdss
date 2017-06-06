@@ -4,7 +4,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import TypeVar, Generic, Sequence, Dict, Tuple
 
-from model.data_value import ObjectValue
+from model.data_value import ObjectValue, FileValue
 
 T = TypeVar('T')
 
@@ -244,13 +244,19 @@ class ListDataType(DataType[list]):
 class FileDataType(DataType[str]):
     def __init__(self, root_dir: Path):
         self._root_dir = root_dir
-        super().__init__('my_file')
+        super().__init__('')
 
     @property
     def root_dir(self) -> Path:
         return self._root_dir
 
     def is_valid(self, value: str) -> bool:
+        if not value:
+            return True
+
+        if isinstance(value, FileValue):
+            return True  # todo
+
         return (self._root_dir / value).exists()
 
 
