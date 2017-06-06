@@ -18,7 +18,7 @@ import webserver.logger
 
 class MultimediaManager:
     def __init__(self, root_dir: Path):
-        self._root_Dir = root_dir
+        self._root_dir = root_dir
         self._image_type = FileDataType(root_dir / 'image')
         self._video_type = FileDataType(root_dir / 'video')
         self._images = dict()
@@ -37,11 +37,11 @@ class MultimediaManager:
     def add_image(self, new_file_path: Path):
         # if new file is out of the media folder, copy the file to the media folder.
         if not new_file_path.parent.resolve().samefile(self._image_type.root_dir.parent):
-            pass  # todo: copy file
+            pass  # todo: copy file 폴더로 copy
 
         new_image = FileValue(self._image_type, new_file_path.name)
 
-        def id_change_handler(old_name, new_name):
+        def id_change_handler(old_name: str, new_name: str):
             pass  # todo: if new_image.file_name is changed, rename the file in the media folder.
 
         new_image.on_id_change = id_change_handler
@@ -51,7 +51,36 @@ class MultimediaManager:
     def add_video(self, new_file_path: Path):
         pass  # todo
 
-    # todo: add getter of image/video_type and images/videos and remove_image/video(self, to_delete: FileValue)
+    # del a['fdas'] --> a dictionary의 fdas라는 키를 가진 얘를 날려줌
+    # todo: add getter of image/video_type and images/videos 5개 and remove_image/video(self, to_delete: FileValue)
+
+    @property
+    def root_path(self) -> Path:
+        return self._root_path
+
+    @property
+    def image_type(self) -> FileDataType:
+        return self._image_type
+
+    @property
+    def video_type(self) -> FileDataType:
+        return self._video_type
+
+    @property
+    def images(self) -> Dict[str, FileDataType]:
+        return copy.copy(self._images)
+
+    @property
+    def videos(self) -> Dict[str, FileDataType]:
+        return copy.copy(self._videos)
+
+    def remove_image(self, file_name: str):
+        del self._images[file_name]
+        os.remove(self._images[file_name])
+
+    def remove_video(self, file_name: str):
+        del self.videos[file_name]
+        os.remove(self._videos[file_name])
 
 
 class ObjectManager:
@@ -108,8 +137,8 @@ class ObjectManager:
 
                 self.add_object_value(new_object)
             # print('{} loaded'.format(new_type._name))
-            log_level = 1
-            log1 = webserver.logger.Logger(new_type.name, 1, log_level)
+
+            webserver.logger.Logger().info(new_type.name)
 
     def load_object_type(self, type_id: str, data: dict) -> ObjectDataType:
         # populate raw fields values to real python objects
@@ -175,6 +204,8 @@ class ObjectManager:
 
         self._object_values[new_object.data_type][new_object.id] = new_object
 
+        value_change_handler()  # save to file
+
 
 class TemplateManager:
     def __init__(self, dir_root: Path, obj_mng: ObjectManager):
@@ -209,7 +240,7 @@ class TemplateManager:
                                                                     self._obj_mng.load_object_type('', json.load(f)),
                                                                     scene_dir)
 
-                webserver.logger.Logger(self._scene_templates[scene_tpl_id].definition.name, 2, 2)
+                webserver.logger.Logger().info(self._scene_templates[scene_tpl_id].definition.name)
 
         # load frames
         frame_path = self._dir_root / 'frame'
@@ -221,7 +252,7 @@ class TemplateManager:
                                                                     self._obj_mng.load_object_type('', json.load(f)),
                                                                     frame_dir)
 
-                webserver.logger.Logger(self._frame_templates[frame_tpl_id].definition.name, 2, 3)
+                webserver.logger.Logger().info(self._frame_templates[frame_tpl_id].definition.name)
 
 
 class SignageManager:
@@ -280,7 +311,7 @@ class SignageManager:
             new_signage = Signage(signage_id, signage_mnf.parent, dct['title'], dct['description'], frame, scenes)
             self.add_signage(new_signage)
 
-            webserver.logger.Logger(new_signage.title, 3, 4)
+            webserver.logger.Logger().info(new_signage.title)
 
     def add_signage(self, new_signage: Signage) -> None:
         def id_change_handler(old_id, new_id):
@@ -299,6 +330,8 @@ class SignageManager:
         new_signage.on_value_change = value_change_handler
 
         self._signages[new_signage.id] = new_signage
+
+        value_change_handler()  # save to file
 
 
 class ChannelManager:
@@ -372,6 +405,8 @@ class ChannelManager:
         new_channel.count_event_handler = lambda channel: self._count_event_handler(channel)
 
         self._channels[new_channel.id] = new_channel
+
+        value_change_handler(new_channel)  # save to file
 
     def remove_channel(self, to_delete: Channel):
         pass
