@@ -80,9 +80,6 @@ class MainWidget(QWidget):
             self._vbox_outmost.addWidget(tab_widget_mainn)
 
 
-
-
-
 class MainWindow(QMainWindow):
     def __init__(self, root_path: Path):
         super().__init__()

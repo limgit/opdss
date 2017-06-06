@@ -73,9 +73,14 @@ class ChannelWidget(QGroupBox):
             signage = self._sgn_mng.get_signage(sgn_id)
             signage_texts.append(utils.gen_ui_text(signage.title, signage.id))
         self._cbox_signages.addItems(signage_texts)
+        self._cbox_signages.currentIndexChanged.connect(self._signage_changed)
 
         vbox_outmost = QVBoxLayout()
         vbox_outmost.addWidget(self._label)
         vbox_outmost.addWidget(self._cbox_signages)
 
         self.setLayout(vbox_outmost)
+
+    def _signage_changed(self):
+        sgn_id = utils.ui_text_to_id(self._cbox_signages.currentText())
+        # self._channel.signage = self._sgn_mng.get_signage(sgn_id)  # ERROR PRONE!
