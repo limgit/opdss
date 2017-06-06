@@ -55,9 +55,9 @@ class MultimediaWidget(QWidget):
                 if self._mtm.file_name.endswith('.jpeg') or \
                    self._mtm.file_name.endswith('.jpg') or \
                    self._mtm.file_name.endswith('.png'):
-                    self._mtm_mng.remove_image(self._mtm_mng.get_image(self._mtm))
+                    self._mtm_mng.remove_image(self._mtm)
                 else:
-                    self._mtm_mng.remove_video(self._mtm_mng.get_video(self._mtm))
+                    self._mtm_mng.remove_video(self._mtm)
             except ReferenceError as e:
                 QMessageBox.warning(self, "Can't delete",
                                     "This data can't be deleted. " + ', '.join(e.args[0].keys()) + " reference this",

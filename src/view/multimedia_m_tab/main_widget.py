@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from PyQt5.QtWidgets import (QWidget, QTreeWidget, QTreeWidgetItem, QHBoxLayout, QFileDialog)
 
 from .multimedia_widget import MultimediaWidget
@@ -73,11 +75,11 @@ class MultimediaManagementTab(QWidget):
                                                                extensions, options=options)
                     if file_name:
                         if item.parent().text(0) == "Image":
-                            self._mtm_mng.add_image(file_name)
+                            self._mtm_mng.add_image(Path(file_name))
                         else:
-                            self._mtm_mng.add_video(file_name)
+                            self._mtm_mng.add_video(Path(file_name))
                         file_id = file_name.split('/')[-1]
-                        item.setText(file_id)
+                        item.setText(0, file_id)
 
                         item.parent().addChild(QTreeWidgetItem(['+']))
                 else:

@@ -31,7 +31,7 @@ class Schedule:
         self._type = schedule_type
         self._from = time(0, 0, 0)
         self._to = time(23, 59, 59)
-        self._day_of_week = [True] * 7  # Mon ~ Sun
+        self._day_of_week = [True] * 7  # Sun ~ Sat
 
         self._on_change_handler = lambda: None
 
@@ -343,7 +343,5 @@ class Signage:
         )
 
         template = env.get_template('index.html')
-
-        print(data)
 
         return template.render(_schedules=schedules, _durations=durations, _scenes=scenes, _frame=frame, **data)
