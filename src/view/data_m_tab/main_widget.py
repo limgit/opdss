@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import (QWidget, QTreeWidget, QTreeWidgetItem,
-                             QStackedWidget, QHBoxLayout)
+                             QStackedWidget, QHBoxLayout, QMessageBox, QInputDialog)
 
 import utils.utils as utils
+from model.data_value import ObjectValue
 from .data_type_widget import DataTypeWidget
 from .data_widget import DataWidget
 from controller.manager import ObjectManager, TemplateManager, SignageManager, MultimediaManager, ChannelManager
@@ -97,7 +98,22 @@ class DataManagementTab(QWidget):
                 self._stacked_widget.setCurrentIndex(idx)
             else:
                 if item_text == '+':
-                    pass  # TODO: Add data addition logic
+                    item.setSelected(False)
+                    text, ok = QInputDialog.getText(self, self._res['idDialogTitle'],
+                                                    self._res['idDialogDescription'])
+                    if ok:
+                        try:
+                            utils.validate_id(text)
+                        except AttributeError:
+                            QMessageBox.warning(self, self._res['idInvalidTitle'],
+                                                self._res['idInvalidDescription'],
+                                                QMessageBox.Ok, QMessageBox.Ok)
+                            return  # Invalid ID. Do not create signage
+                        data_type_id = utils.ui_text_to_id(item.parent().text(0))
+                        data_type = self._obj_mng.get_object_type(data_type_id)
+                        self._obj_mng.add_object_value(ObjectValue(text, data_type, self._obj_mng, self._mtm_mng))
+                        item.setText(0, text)
+                        item.parent().addChild(QTreeWidgetItem(['+']))
                 else:
                     # Selected one is data
                     idx = self._widget_idx['data']
