@@ -171,7 +171,11 @@ class SceneDataTab(QWidget):
         pass  # TODO: Implement data save functionality
 
     def is_data_valid(self) -> bool:
-        return True  # TODO: Check is data valid
+        for field_id in self._component_widgets.keys():
+            widget = self._component_widgets[field_id]
+            if not widget.is_data_valid():
+                return False
+        return True
 
 
 class SceneTransitionTab(QWidget):

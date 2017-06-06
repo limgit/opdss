@@ -74,6 +74,14 @@ class StringDataWidget(ComponentWidget):
             idx = self._cbox_value.findText(value)
             self._cbox_value.setCurrentIndex(idx)
 
+    def is_data_valid(self) -> bool:
+        if self._input_type == InputType.FIELD:
+            return self._data_type.min_length <= \
+                   len(self.value) \
+                   <= self._data_type.max_length
+        elif self._input_type == InputType.ONE_OF:
+            return self.value in self._data_type.one_of
+
     def load_data_on_ui(self, value: str) -> None:
         self.value = value
 
