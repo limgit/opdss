@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QLabel,
                              QLineEdit, QPlainTextEdit, QGroupBox,
                              QPushButton)
 
-from controller.manager import ObjectManager
+from model.data_type import ObjectDataType
 from view.resource_manager import ResourceManager
 
 
@@ -19,9 +19,8 @@ class DataTypeWidget(QWidget):
         self._res = ResourceManager()
         self.init_ui()
 
-    def load_data_on_ui(self, obj_mng: ObjectManager, data_type_id: str):
-        data_type = obj_mng.get_object_type(data_type_id)
-        self._ledit_id.setText(data_type_id)
+    def load_data_on_ui(self, data_type: ObjectDataType):
+        self._ledit_id.setText(data_type.id)
         self._ledit_name.setText(data_type.name)
         self._ledit_author.setText(data_type.dev_name)
         self._ledit_homepage.setText(data_type.dev_homepage)

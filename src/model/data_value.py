@@ -67,7 +67,7 @@ class ObjectValue:
     # if multiple values should be changed, use this method instead of 'set_value'
     # if you don't, change handler will be called whenever single value is changed.
     def set_values(self, **values):
-        for key, value in values:
+        for key, value in values.items():
             self._set_value(key, value)
 
         self._value_change_handler()
@@ -81,7 +81,7 @@ class ObjectValue:
         if isinstance(field_type, data_type.DateDataType):
             value = datetime.strptime(value, data_type.DateDataType.format)
         elif isinstance(field_type, data_type.ObjectDataType):
-            value = self._obj_mng.get_object_value(field_type, value)
+            value = self._obj_mng.get_object_value(field_type, value) if self._obj_mng else None
         elif isinstance(field_type, data_type.ListDataType) and \
                 isinstance(field_type.data_type, data_type.ObjectDataType):
             value = [self._obj_mng.get_object_value(field_type.data_type, x) for x in value]

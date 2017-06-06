@@ -135,7 +135,7 @@ class ObjectDataType(DataType[ObjectValue]):
         self._fields = fields
 
         super().__init__('')
-        # super().__init__({key: value.default for key, value in fields.items()})
+        # super().__init__({key: value[0].default for key, value in fields.items()})
 
     @property
     def id(self):
@@ -199,7 +199,7 @@ class DateDataType(DataType[str]):
         self._min = new_datetime
 
     @property
-    def max(self) -> datetime:
+    def max(self) -> str:
         return self._max.strftime(DateDataType.format)
 
     @max.setter
