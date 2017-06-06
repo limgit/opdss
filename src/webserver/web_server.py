@@ -44,6 +44,9 @@ class WebServer:
     def start(self):
         threading.Thread(target=lambda: self._socket_io.run(self._app)).start()
 
+    def stop(self):
+        self._socket_io.stop()
+
     def handle_channel_list(self) -> str:
         return ' '.join(['<a href="/{0}">{0}</a>'.format(str(x)) for x in self._chn_mng.channels.keys()])
 
