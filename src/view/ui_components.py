@@ -1,11 +1,10 @@
 from PyQt5.QtWidgets import (QWidget, QGroupBox, QLineEdit, QComboBox,
-                             QVBoxLayout)
-from PyQt5.Qt import QMouseEvent
+                             QVBoxLayout, QCheckBox)
 from enum import Enum, auto
 from typing import Callable
 import sys
 
-from model.data_type import StringDataType
+from model.data_type import StringDataType, BooleanDataType
 
 
 def make_clickable(widget: QWidget, handler):
@@ -90,11 +89,10 @@ class StringDataWidget(ComponentWidget):
         vbox_outmost = QVBoxLayout()
         if self._input_type == InputType.FIELD:
             vbox_outmost.addWidget(self._ledit_value)
-            self.setLayout(vbox_outmost)
         elif self._input_type == InputType.ONE_OF:
             self._cbox_value.addItems(self._data_type.one_of)
             vbox_outmost.addWidget(self._cbox_value)
-            self.setLayout(self._cbox_value)
+        self.setLayout(vbox_outmost)
 
     def mousePressEvent(self, event):
         constraint = ""
@@ -110,4 +108,41 @@ class StringDataWidget(ComponentWidget):
         elif self._input_type == InputType.ONE_OF:
             constraint = "select from the items."
         self._clicked_handler(self.name, self.description, constraint)
+        super().mousePressEvent(event)
+
+
+class BooleanDataWidget(ComponentWidget):
+    def __init__(self, data_type: BooleanDataType, name: str, description: str,
+                 clicked_handler: Callable[[str, str, str], None]):
+        super().__init__(name, description)
+
+        self._data_type = data_type
+        self._check_box = make_clickable(QCheckBox, self.mousePressEvent)
+        self._clicked_handler = clicked_handler
+
+        self.init_ui()
+
+    @property
+    def value(self) -> bool:
+        return self._check_box.isChecked()
+
+    @value.setter
+    def value(self, value: bool) -> None:
+        self._check_box.setChecked(value)
+
+    def is_data_valid(self) -> bool:
+        return True  # Boolean data is always valid
+
+    def load_data_on_ui(self, value: bool) -> None:
+        self.value = value
+
+    def init_ui(self) -> None:
+        self.setTitle(self.name + " (Boolean)")
+        self._check_box.setText(self.name)
+        vbox_outmost = QVBoxLayout()
+        vbox_outmost.addWidget(self._check_box)
+        self.setLayout(vbox_outmost)
+
+    def mousePressEvent(self, event):
+        self._clicked_handler(self.name, self.description, "None.")
         super().mousePressEvent(event)

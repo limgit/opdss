@@ -8,9 +8,9 @@ import utils.utils as Utils
 from controller.manager import TemplateManager
 from model.signage import Scene, TransitionType, ScheduleType
 from model.template import SceneTemplate
-from model.data_type import StringDataType
+from model.data_type import StringDataType, BooleanDataType
 from view.resource_manager import ResourceManager
-from view.ui_components import StringDataWidget
+from view.ui_components import StringDataWidget, BooleanDataWidget
 
 
 class SceneWidget(QWidget):
@@ -153,7 +153,12 @@ class SceneDataTab(QWidget):
                 widget.value = field[0].default
                 self._component_widgets[field_id] = widget
                 self._vbox_data.addWidget(widget)
-            # TODO: Add more UI components according to data type
+            elif isinstance(field[0], BooleanDataType):
+                widget = BooleanDataWidget(field[0], field[1], field[2], clicked_handler)
+                widget.value = field[0].default
+                self._component_widgets[field_id] = widget
+                self._vbox_data.addWidget(widget)
+                # TODO: Add more UI components according to data type
 
     def load_data_on_ui(self, scene: Scene) -> None:
         # scene_idx from 0

@@ -3,10 +3,10 @@ from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QLabel,
 from typing import Callable
 
 import utils.utils as Utils
-from model.data_type import ObjectDataType, StringDataType
+from model.data_type import ObjectDataType, StringDataType, BooleanDataType
 from model.data_value import ObjectValue
 from view.resource_manager import ResourceManager
-from view.ui_components import StringDataWidget
+from view.ui_components import StringDataWidget, BooleanDataWidget
 
 
 class DataWidget(QWidget):
@@ -46,6 +46,11 @@ class DataWidget(QWidget):
             field = fields[field_id]  # Tuple[DataType, name, description]
             if isinstance(field[0], StringDataType):
                 widget = StringDataWidget(field[0], field[1], field[2], clicked_handler)
+                widget.value = field[0].default
+                self._component_widgets[field_id] = widget
+                self._vbox_data.addWidget(widget)
+            elif isinstance(field[0], BooleanDataType):
+                widget = BooleanDataWidget(field[0], field[1], field[2], clicked_handler)
                 widget.value = field[0].default
                 self._component_widgets[field_id] = widget
                 self._vbox_data.addWidget(widget)
