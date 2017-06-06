@@ -18,6 +18,7 @@ chn_mng = ChannelManager(root_path / 'channel', sgn_mng)
 mtm_mng.bind_managers(sgn_mng, obj_mng)
 obj_mng.bind_managers(tpl_mng, sgn_mng)
 tpl_mng.bind_managers(sgn_mng)
+sgn_mng.bind_managers(chn_mng)
 
 
 class TestChannelManager(unittest.TestCase):
@@ -68,6 +69,10 @@ class TestSignageManager(unittest.TestCase):
 
         # change reference value of a scene
         default_signage.scenes[0].values.set_value('menu_group', 'drinks')
+
+        self.assertRaises(ReferenceError, sgn_mng.remove_signage, default_signage)
+        default_signage.id = 'test_signage'
+        default_signage.id = 'default_signage'
 
 
 class TestWebServer(unittest.TestCase):
