@@ -1,20 +1,17 @@
-import os
-import shutil
-from datetime import time
-
-from typing import Optional, Dict, Callable, List
-
 import copy
 import json
+import os
+import shutil
 from collections import deque
+from datetime import time
 from pathlib import Path
+from typing import Optional, Dict, Callable
 
+import utils.logger
 from model.data_type import ObjectDataType, ListDataType, STR_TO_PRIMITIVE_TYPE, DataType, FileDataType
 from model.data_value import ObjectValue, FileValue
 from model.signage import Signage, Scene, TransitionType, Frame, Schedule, ScheduleType
 from model.template import SceneTemplate, FrameTemplate
-
-import webserver.logger
 
 
 class MultimediaManager:
@@ -209,7 +206,7 @@ class ObjectManager:
                 self.add_object_value(new_object)
             # print('{} loaded'.format(new_type._name))
 
-            webserver.logger.Logger().info(new_type.name)
+            utils.logger.info(new_type.name)
 
     def load_object_type(self, type_id: str, data: dict) -> ObjectDataType:
         # populate raw fields values to real python objects
@@ -349,7 +346,7 @@ class TemplateManager:
                                                                     self._obj_mng.load_object_type('', json.load(f)),
                                                                     scene_dir)
 
-                webserver.logger.Logger().info(self._scene_templates[scene_tpl_id].definition.name)
+                utils.logger.info(self._scene_templates[scene_tpl_id].definition.name)
 
         # load frames
         frame_path = self._root_dir / 'frame'
@@ -361,7 +358,7 @@ class TemplateManager:
                                                                     self._obj_mng.load_object_type('', json.load(f)),
                                                                     frame_dir)
 
-                webserver.logger.Logger().info(self._frame_templates[frame_tpl_id].definition.name)
+                utils.logger.info(self._frame_templates[frame_tpl_id].definition.name)
 
     def get_type_references(self, to_check) -> Dict[str, ObjectDataType]:
         frame_refs = {'frame/{}'.format(frame_id): frame_ins
@@ -461,7 +458,7 @@ class SignageManager:
             new_signage = Signage(signage_id, dct['title'], dct['description'], frame, scenes)
             self.add_signage(new_signage)
 
-            webserver.logger.Logger().info(new_signage.title)
+            utils.logger.info(new_signage.title)
 
     def add_signage(self, new_signage: Signage) -> None:
         def id_change_handler(old_id, new_id):
