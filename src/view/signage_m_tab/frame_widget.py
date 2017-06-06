@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout,
                              QPushButton, QComboBox, QTabWidget,
                              QTextBrowser, QMessageBox)
+from typing import Callable
 
 import utils.utils as Utils
 from controller.manager import TemplateManager
@@ -12,11 +13,12 @@ from view.ui_components import StringDataWidget
 
 
 class FrameWidget(QWidget):
-    def __init__(self, tpl_mng: TemplateManager):
+    def __init__(self, tpl_mng: TemplateManager, value_change_handler: Callable[[Utils.ChangeType, str], None]):
         super().__init__()
 
         self._tpl_mng = tpl_mng
         self._frame = None
+        self._value_change_handler = value_change_handler
 
         self._cbox_tpl = QComboBox()
         self._tab_data = FrameDataTab()

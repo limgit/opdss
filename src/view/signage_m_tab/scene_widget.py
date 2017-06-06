@@ -218,7 +218,7 @@ class SceneTransitionTab(QWidget):
 
         transitions = [self.transition_type_to_text(TransitionType.NONE),
                        self.transition_type_to_text(TransitionType.PUSH),
-                       self.transition_type_to_text(TransitionType.PUSH)]
+                       self.transition_type_to_text(TransitionType.FADE)]
         self._cbox_type.addItems(transitions)
 
         vbox_transition = QVBoxLayout()
