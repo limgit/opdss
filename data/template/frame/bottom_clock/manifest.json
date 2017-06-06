@@ -3,5 +3,17 @@
   "dev_name": "Noddle",
   "dev_homepage": "https://cs.kaist.ac.kr",
   "description": "simple clock on the bottom.",
-  "fields": {}
+  "fields": {
+    "close_enabled": ["Show closed time", "Show closed time in right bottom", {
+      "type": "bool",
+      "default": false
+    }],
+    "close_str": ["Close String", "String for close time", {
+      "type": "str",
+      "default": "CLOSE"
+    }],
+    "close_time": ["Close Time", "Closing time. only hour/minute is used.", {
+      "type": "datetime"
+    }]
+  }
 }
