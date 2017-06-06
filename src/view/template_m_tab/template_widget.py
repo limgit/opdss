@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import (QWidget, QGraphicsView, QHBoxLayout,
                              QVBoxLayout, QLabel, QLineEdit,
                              QPlainTextEdit, QGroupBox, QPushButton)
 
-from controller.manager import TemplateManager
+from model.template import Template
 from view.resource_manager import ResourceManager
 
 
@@ -20,21 +20,22 @@ class TemplateWidget(QWidget):
         self._res = ResourceManager()
         self.init_ui()
 
-    def load_data_on_ui(self, tpl_type: str, tpl_mng: TemplateManager, tpl_id: str):
-        if tpl_type == self._res['frameLabel']:
-            # Frame
-            pass  # TODO: Add functionality
-        else:
-            # Scene
-            scene_tpl = tpl_mng.get_scene_template(tpl_id)
-            scene_tpl_metadata = scene_tpl.definition
-            self._ledit_id.setText(tpl_id)
-            self._ledit_name.setText(scene_tpl_metadata.name)
-            self._ledit_author.setText(scene_tpl_metadata.dev_name)
-            self._ledit_homepage.setText(scene_tpl_metadata.dev_homepage)
-            self._ptedit_descript.setPlainText(scene_tpl_metadata.description)
+    def clear_data_on_ui(self) -> None:
+        self._ledit_id.setText('')
+        self._ledit_name.setText('')
+        self._ledit_author.setText('')
+        self._ledit_homepage.setText('')
+        self._ptedit_descript.setPlainText('')
 
-    def init_ui(self):
+    def load_data_on_ui(self, tpl: Template) -> None:
+        tpl_metadata = tpl.definition
+        self._ledit_id.setText(tpl.id)
+        self._ledit_name.setText(tpl_metadata.name)
+        self._ledit_author.setText(tpl_metadata.dev_name)
+        self._ledit_homepage.setText(tpl_metadata.dev_homepage)
+        self._ptedit_descript.setPlainText(tpl_metadata.description)
+
+    def init_ui(self) -> None:
         # ID display
         self._ledit_id.setEnabled(False)
         label_id = QLabel(self._res['idLabel'])

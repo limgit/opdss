@@ -19,7 +19,7 @@ class TemplateManagementTab(QWidget):
         self._template_widget = TemplateWidget()
         self.init_ui()
 
-    def template_to_tree_item(self):
+    def template_to_tree_item(self) -> [QTreeWidgetItem]:
         frame_label_item = QTreeWidgetItem([self._res['frameLabel']])
         for frame_tpl_id in self._tpl_mng.frame_templates.keys():
             frame_tpl = self._tpl_mng.get_frame_template(frame_tpl_id)
@@ -35,7 +35,7 @@ class TemplateManagementTab(QWidget):
             scene_label_item.addChild(scene_item)
         return [frame_label_item, scene_label_item]
 
-    def init_ui(self):
+    def init_ui(self) -> None:
         # Left side of screen
         multimedia_list = QTreeWidget()
         multimedia_list.setHeaderLabel(self._res['templateListLabel'])
@@ -49,7 +49,7 @@ class TemplateManagementTab(QWidget):
         hbox_outmost.addWidget(self._template_widget, 4)
         self.setLayout(hbox_outmost)
 
-    def list_item_clicked(self):
+    def list_item_clicked(self) -> None:
         get_selected = self.sender().selectedItems()
         if get_selected:
             item = get_selected[0]
@@ -57,9 +57,14 @@ class TemplateManagementTab(QWidget):
             if item.parent() is None:
                 # It is at topmost level
                 # Selected one is Scene/Frame
-                pass
+                self._template_widget.clear_data_on_ui()
             else:
                 # Selected one is frame/scene
                 tpl_id = Utils.ui_text_to_id(item_text)
-                self._template_widget.load_data_on_ui(item.parent().text(0), self._tpl_mng, tpl_id)
-                # item.parent().text(0) is self._res['frameLabel'] or self._res['sceneLabel']
+                if item.parent().text(0) == self._res['frameLabel']:
+                    # Selected one is frame template
+                    tpl = self._tpl_mng.get_frame_template(tpl_id)
+                else:
+                    # Selected one is scene template
+                    tpl = self._tpl_mng.get_scene_template(tpl_id)
+                self._template_widget.load_data_on_ui(tpl)
