@@ -11,7 +11,7 @@ class WebServer:
     def __init__(self, chn_mng: ChannelManager, obj_mng: ObjectManager, tpl_mng: TemplateManager,
                  sgn_mng: SignageManager):
         self._app = flask.Flask(__name__)
-        self._app.static_folder = str(tpl_mng._dir_root.resolve())
+        self._app.static_folder = str(tpl_mng.root_dir.resolve())
         self._app.add_url_rule('/favicon.ico', 'favicon', lambda: '')
         self._app.add_url_rule('/', 'handle_channel_list', self.handle_channel_list)
         self._app.add_url_rule('/<channel_id>', 'handle_channel', self.handle_channel)
@@ -26,7 +26,7 @@ class WebServer:
         self._io_server = FlaskIOServer()
 
         def redirect_event(channel: Channel, old_id: str):
-            self._io_server.request_redirect()
+            self._io_server.request_redirect(old_id, channel.id)
 
         def count_event(channel: Channel):
             return self._io_server.get_connections(channel.id)
@@ -45,7 +45,7 @@ class WebServer:
         return ' '.join(['<a href="/{0}">{0}</a>'.format(str(x)) for x in self._chn_mng.channels.keys()])
 
     def handle_channel(self, channel_id: str) -> str:
-        return self._chn_mng.get_channel(channel_id).signage.render()
+        return self._chn_mng.get_channel(channel_id).signage.render(self._sgn_mng.root_dir)
 
     def handle_template_static(self, path: str) -> str:
         return self._app.send_static_file(path)

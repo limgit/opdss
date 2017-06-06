@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 from typing import TypeVar, Callable, Any, Optional
 
@@ -75,7 +76,9 @@ class ObjectValue:
 
         field_type = self._data_type.fields[key][0]
 
-        if isinstance(field_type, data_type.ObjectDataType):
+        if isinstance(field_type, data_type.DateDataType):
+            value = datetime.strptime(value, data_type.DateDataType.format)
+        elif isinstance(field_type, data_type.ObjectDataType):
             value = self._obj_mng.get_object_value(field_type, value)
         elif isinstance(field_type, data_type.ListDataType) and \
                 isinstance(field_type.data_type, data_type.ObjectDataType):
@@ -93,7 +96,9 @@ class ObjectValue:
         to_return = {x: y for x, y in self._values.items()}
 
         for field_id, field_value in to_return.items():
-            if isinstance(field_value, ObjectValue):
+            if isinstance(field_value, datetime):
+                to_return[field_id] = field_value if use_reference else field_value.strftime(data_type.DateDataType.format)
+            elif isinstance(field_value, ObjectValue):
                 to_return[field_id] = field_value.get_values() if use_reference else field_value.id
             elif isinstance(field_value, list) and isinstance(field_value[0], ObjectValue):
                 to_return[field_id] = [x.get_values() if use_reference else x.id for x in to_return[field_id]]
