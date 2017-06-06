@@ -168,7 +168,13 @@ class SceneDataTab(QWidget):
         self.setLayout(vbox_outmost)
 
     def save(self, scene: Scene) -> None:
-        pass  # TODO: Implement data save functionality
+        # Gather all data
+        values = dict()
+        for field_id in self._component_widgets.keys():
+            widget = self._component_widgets[field_id]
+            values[field_id] = widget.value
+        # Save it
+        scene.values.set_values(**values)
 
     def is_data_valid(self) -> bool:
         for field_id in self._component_widgets.keys():
