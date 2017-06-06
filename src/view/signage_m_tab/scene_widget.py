@@ -96,7 +96,8 @@ class SceneDataTab(QWidget):
         # Clean the previous layout
         self._component_widgets = dict()
         for i in range(self._vbox_data.count()):
-            self._vbox_data.itemAt(0).widget().setParent(None)
+            widget = self._vbox_data.itemAt(0).widget()
+            widget.deleteLater()
         self._tview_detail.setText("")
 
         # Load the new layout
