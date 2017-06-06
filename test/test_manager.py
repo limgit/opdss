@@ -67,7 +67,7 @@ class TestMultimedia(unittest.TestCase):
         image.file_name = 'test'
         image.file_name = 'placeholder.jpg'
 
-        self.assertRaises(ReferenceError, mtm_mng.remove_image, 'placeholder.jpg', sgn_mng)
+        self.assertRaises(ReferenceError, mtm_mng.remove_image, image, sgn_mng, obj_mng)
 
 if __name__ == '__main__':
     unittest.main()
