@@ -5,6 +5,7 @@ import flask_socketio
 
 from controller.manager import ObjectManager, TemplateManager, SignageManager, ChannelManager, MultimediaManager
 from model.channel import Channel
+from utils import logger
 
 
 class WebServer:
@@ -43,6 +44,7 @@ class WebServer:
 
     def start(self):
         threading.Thread(target=lambda: self._socket_io.run(self._app)).start()
+        logger.info('server started!')
 
     def stop(self):
         self._socket_io.stop()
@@ -57,7 +59,6 @@ class WebServer:
         return self._app.send_static_file(path)
 
     def handle_image_static(self, file_name: str) -> int:
-        print(self._mtm_mng.image_type.root_dir, file_name)
         return flask.send_from_directory(self._mtm_mng.image_type.root_dir, file_name)
 
     def handle_video_static(self, file_name: str) -> int:
@@ -78,11 +79,13 @@ class FlaskIOServer(flask_socketio.Namespace):
             if room not in self._connections.keys():
                 continue
 
+            logger.info('disconnection on {} channel'.format(room))
             self._connections[room] -= 1
 
     def on_enter(self, data: dict):
         room_name = data['room']
         flask_socketio.join_room(room_name)
+        logger.info('connection on {} channel'.format(room_name))
 
         if room_name not in self._connections.keys():
             self._connections[room_name] = 0

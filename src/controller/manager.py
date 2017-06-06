@@ -204,9 +204,8 @@ class ObjectManager:
                     new_object = self.load_object_value(value_id, new_type, json.load(f))
 
                 self.add_object_value(new_object)
-            # print('{} loaded'.format(new_type._name))
 
-            utils.logger.info(new_type.name)
+            utils.logger.info('{} loaded from a file'.format(new_type.name))
 
     def load_object_type(self, type_id: str, data: dict) -> ObjectDataType:
         # populate raw fields values to real python objects
@@ -291,7 +290,6 @@ class ObjectManager:
         del self._object_types[to_delete.id]
 
     def remove_object_value(self, to_delete: ObjectValue):
-        print(to_delete)
         refs = self.get_value_references(to_delete)
         refs.update(self._sgn_mng.get_value_references(to_delete))
 
@@ -346,7 +344,7 @@ class TemplateManager:
                                                                     self._obj_mng.load_object_type('', json.load(f)),
                                                                     scene_dir)
 
-                utils.logger.info(self._scene_templates[scene_tpl_id].definition.name)
+        utils.logger.info('{} loaded from a file'.format(self._scene_templates[scene_tpl_id].definition.name))
 
         # load frames
         frame_path = self._root_dir / 'frame'
@@ -358,7 +356,7 @@ class TemplateManager:
                                                                     self._obj_mng.load_object_type('', json.load(f)),
                                                                     frame_dir)
 
-                utils.logger.info(self._frame_templates[frame_tpl_id].definition.name)
+                utils.logger.info('{} loaded from a file'.format(self._frame_templates[frame_tpl_id].definition.name))
 
     def get_type_references(self, to_check) -> Dict[str, ObjectDataType]:
         frame_refs = {'frame/{}'.format(frame_id): frame_ins
@@ -458,7 +456,7 @@ class SignageManager:
             new_signage = Signage(signage_id, dct['title'], dct['description'], frame, scenes)
             self.add_signage(new_signage)
 
-            utils.logger.info(new_signage.title)
+            utils.logger.info('{} loaded from a file'.format(new_signage.title))
 
     def add_signage(self, new_signage: Signage) -> None:
         def id_change_handler(old_id, new_id):

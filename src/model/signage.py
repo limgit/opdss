@@ -344,6 +344,4 @@ class Signage:
 
         template = env.get_template('index.html')
 
-        print(data)
-
         return template.render(_schedules=schedules, _durations=durations, _scenes=scenes, _frame=frame, **data)
