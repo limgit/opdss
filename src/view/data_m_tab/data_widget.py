@@ -119,9 +119,13 @@ class DataWidget(QWidget):
     def button_clicked(self):
         button_text = self.sender().text()
         if button_text == self._res['deleteButtonText']:
-            print("Remove start")
-            self._obj_mng.remove_object_value(self._data)
-            print("Removed")
+            try:
+                self._obj_mng.remove_object_value(self._data)
+            except ReferenceError as e:
+                QMessageBox.warning(self, "Can't delete",
+                                    "This data can't be deleted. " + ', '.join(e.args[0].keys()) + " reference this",
+                                    QMessageBox.Ok, QMessageBox.Ok)
+                return
             self._value_change_handler(utils.ChangeType.DELETE, '')
         elif button_text == self._res['saveButtonText']:
             # Check is input data valid. If not, do not save it
