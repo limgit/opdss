@@ -1,7 +1,9 @@
 from PyQt5.QtWidgets import (QWidget, QGroupBox, QLabel, QComboBox,
                              QVBoxLayout)
 
+import utils.utils as utils
 from controller.manager import ObjectManager, TemplateManager, SignageManager, MultimediaManager, ChannelManager
+from model.channel import Channel
 from view.resource_manager import ResourceManager
 
 
@@ -16,32 +18,57 @@ class StatusManagementTab(QWidget):
         self._mtm_mng = mtm_mng
         self._chn_mng = chn_mng
 
-        self._update_labels = list()
-        self._signage_cboxes = list()
+        self._widgets = list()
 
         self._res = ResourceManager()
         self.init_ui()
 
     def init_ui(self):
-        # TODO: Make this UI view more flexible (i.e. when number of display changed)
         vbox_outmost = QVBoxLayout()
-        for i in range(3):
-            # Last update label
-            label_update = QLabel("Last Update: 17.04.09. 23:05")
-            self._update_labels.append(label_update)
-
-            # Combobox for selecting signage
-            cbox_signage = QComboBox()
-            self._signage_cboxes.append(cbox_signage)
-
-            vbox_content = QVBoxLayout()
-            vbox_content.addWidget(label_update)
-            vbox_content.addWidget(cbox_signage)
-
-            group_display = QGroupBox("Display " + str(i+1))
-            group_display.setLayout(vbox_content)
-
-            vbox_outmost.addWidget(group_display)
+        for channel_id in self._chn_mng.channels.keys():
+            widget = ChannelWidget(self._chn_mng.channels[channel_id], self._sgn_mng)
+            self._widgets.append(widget)
+            vbox_outmost.addWidget(widget)
         vbox_outmost.addStretch(1)
+
+        self.setLayout(vbox_outmost)
+
+    def showEvent(self, event):
+        for i in range(len(self._widgets)):
+            self._widgets[i].load_data_on_ui()
+
+
+class ChannelWidget(QGroupBox):
+    def __init__(self, channel: Channel, sgn_mng: SignageManager):
+        super().__init__()
+
+        self._channel = channel
+        self._sgn_mng = sgn_mng
+
+        self._label = QLabel()
+        self._cbox_signages = QComboBox()
+
+        self.init_ui()
+
+    def load_data_on_ui(self) -> None:
+        sgn_text = utils.gen_ui_text(self._channel.signage.title, self._channel.signage.id)
+        idx = self._cbox_signages.findText(sgn_text)
+        self._cbox_signages.setCurrentIndex(idx)
+
+        label_text = "Number of connections: " + str(self._channel.request_connection_count())
+        self._label.setText(label_text)
+
+    def init_ui(self) -> None:
+        self.setTitle(self._channel.id)
+
+        signage_ids = list()
+        for sgn_id in self._sgn_mng.signages.keys():
+            signage = self._sgn_mng.get_signage(sgn_id)
+            signage_ids.append(utils.gen_ui_text(signage.title, signage.id))
+        self._cbox_signages.addItems(signage_ids)
+
+        vbox_outmost = QVBoxLayout()
+        vbox_outmost.addWidget(self._label)
+        vbox_outmost.addWidget(self._cbox_signages)
 
         self.setLayout(vbox_outmost)

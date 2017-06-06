@@ -69,7 +69,7 @@ class MainWindow(QMainWindow):
         self._chn_mng = ChannelManager(self._root_path / 'channel', self._sgn_mng)
 
         self._mtm_mng.bind_managers(self._sgn_mng, self._obj_mng)
-        self._obj_mng.bind_managers(self._tpl_mng)
+        self._obj_mng.bind_managers(self._tpl_mng, self._sgn_mng)
 
         self._res = ResourceManager()
         self.init_ui()
