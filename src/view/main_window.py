@@ -71,9 +71,7 @@ class MainWidget(QWidget):
         elif button_text == self._res['stopButtonText']:
             self._btn_run.setEnabled(True)
             self._btn_stop.setEnabled(False)
-            print("?")
             self._web_server.stop()
-            print("HE")
         elif button_text == self._res['refreshButtonText']:
             widget = self._vbox_outmost.itemAt(1).widget()
             self._vbox_outmost.removeWidget(widget)
