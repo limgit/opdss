@@ -26,7 +26,7 @@ class WebServer:
         self._io_server = FlaskIOServer()
 
         def redirect_event(channel: Channel, old_id: str):
-            self._io_server.request_redirect()
+            self._io_server.request_redirect(old_id, channel.id)
 
         def count_event(channel: Channel):
             return self._io_server.get_connections(channel.id)
