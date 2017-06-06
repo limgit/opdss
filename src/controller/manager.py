@@ -75,6 +75,9 @@ class ObjectManager:
         return copy.copy(self._object_values[type_instance])
 
     def load_all(self) -> None:
+        self._object_types = dict()
+        self._object_values = dict()
+
         types_dir = [x for x in self._dir_root.iterdir() if x.is_dir()]
 
         # todo: currently, a method to handle dependency problem is awful.
@@ -201,6 +204,9 @@ class TemplateManager:
         return self._frame_templates[key]
 
     def load_all(self) -> None:
+        self._scene_templates = dict()
+        self._frame_templates = dict()
+
         # load scenes
         scene_path = self._dir_root / 'scene'
         scenes_dir = [x for x in scene_path.iterdir() if x.is_dir()]
@@ -242,6 +248,8 @@ class SignageManager:
         return self._signages[key]
 
     def load_all(self) -> None:
+        self._signages = dict()
+
         for signage_id, signage_mnf in [(x.stem, x) for x in self._dir_root.glob('*.json')]:
 
             # load from the signage file
@@ -346,6 +354,8 @@ class ChannelManager:
         return self._channels[channel_id]
 
     def load_all(self):
+        self._channels = dict()
+
         for channel_id, channel_file in [(x.stem, x) for x in self._root_path.glob('*.json')]:
             # load from the signage file
             with channel_file.open() as f:
