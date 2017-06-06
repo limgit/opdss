@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout,
                              QPushButton, QComboBox, QTabWidget,
-                             QTextBrowser)
+                             QTextBrowser, QMessageBox)
 from typing import Callable
 
 import utils.utils as Utils
@@ -90,21 +90,24 @@ class SceneWidget(QWidget):
         if button_text == self._res['deleteButtonText']:
             pass  # TODO: Add scene deletion functionality
         elif button_text == self._res['saveButtonText']:
+            # Check is input data valid. If not, do not save it
+            if not self._tab_data.is_data_valid() or \
+               not self._tab_transition.is_data_valid() or \
+               not self._tab_scheduling.is_data_valid():
+                QMessageBox.warning(self, self._res['dataInvalidTitle'],
+                                    self._res['dataInvalidDescription'],
+                                    QMessageBox.Ok, QMessageBox.Ok)
+                return
+
+            # Now it's OK to save
             # Set scene's template
             tpl_id = Utils.ui_text_to_id(self._cbox_tpl.currentText())
             tpl = self._tpl_mng.get_scene_template(tpl_id)
-            old_tpl = self._scene.template
             self._scene.template = tpl
 
-            # Save other data
-            try:
-                self._tab_data.save(self._scene)
-                self._tab_scheduling.save(self._scene)
-                self._tab_transition.save(self._scene)
-            except AttributeError:
-                # Some input value is invalid. Revert to original template
-                self._scene.template = old_tpl
-                return
+            self._tab_data.save(self._scene)
+            self._tab_scheduling.save(self._scene)
+            self._tab_transition.save(self._scene)
 
             # Invoke value change handler to edit QTreeWidgetItem
             scene_text = Utils.gen_ui_text(tpl.definition.name, tpl.id)
@@ -167,6 +170,9 @@ class SceneDataTab(QWidget):
     def save(self, scene: Scene) -> None:
         pass  # TODO: Implement data save functionality
 
+    def is_data_valid(self) -> bool:
+        return True  # TODO: Check is data valid
+
 
 class SceneTransitionTab(QWidget):
     def __init__(self):
@@ -184,6 +190,9 @@ class SceneTransitionTab(QWidget):
     def save(self, scene: Scene) -> None:
         pass  # TODO: Implement data save functionality
 
+    def is_data_valid(self) -> bool:
+        return True  # TODO: Check is data valid
+
 
 class SceneSchedulingTab(QWidget):
     def __init__(self):
@@ -200,3 +209,6 @@ class SceneSchedulingTab(QWidget):
 
     def save(self, scene: Scene) -> None:
         pass  # TODO: Implement data save functionality
+
+    def is_data_valid(self) -> bool:
+        return True  # TODO: Check is data valid

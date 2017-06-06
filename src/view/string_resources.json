@@ -38,5 +38,7 @@
   "frameLabel": "Frame",
   "sceneLabel": "Scene",
   "idInvalidTitle": "ID validation failed!",
-  "idInvalidDescription": "ID should only contain lower case alphabet, number or underscore with leading lower case alphabet"
+  "idInvalidDescription": "ID should only contain lower case alphabet, number or underscore with leading lower case alphabet",
+  "dataInvalidTitle": "Data invalid!",
+  "dataInvalidDescription": "Some of data does not satisfy constraint"
 }
