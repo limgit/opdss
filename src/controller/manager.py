@@ -134,11 +134,15 @@ class ObjectManager:
     def __init__(self, root_dir: Path, mtm_mng: MultimediaManager):
         self._root_dir = root_dir
         self._mtm_mng = mtm_mng
+        self._tpl_mng = None
 
         self._object_types = dict()
         self._object_values = dict()
 
         self.load_all()
+
+    def bind_managers(self, tpl_mng: 'TemplateManager'):
+        self._tpl_mng = tpl_mng
 
     @property
     def root_dir(self) -> Path:
@@ -161,6 +165,10 @@ class ObjectManager:
         return {'object/{}.{}'.format(type_id, value_id): value
                 for type_id, values_dict in self._object_values.items()
                 for value_id, value in filter(lambda x: x[1].has_references(to_check), values_dict.items())}
+
+    def get_type_references(self, to_check) -> Dict[str, ObjectDataType]:
+        return {'type/{}'.format(type_id): type_value
+                for type_id, type_value in filter(lambda x: x[1].has_references(to_check), self._object_types.items())}
 
     def load_all(self) -> None:
         self._object_types = dict()
@@ -271,6 +279,16 @@ class ObjectManager:
 
         value_change_handler()  # save to file
 
+    def remove_object_type(self, to_delete: ObjectDataType):
+        references = self.get_type_references(to_delete)
+        references.update(self._tpl_mng.get_type_references(to_delete))
+
+        if references:
+            raise ReferenceError(references)
+
+        delete_dir = Path(self._root_dir / to_delete.id)
+        shutil.rmtree(str(delete_dir))
+
 
 class TemplateManager:
     def __init__(self, root_dir: Path, obj_mng: ObjectManager):
@@ -326,6 +344,18 @@ class TemplateManager:
 
                 webserver.logger.Logger().info(self._frame_templates[frame_tpl_id].definition.name)
 
+    def get_type_references(self, to_check) -> Dict[str, ObjectDataType]:
+        frame_refs = {'frame/{}'.format(frame_id): frame_ins
+                      for frame_id, frame_ins
+                      in filter(lambda x: x[1].definition.has_references(to_check), self._frame_templates.items())}
+
+        scene_refs = {'scene/{}'.format(scene_id): scene_ins
+                      for scene_id, scene_ins
+                      in filter(lambda x: x[1].definition.has_references(to_check), self._scene_templates.items())}
+
+        frame_refs.update(scene_refs)
+
+        return frame_refs
 
 class SignageManager:
     def __init__(self, root_dir: Path, obj_mng: ObjectManager, tpl_mng: TemplateManager):
