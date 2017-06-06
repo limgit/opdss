@@ -3,7 +3,7 @@ import sys
 import unittest
 from pathlib import Path
 
-from controller.manager import ObjectManager, TemplateManager, SignageManager, ChannelManager
+from controller.manager import ObjectManager, TemplateManager, SignageManager, ChannelManager, MultimediaManager
 from webserver.web_server import WebServer
 
 sys.path.append("../src")
@@ -68,6 +68,22 @@ class TestWebServer(unittest.TestCase):
 
         server = WebServer(chn_mng, obj_mng, tpl_mng, sgn_mng)
         server.start()  # todo: causes infinite loop
+
+
+class TestMultimedia(unittest.TestCase):
+    def test_file_change(self):
+        multi_mng = MultimediaManager(root_path / 'multimedia')
+        image_path = root_path / 'multimedia' / 'image'
+        video_path = root_path / 'multimedia' / 'video'
+
+        #multi_mng.add_image(Path('C:/Users/sumin/PycharmProjects/guess/data/multimedia/image/1.jpg'))
+        multi_mng.add_image(Path(image_path / '1.jpg'))
+        multi_mng.get_images('1.jpg').file_name = '3.jpg'
+        multi_mng.get_images('3.jpg').file_name = '1.jpg'
+
+        multi_mng.add_video(Path(video_path / '2.MOV'))
+        multi_mng.get_videos('2.MOV').file_name = 'test.MOV'
+        multi_mng.get_videos('test.MOV').file_name = '2.MOV'
 
 
 if __name__ == '__main__':
