@@ -45,13 +45,15 @@ class FileValue:
 class ObjectValue:
     def __init__(self, object_id: Optional[str],
                  object_type: 'data_type.ObjectDataType',
-                 obj_mng: 'manager.ObjectManager'):
+                 obj_mng: 'manager.ObjectManager',
+                 mtm_mng: 'manager.MultimediaManager'):
         self._id = ''
         self._values = {}
         self._data_type = object_type
         self._id_change_handler = lambda x, y: None
         self._value_change_handler = lambda: None
         self._obj_mng = obj_mng  # I hope this reference could be removed...
+        self._mtm_mng = mtm_mng
 
         self.id = object_id
 
@@ -83,6 +85,10 @@ class ObjectValue:
         elif isinstance(field_type, data_type.ListDataType) and \
                 isinstance(field_type.data_type, data_type.ObjectDataType):
             value = [self._obj_mng.get_object_value(field_type.data_type, x) for x in value]
+        elif field_type is self._mtm_mng.image_type:
+            value = self._mtm_mng.get_image(value)
+        elif field_type is self._mtm_mng.video_type:
+            value = self._mtm_mng.get_video(value)
 
         if not self._data_type.fields[key][0].is_valid(value):
             raise AttributeError
@@ -102,6 +108,8 @@ class ObjectValue:
                 to_return[field_id] = field_value.get_values() if use_reference else field_value.id
             elif isinstance(field_value, list) and isinstance(field_value[0], ObjectValue):
                 to_return[field_id] = [x.get_values() if use_reference else x.id for x in to_return[field_id]]
+            elif isinstance(field_value, FileValue):
+                to_return[field_id] = field_value.file_name if use_reference else field_value.file_name # TODO
 
         return to_return
 
