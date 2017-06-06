@@ -24,6 +24,8 @@ class MultimediaManager:
         self._video_type = FileDataType(root_dir / 'video')
         self._images = dict()
         self._videos = dict()
+        self._sgn_mng = None
+        self._obj_mng = None
         self.load_all()
 
     def load_all(self) -> None:
@@ -35,6 +37,11 @@ class MultimediaManager:
 
         for video_file in video_files:
             self.add_video(video_file)
+
+    # to delete/rename safely, bind should be done.
+    def bind_managers(self, sgn_mng: 'SignageManager', obj_mng: 'ObjectManager'):
+        self._sgn_mng = sgn_mng
+        self._obj_mng = obj_mng
 
     def add_image(self, new_file_path: Path):
         # if new file is out of the media folder, copy the file to the media folder.
@@ -48,6 +55,12 @@ class MultimediaManager:
             del self._images[old_name]
             self._images[new_name] = new_image
 
+            refs = self._sgn_mng.get_value_references(new_image)
+            refs.update(self._obj_mng.get_value_references(new_image))
+
+            for ref in refs.values():
+                ref.on_value_change()
+
         new_image.on_id_change = id_change_handler
         self._images[new_image.file_name] = new_image
 
@@ -60,6 +73,12 @@ class MultimediaManager:
             os.rename(str(self._video_type.root_dir / old_name), str(self._video_type.root_dir / new_name))
             del self._videos[old_name]
             self._videos[new_name] = new_video
+
+            refs = self._sgn_mng.get_value_references(new_video)
+            refs.update(self._obj_mng.get_value_references(new_video))
+
+            for ref in refs.values():
+                ref.on_value_change()
 
         new_video.on_id_change = id_change_handler
         self._videos[new_video.file_name] = new_video
@@ -90,9 +109,9 @@ class MultimediaManager:
     def videos(self) -> Dict[str, FileValue]:
         return copy.copy(self._videos)
 
-    def remove_image(self, to_delete: FileValue, sgn_mng: 'SignageManager', obj_mng: 'ObjectManager'):
-        refs = sgn_mng.get_value_references(to_delete)
-        refs.update(obj_mng.get_value_references(to_delete))
+    def remove_image(self, to_delete: FileValue):
+        refs = self._sgn_mng.get_value_references(to_delete)
+        refs.update(self._obj_mng.get_value_references(to_delete))
 
         if refs:
             raise ReferenceError(refs)
@@ -100,9 +119,9 @@ class MultimediaManager:
         del self._images[to_delete.file_name]
         os.remove(str(to_delete.file_path))
 
-    def remove_video(self, to_delete: FileValue, sgn_mng: 'SignageManager', obj_mng: 'ObjectManager'):
-        refs = sgn_mng.get_value_references(to_delete)
-        refs.update(obj_mng.get_value_references(to_delete))
+    def remove_video(self, to_delete: FileValue):
+        refs = self._sgn_mng.get_value_references(to_delete)
+        refs.update(self._obj_mng.get_value_references(to_delete))
 
         if refs:
             raise ReferenceError(refs)

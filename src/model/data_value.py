@@ -143,8 +143,8 @@ class ObjectValue:
         self._id_change_handler = handler
 
     @property
-    def on_value_change(self) -> None:
-        raise ValueError  # don't try to access!
+    def on_value_change(self) -> Callable[[None], None]:
+        return self._value_change_handler
 
     @on_value_change.setter
     def on_value_change(self, handler: Callable[[None], None]) -> None:
