@@ -495,8 +495,8 @@ class SignageManager:
         if refs:
             raise ReferenceError(refs)
 
-        delete_path = self._root_dir / to_delete.id
-        shutil.rmtree(str(delete_path))
+        delete_path = self._root_dir / (to_delete.id + '.json')
+        os.remove(str(delete_path))
 
     def get_value_references(self, to_check) -> Dict[str, ObjectValue]:
         return {'signage/{}.{}'.format(signage.id, k): v for signage in self._signages.values() for k, v in signage.get_value_references(to_check).items()}

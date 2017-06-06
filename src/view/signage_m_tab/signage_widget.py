@@ -86,7 +86,7 @@ class SignageWidget(QWidget):
                                     "This signage can't be deleted. " + ', '.join(e.args[0].keys()) + " reference this",
                                     QMessageBox.Ok, QMessageBox.Ok)
                 return
-            self._value_change_handler(utils.ChangeType.DELETE)
+            self._value_change_handler(utils.ChangeType.DELETE, '')
         elif button_text == self._res['saveButtonText']:
             # ID Validation
             try:
