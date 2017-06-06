@@ -51,6 +51,13 @@ class ChannelWidget(QGroupBox):
         self.init_ui()
 
     def load_data_on_ui(self) -> None:
+        self._cbox_signages.clear()
+        signage_texts = list()
+        for sgn_id in self._sgn_mng.signages.keys():
+            signage = self._sgn_mng.get_signage(sgn_id)
+            signage_texts.append(utils.gen_ui_text(signage.title, signage.id))
+        self._cbox_signages.addItems(signage_texts)
+        
         sgn_text = utils.gen_ui_text(self._channel.signage.title, self._channel.signage.id)
         idx = self._cbox_signages.findText(sgn_text)
         self._cbox_signages.setCurrentIndex(idx)
@@ -61,11 +68,11 @@ class ChannelWidget(QGroupBox):
     def init_ui(self) -> None:
         self.setTitle(self._channel.id)
 
-        signage_ids = list()
+        signage_texts = list()
         for sgn_id in self._sgn_mng.signages.keys():
             signage = self._sgn_mng.get_signage(sgn_id)
-            signage_ids.append(utils.gen_ui_text(signage.title, signage.id))
-        self._cbox_signages.addItems(signage_ids)
+            signage_texts.append(utils.gen_ui_text(signage.title, signage.id))
+        self._cbox_signages.addItems(signage_texts)
 
         vbox_outmost = QVBoxLayout()
         vbox_outmost.addWidget(self._label)
