@@ -65,7 +65,7 @@ class ObjectValue:
     # if multiple values should be changed, use this method instead of 'set_value'
     # if you don't, change handler will be called whenever single value is changed.
     def set_values(self, **values):
-        for key, value in values:
+        for key, value in values.items():
             self._set_value(key, value)
 
         self._value_change_handler()
