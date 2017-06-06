@@ -38,11 +38,15 @@
   "frameLabel": "Frame",
   "sceneLabel": "Scene",
   "idInvalidTitle": "ID validation failed!",
-  "idInvalidDescription": "ID should only contain lower case alphabet, number or underscore with leading lower case alphabet",
+  "idInvalidDescription": "ID should only contain lower case alphabet, number or underscore with leading lower case alphabet.",
   "dataInvalidTitle": "Data invalid!",
-  "dataInvalidDescription": "Some of data does not satisfy constraint",
+  "dataInvalidDescription": "Some of data is not valid. It may violate explicit/implicit constraints.",
   "sceneDurationLabel": "Scene Duration (Seconds)",
   "sceneTransitionLabel": "Transition Type",
   "idDialogTitle": "ID for new signage",
-  "idDialogDescription": "Enter new ID:"
+  "idDialogDescription": "Enter new ID:",
+  "days": "Sun, Mon, Tue, Wed, Thu, Fri, Sat",
+  "scheduleTypeLabel": "Scheduling Type",
+  "dayLabel": "Day",
+  "timeLabel": "Time"
 }

@@ -1,12 +1,12 @@
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout,
                              QPushButton, QComboBox, QTabWidget,
                              QTextBrowser, QMessageBox, QLineEdit,
-                             QGroupBox)
+                             QGroupBox, QCheckBox, QTimeEdit, QLabel)
 from typing import Callable
 
 import utils.utils as Utils
 from controller.manager import TemplateManager
-from model.signage import Scene, TransitionType
+from model.signage import Scene, TransitionType, ScheduleType
 from model.template import SceneTemplate
 from model.data_type import StringDataType
 from view.resource_manager import ResourceManager
@@ -40,7 +40,7 @@ class SceneWidget(QWidget):
 
         self._tab_data.load_data_on_ui(self._scene)
         self._tab_transition.load_data_on_ui(self._scene)
-        self._tab_scheduling.load_data_on_ui()
+        self._tab_scheduling.load_data_on_ui(self._scene)
 
     def init_ui(self) -> None:
         # Template list on combobox
@@ -190,15 +190,15 @@ class SceneTransitionTab(QWidget):
         super().__init__()
 
         self._ledit_duration = QLineEdit()
-        self._cbox_transition = QComboBox()
+        self._cbox_type = QComboBox()
 
         self._res = ResourceManager()
         self.init_ui()
 
     def load_data_on_ui(self, scene: Scene) -> None:
         self._ledit_duration.setText(str(scene.duration))
-        idx = self._cbox_transition.findText(scene.transition_type.name.capitalize())
-        self._cbox_transition.setCurrentIndex(idx)
+        idx = self._cbox_type.findText(scene.transition_type.name.capitalize())
+        self._cbox_type.setCurrentIndex(idx)
 
     def init_ui(self) -> None:
         vbox_duration = QVBoxLayout()
@@ -210,10 +210,10 @@ class SceneTransitionTab(QWidget):
         transitions = [TransitionType.NONE.name.capitalize(),
                        TransitionType.PUSH.name.capitalize(),
                        TransitionType.FADE.name.capitalize()]
-        self._cbox_transition.addItems(transitions)
+        self._cbox_type.addItems(transitions)
 
         vbox_transition = QVBoxLayout()
-        vbox_transition.addWidget(self._cbox_transition)
+        vbox_transition.addWidget(self._cbox_type)
 
         group_transition = QGroupBox(self._res['sceneTransitionLabel'])
         group_transition.setLayout(vbox_transition)
@@ -227,7 +227,7 @@ class SceneTransitionTab(QWidget):
 
     def save(self, scene: Scene) -> None:
         scene.duration = int(self._ledit_duration.text())
-        transition = self._cbox_transition.currentText()
+        transition = self._cbox_type.currentText()
         scene.transition_type = TransitionType[transition.upper()]
 
     def is_data_valid(self) -> bool:
@@ -239,16 +239,88 @@ class SceneSchedulingTab(QWidget):
         super().__init__()
 
         self._res = ResourceManager()
+
+        self._cbox_type = QComboBox()
+        self._check_day = list()
+        days = self._res['days'].split(', ')
+        for day in days:
+            self._check_day.append(QCheckBox(day))
+
+        self._time_from = QTimeEdit()
+        self._time_to = QTimeEdit()
+
         self.init_ui()
 
-    def load_data_on_ui(self) -> None:
-        pass  # TODO: Add functionality
+    @staticmethod
+    def schedule_type_to_text(schedule_type: ScheduleType) -> str:
+        return schedule_type.name.capitalize().replace('_', ' ')
+
+    @staticmethod
+    def text_to_schedule_type(text: str) -> ScheduleType:
+        return ScheduleType[text.upper().replace(' ', '_')]
+
+    def load_data_on_ui(self, scene: Scene) -> None:
+        schedule = scene.schedule
+        type_text = self.schedule_type_to_text(schedule.type)
+        idx = self._cbox_type.findText(type_text)
+        self._cbox_type.setCurrentIndex(idx)
+
+        for i in range(7):
+            self._check_day[i].setChecked(schedule.day_of_week[i])
+
+        self._time_from.setTime(schedule.from_time)
+        self._time_to.setTime(schedule.to_time)
 
     def init_ui(self) -> None:
-        pass  # TODO: Add functionality
+        schedule_type = [self.schedule_type_to_text(ScheduleType.ALWAYS_HIDDEN),
+                         self.schedule_type_to_text(ScheduleType.ALWAYS_VISIBLE),
+                         self.schedule_type_to_text(ScheduleType.HIDDEN_ON_TIME),
+                         self.schedule_type_to_text(ScheduleType.VISIBLE_ON_TIME)]
+        self._cbox_type.addItems(schedule_type)
+
+        vbox_schedule_type = QVBoxLayout()
+        vbox_schedule_type.addWidget(self._cbox_type)
+
+        group_schedule_type = QGroupBox(self._res['scheduleTypeLabel'])
+        group_schedule_type.setLayout(vbox_schedule_type)
+
+        hbox_day = QHBoxLayout()
+        for i in range(len(self._check_day)):
+            hbox_day.addWidget(self._check_day[i])
+
+        group_day = QGroupBox(self._res['dayLabel'])
+        group_day.setLayout(hbox_day)
+
+        self._time_from.setDisplayFormat("HH:mm:ss")
+        self._time_to.setDisplayFormat("HH:mm:ss")
+
+        hbox_time = QHBoxLayout()
+        hbox_time.addWidget(self._time_from)
+        hbox_time.addWidget(QLabel('to'))
+        hbox_time.addWidget(self._time_to)
+        hbox_time.addStretch(1)
+
+        group_time = QGroupBox(self._res['timeLabel'])
+        group_time.setLayout(hbox_time)
+
+        vbox_outmost = QVBoxLayout()
+        vbox_outmost.addWidget(group_schedule_type)
+        vbox_outmost.addWidget(group_day)
+        vbox_outmost.addWidget(group_time)
+        vbox_outmost.addStretch(1)
+
+        self.setLayout(vbox_outmost)
 
     def save(self, scene: Scene) -> None:
-        pass  # TODO: Implement data save functionality
+        scene.schedule.type = self.text_to_schedule_type(self._cbox_type.currentText())
+
+        day_of_week = list()
+        for i in range(len(self._check_day)):
+            day_of_week.append(self._check_day[i].isChecked())
+        scene.schedule.day_of_week = day_of_week
+
+        scene.schedule.from_time = self._time_from.time().toPyTime()
+        scene.schedule.to_time = self._time_to.time().toPyTime()
 
     def is_data_valid(self) -> bool:
-        return True  # TODO: Check is data valid
+        return self._time_from.time() < self._time_to.time()
