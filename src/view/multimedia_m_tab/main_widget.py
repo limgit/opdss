@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import (QWidget, QTreeWidget, QTreeWidgetItem, QHBoxLayout)
+from PyQt5.QtWidgets import (QWidget, QTreeWidget, QTreeWidgetItem, QHBoxLayout, QFileDialog)
 
 from .multimedia_widget import MultimediaWidget
 from controller.manager import ObjectManager, TemplateManager, SignageManager, MultimediaManager, ChannelManager
@@ -20,11 +20,20 @@ class MultimediaManagementTab(QWidget):
         self._media_widget = MultimediaWidget()
         self.init_ui()
 
-    def multimedia_to_tree_item(self):
-        # TODO: This is dummy code. Add functionality
-        video_item = QTreeWidgetItem(['Video'])
-        video_item.addChild(QTreeWidgetItem(['hello.mp4']))
-        return [video_item]
+    def multimedia_to_tree_item(self) -> [QTreeWidgetItem]:
+        video_label_item = QTreeWidgetItem(['Video'])
+        for video_id in self._mtm_mng.videos.keys():
+            video_item = QTreeWidgetItem([video_id])
+            video_label_item.addChild(video_item)
+        video_label_item.addChild(QTreeWidgetItem(['+']))
+
+        image_label_item = QTreeWidgetItem(['Image'])
+        for image_id in self._mtm_mng.images.keys():
+            image_item = QTreeWidgetItem([image_id])
+            image_label_item.addChild(image_item)
+        image_label_item.addChild(QTreeWidgetItem(['+']))
+
+        return [video_label_item, image_label_item]
 
     def init_ui(self):
         # Left side of screen
@@ -48,11 +57,36 @@ class MultimediaManagementTab(QWidget):
             if item.parent() is None:
                 # It is at topmost level
                 # Selected one is Video/Image
-                pass
+                self._media_widget.clear_data_on_ui()
             else:
                 if item_text == '+':
-                    pass  # TODO: Add multimedia addition logic
+                    item.setSelected(False)
+                    if item.parent().text(0) == "Image":
+                        title = "Select Image"
+                        extensions = "JPG Files (*.jpg);;JPEG Files (*.jpeg);;PNG Files (*.png)"
+                    else:
+                        title = "Select Video"
+                        extensions = "MP4 Files (*.mp4);;OGG Files (*.ogg)"
+                    options = QFileDialog.Options()
+                    options |= QFileDialog.DontUseNativeDialog
+                    file_name, _ = QFileDialog.getOpenFileName(self, title, "",
+                                                               extensions, options=options)
+                    if file_name:
+                        if item.parent().text(0) == "Image":
+                            self._mtm_mng.add_image(file_name)
+                        else:
+                            self._mtm_mng.add_video(file_name)
+                        file_id = file_name.split('/')[-1]
+                        item.setText(file_id)
+
+                        item.parent().addChild(QTreeWidgetItem(['+']))
                 else:
                     # Selected one is multimedia
-                    self._media_widget.load_data_on_ui()
+                    if item.parent().text(0) == 'Image':
+                        # Selected one is image
+                        mtm = self._mtm_mng.get_image(item_text)
+                    else:
+                        # Selected one is video
+                        mtm = self._mtm_mng.get_video(item_text)
+                    self._media_widget.load_data_on_ui(mtm)
 
