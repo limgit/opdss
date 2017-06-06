@@ -42,5 +42,7 @@
   "dataInvalidTitle": "Data invalid!",
   "dataInvalidDescription": "Some of data does not satisfy constraint",
   "sceneDurationLabel": "Scene Duration (Seconds)",
-  "sceneTransitionLabel": "Transition Type"
+  "sceneTransitionLabel": "Transition Type",
+  "idDialogTitle": "ID for new signage",
+  "idDialogDescription": "Enter new ID:"
 }

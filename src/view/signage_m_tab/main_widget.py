@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import (QWidget, QTreeWidget, QTreeWidgetItem,
                              QStackedWidget, QHBoxLayout, QVBoxLayout,
-                             QPushButton)
+                             QPushButton, QInputDialog, QMessageBox)
 from enum import Enum, auto
 import random
 
@@ -10,7 +10,7 @@ from .frame_widget import FrameWidget
 from .scene_widget import SceneWidget
 from controller.manager import ObjectManager, TemplateManager, SignageManager
 from model.data_value import ObjectValue
-from model.signage import Scene
+from model.signage import Signage, Scene, Frame
 from view.resource_manager import ResourceManager
 
 
@@ -179,7 +179,40 @@ class SignageManagementTab(QWidget):
                 self._btn_up.setEnabled(False)
                 self._btn_up.setEnabled(False)
                 if item_text == "+":
-                    pass  # TODO: Add signage addition logic
+                    item.setSelected(False)
+                    text, ok = QInputDialog.getText(self, self._res['idDialogTitle'],
+                                                    self._res['idDialogDescription'])
+                    if ok:
+                        try:
+                            Utils.validate_id(text)
+                        except AttributeError:
+                            QMessageBox.warning(self, self._res['idInvalidTitle'],
+                                                self._res['idInvalidDescription'],
+                                                QMessageBox.Ok, QMessageBox.Ok)
+                            return  # Invalid ID. Do not create signage
+                        initial_scene = self._create_scene()
+                        initial_frame = self._create_frame()
+                        new_signage = Signage(text, frame=initial_frame, scenes=[initial_scene])
+                        self._sgn_mng.add_signage(new_signage)  # Add new signage
+
+                        # Add to UI
+                        signage_text = Utils.gen_ui_text(new_signage.title, new_signage.id)
+                        item.setText(0, signage_text)
+
+                        frame_tpl = initial_frame.template
+                        frame_text = Utils.gen_ui_text(frame_tpl.definition.name, frame_tpl.id)
+                        frame_item = QTreeWidgetItem(["F:" + frame_text])
+                        item.addChild(frame_item)
+
+                        scene_tpl = initial_scene.template
+                        scene_text = Utils.gen_ui_text(scene_tpl.definition.name, scene_tpl.id)
+                        scene_item = QTreeWidgetItem(["1:" + scene_text])
+                        item.addChild(scene_item)
+
+                        item.addChild(QTreeWidgetItem(['+']))
+                        item.setExpanded(True)
+                        # Add + button again
+                        self._signage_list.addTopLevelItem(QTreeWidgetItem(['+']))
                 else:
                     # Selected one is signage
                     sgn_id = Utils.ui_text_to_id(item_text)
@@ -242,3 +275,14 @@ class SignageManagementTab(QWidget):
         obj_value = ObjectValue(None, initial_tpl.definition, self._obj_mng)
 
         return Scene(initial_tpl, obj_value)
+
+    def _create_frame(self) -> Frame:
+        frame_tpls = list(self._tpl_mng.frame_templates.keys())
+        initial_tpl_id = random.choice(frame_tpls)
+        # Default template
+        initial_tpl = self._tpl_mng.get_frame_template(initial_tpl_id)
+
+        # Default values
+        obj_value = ObjectValue(None, initial_tpl.definition, self._obj_mng)
+
+        return Frame(initial_tpl, obj_value)
