@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import (QWidget, QTreeWidget, QTreeWidgetItem,
                              QStackedWidget, QHBoxLayout)
 
+import utils.utils as Utils
 from .data_type_widget import DataTypeWidget
 from .data_widget import DataWidget
 from controller.manager import ObjectManager, TemplateManager, SignageManager
@@ -26,10 +27,11 @@ class DataManagementTab(QWidget):
         data_type_items = []
         # For all data type
         for data_type_id in self._obj_mng.object_types.keys():
-            data_type_item = QTreeWidgetItem([data_type_id])
+            data_type = self._obj_mng.get_object_type(data_type_id)
+            data_type_text = Utils.gen_ui_text(data_type.name, data_type.id)
+            data_type_item = QTreeWidgetItem([data_type_text])
             # Add data
-            type_instance = self._obj_mng.get_object_type(data_type_id)
-            for data_id in self._obj_mng.get_object_values(type_instance).keys():
+            for data_id in self._obj_mng.get_object_values(data_type).keys():
                 data_item = QTreeWidgetItem([data_id])
                 data_type_item.addChild(data_item)
             data_addition_item = QTreeWidgetItem(["+"])
@@ -60,7 +62,9 @@ class DataManagementTab(QWidget):
                 # It is at topmost level
                 # Selected one is data type
                 idx = self._widget_idx['type']
-                self._stacked_widget.widget(idx).load_data_on_ui(self._obj_mng, item_text)
+                data_type_id = Utils.ui_text_to_id(item_text)
+                data_type = self._obj_mng.get_object_type(data_type_id)
+                self._stacked_widget.widget(idx).load_data_on_ui(data_type)
                 self._stacked_widget.setCurrentIndex(idx)
             else:
                 if item_text == '+':
