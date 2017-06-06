@@ -77,7 +77,7 @@ class TemplateWidget(QWidget):
 
         # Button
         btn_delete = QPushButton(self._res['deleteButtonText'])
-        # TODO: Add functionality
+        btn_delete.clicked.connect(self.button_clicked)
 
         hbox_buttons = QHBoxLayout()
         hbox_buttons.addStretch(1)
@@ -94,3 +94,8 @@ class TemplateWidget(QWidget):
         vbox_outmost.addLayout(hbox_buttons)
 
         self.setLayout(vbox_outmost)
+
+    def button_clicked(self):
+        button_text = self.sender().text()
+        if button_text == self._res['deleteButtonText']:
+            pass  # TODO: Add deletion logic

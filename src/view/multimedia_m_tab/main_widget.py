@@ -17,7 +17,7 @@ class MultimediaManagementTab(QWidget):
         self._chn_mng = chn_mng
 
         self._res = ResourceManager()
-        self._media_widget = MultimediaWidget()
+        self._media_widget = MultimediaWidget(self._mtm_mng)
         self.init_ui()
 
     def multimedia_to_tree_item(self) -> [QTreeWidgetItem]:
