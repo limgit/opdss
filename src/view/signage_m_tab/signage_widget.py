@@ -4,15 +4,17 @@ from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout,
 from typing import Callable
 
 import utils.utils as utils
+from controller.manager import SignageManager
 from model.signage import Signage
 from view.resource_manager import ResourceManager
 
 
 class SignageWidget(QWidget):
-    def __init__(self, value_change_handler: Callable[[utils.ChangeType, str], None]):
+    def __init__(self, sgn_mng: SignageManager, value_change_handler: Callable[[utils.ChangeType, str], None]):
         super().__init__()
 
         self._value_change_handler = value_change_handler
+        self._sgn_mng = sgn_mng
 
         self._ledit_id = QLineEdit()
         self._ledit_name = QLineEdit()
@@ -77,7 +79,13 @@ class SignageWidget(QWidget):
     def button_clicked(self) -> None:
         button_text = self.sender().text()
         if button_text == self._res['deleteButtonText']:
-            # TODO: Delete selected signage
+            try:
+                self._sgn_mng.remove_signage(self._signage)
+            except ReferenceError as e:
+                QMessageBox.warning(self, "Can't delete",
+                                    "This signage can't be deleted. " + ', '.join(e.args[0].keys()) + " reference this",
+                                    QMessageBox.Ok, QMessageBox.Ok)
+                return
             self._value_change_handler(utils.ChangeType.DELETE)
         elif button_text == self._res['saveButtonText']:
             # ID Validation

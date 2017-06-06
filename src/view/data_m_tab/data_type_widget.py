@@ -106,4 +106,4 @@ class DataTypeWidget(QWidget):
                                     " reference this",
                                     QMessageBox.Ok, QMessageBox.Ok)
                 return
-            self._value_change_handler(utils.ChangeType.DELETE, '')
+            self._value_change_handler(utils.ChangeType.DELETE)

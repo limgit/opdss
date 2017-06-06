@@ -105,7 +105,9 @@ class SignageManagementTab(QWidget):
                 if change_type == utils.ChangeType.SAVE:
                     # Update QTreeWidgetItem
                     item.setText(0, sgn_text)
-        signage_widget = SignageWidget(signage_change_handler)
+                elif change_type == utils.ChangeType.DELETE:
+                    self._signage_list.removeItemWidget(item)
+        signage_widget = SignageWidget(self._sgn_mng, signage_change_handler)
         self._widget_idx['signage'] = self._stacked_widget.addWidget(signage_widget)
 
         def frame_change_handler(change_type: utils.ChangeType, frame_text: str) -> None:

@@ -126,7 +126,7 @@ class DataWidget(QWidget):
                                     "This data can't be deleted. " + ', '.join(e.args[0].keys()) + " reference this",
                                     QMessageBox.Ok, QMessageBox.Ok)
                 return
-            self._value_change_handler(utils.ChangeType.DELETE, '')
+            self._value_change_handler(utils.ChangeType.DELETE)
         elif button_text == self._res['saveButtonText']:
             # Check is input data valid. If not, do not save it
             if not self.is_data_valid():
