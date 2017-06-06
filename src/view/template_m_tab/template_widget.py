@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import (QWidget, QGraphicsView, QHBoxLayout,
-                             QVBoxLayout, QLabel, QLineEdit,
-                             QPlainTextEdit, QGroupBox, QPushButton)
+from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout,
+                             QLabel, QLineEdit, QPlainTextEdit,
+                             QGroupBox, QPushButton)
 
 from model.template import Template
 from view.resource_manager import ResourceManager
@@ -13,7 +13,6 @@ class TemplateWidget(QWidget):
         self._ledit_id = QLineEdit()
         self._ledit_name = QLineEdit()
         self._ledit_author = QLineEdit()
-        self._gview_thumbnail = QGraphicsView()
         self._ledit_homepage = QLineEdit()
         self._ptedit_descript = QPlainTextEdit()
 
@@ -60,15 +59,6 @@ class TemplateWidget(QWidget):
         group_author = QGroupBox(self._res['templateAuthorLabel'])
         group_author.setLayout(vbox_author)
 
-        vbox_name_author = QVBoxLayout()
-        vbox_name_author.addWidget(group_name)
-        vbox_name_author.addWidget(group_author)
-
-        # Thumbnail display
-        hbox_wrapper = QHBoxLayout()
-        hbox_wrapper.addLayout(vbox_name_author)
-        hbox_wrapper.addWidget(self._gview_thumbnail)
-
         # Homepage display
         self._ledit_homepage.setEnabled(False)
         vbox_homepage = QVBoxLayout()
@@ -96,7 +86,8 @@ class TemplateWidget(QWidget):
         # Getting altogether
         vbox_outmost = QVBoxLayout()
         vbox_outmost.addLayout(hbox_id)
-        vbox_outmost.addLayout(hbox_wrapper)
+        vbox_outmost.addWidget(group_name)
+        vbox_outmost.addWidget(group_author)
         vbox_outmost.addWidget(group_homepage)
         vbox_outmost.addWidget(group_descript)
         vbox_outmost.addStretch(1)
