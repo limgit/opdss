@@ -1,7 +1,8 @@
 from PyQt5.QtWidgets import (QWidget, QTreeWidget, QTreeWidgetItem,
-                             QStackedWidget, QHBoxLayout)
+                             QStackedWidget, QHBoxLayout, QMessageBox, QInputDialog)
 
 import utils.utils as utils
+from model.data_value import ObjectValue
 from .data_type_widget import DataTypeWidget
 from .data_widget import DataWidget
 from controller.manager import ObjectManager, TemplateManager, SignageManager, MultimediaManager, ChannelManager
@@ -49,7 +50,7 @@ class DataManagementTab(QWidget):
         self._data_list.expandAll()
         self._data_list.itemSelectionChanged.connect(self.list_item_clicked)
 
-        def data_type_change_handler(change_type: utils.ChangeType, data_text: str) -> None:
+        def data_type_change_handler(change_type: utils.ChangeType, data_text: str='') -> None:
             # Get selected signage item
             get_selected = self._data_list.selectedItems()
             if get_selected:
@@ -60,7 +61,7 @@ class DataManagementTab(QWidget):
         data_type_widget = DataTypeWidget(self._obj_mng, data_type_change_handler)
         self._widget_idx['type'] = self._stacked_widget.addWidget(data_type_widget)
 
-        def data_change_handler(change_type: utils.ChangeType, data_text: str) -> None:
+        def data_change_handler(change_type: utils.ChangeType, data_text: str='') -> None:
             # Get selected signage item
             get_selected = self._data_list.selectedItems()
             if get_selected:
@@ -70,8 +71,9 @@ class DataManagementTab(QWidget):
                     item.setText(0, data_text)
                 elif change_type == utils.ChangeType.DELETE:
                     # Remove QTreeWidgetItem
-                    item.parent().removeChild(item)
-                    item.parent().setSelected(True)
+                    parent = item.parent()
+                    parent.removeChild(item)
+                    parent.setSelected(True)
         data_widget = DataWidget(self._obj_mng, data_change_handler)
         self._widget_idx['data'] = self._stacked_widget.addWidget(data_widget)
 
@@ -96,7 +98,22 @@ class DataManagementTab(QWidget):
                 self._stacked_widget.setCurrentIndex(idx)
             else:
                 if item_text == '+':
-                    pass  # TODO: Add data addition logic
+                    item.setSelected(False)
+                    text, ok = QInputDialog.getText(self, self._res['idDialogTitle'],
+                                                    self._res['idDialogDescription'])
+                    if ok:
+                        try:
+                            utils.validate_id(text)
+                        except AttributeError:
+                            QMessageBox.warning(self, self._res['idInvalidTitle'],
+                                                self._res['idInvalidDescription'],
+                                                QMessageBox.Ok, QMessageBox.Ok)
+                            return  # Invalid ID. Do not create signage
+                        data_type_id = utils.ui_text_to_id(item.parent().text(0))
+                        data_type = self._obj_mng.get_object_type(data_type_id)
+                        self._obj_mng.add_object_value(ObjectValue(text, data_type, self._obj_mng, self._mtm_mng))
+                        item.setText(0, text)
+                        item.parent().addChild(QTreeWidgetItem(['+']))
                 else:
                     # Selected one is data
                     idx = self._widget_idx['data']
