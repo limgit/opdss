@@ -186,7 +186,7 @@ class Frame:
     @template.setter
     def template(self, new_template: FrameTemplate) -> None:
         self._template = new_template
-        self._values = new_template.definition.default
+        self._values = ObjectValue(None, new_template.definition, self._values._obj_mng)
         self._on_change_handler()
 
     @property

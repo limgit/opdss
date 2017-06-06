@@ -199,7 +199,7 @@ class DateDataType(DataType[str]):
         self._min = new_datetime
 
     @property
-    def max(self) -> datetime:
+    def max(self) -> str:
         return self._max.strftime(DateDataType.format)
 
     @max.setter
