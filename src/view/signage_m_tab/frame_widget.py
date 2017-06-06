@@ -114,6 +114,7 @@ class FrameDataTab(QWidget):
         self._component_widgets = dict()
         for i in range(self._vbox_data.count()):
             widget = self._vbox_data.itemAt(0).widget()
+            self._vbox_data.removeWidget(widget)
             widget.deleteLater()
         self._tview_detail.setText("")
 

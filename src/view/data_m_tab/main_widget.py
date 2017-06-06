@@ -72,5 +72,8 @@ class DataManagementTab(QWidget):
                 else:
                     # Selected one is data
                     idx = self._widget_idx['data']
-                    self._stacked_widget.widget(idx).load_data_on_ui()
+                    data_type_id = Utils.ui_text_to_id(item.parent().text(0))
+                    data_type = self._obj_mng.get_object_type(data_type_id)
+                    data = self._obj_mng.get_object_value(data_type, item_text)
+                    self._stacked_widget.widget(idx).load_data_on_ui(data)
                     self._stacked_widget.setCurrentIndex(idx)
