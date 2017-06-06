@@ -580,7 +580,7 @@ class ChannelManager:
 
         new_channel.id_change_handler = id_change_handler
         new_channel.value_change_handler = value_change_handler
-        new_channel.refresh_event_handler = lambda channel, old_id: self._redirect_event_handler(channel, old_id)
+        new_channel.redirect_event_handler = lambda channel, old_id: self._redirect_event_handler(channel, old_id)
         new_channel.count_event_handler = lambda channel: self._count_event_handler(channel)
 
         self._channels[new_channel.id] = new_channel

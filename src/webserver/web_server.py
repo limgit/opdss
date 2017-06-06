@@ -26,7 +26,7 @@ class WebServer:
         self._mtm_mng = mtm_mng
 
         self._socket_io = flask_socketio.SocketIO(self._app, ping_interval=10, ping_timeout=60)
-        self._io_server = FlaskIOServer()
+        self._io_server = FlaskIOServer(self._socket_io)
 
         def redirect_event(channel: Channel, old_id: str):
             self._io_server.request_redirect(old_id, channel.id)
@@ -65,8 +65,9 @@ class WebServer:
 
 
 class FlaskIOServer(flask_socketio.Namespace):
-    def __init__(self):
+    def __init__(self, socket_io):
         super().__init__()
+        self._socket_io = socket_io
         self._connections = dict()
 
     def on_connect(self):
@@ -89,7 +90,7 @@ class FlaskIOServer(flask_socketio.Namespace):
         self._connections[room_name] += 1
 
     def request_redirect(self, from_channel: str, to_channel: str):
-        flask_socketio.emit('redirect', {'to': to_channel}, room=from_channel, broadcast=True)
+        self._socket_io.emit('redirect', {'to': to_channel}, room=from_channel, broadcast=True)
 
     def get_connections(self, room_id: str):
         if room_id not in self._connections.keys():
