@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QListWidget)
 
 from controller.manager import ObjectManager, TemplateManager, SignageManager, MultimediaManager, ChannelManager
+from utils import logger
 from view.resource_manager import ResourceManager
 
 
@@ -21,10 +22,14 @@ class LogManagementTab(QWidget):
         self.init_ui()
 
     def init_ui(self):
-        # TODO: Need fixes
-        self._list_log.addItem("[2017-04-09 23:00] [Info] Signage web server started.")
-
         vbox_outmost = QVBoxLayout()
         vbox_outmost.addWidget(self._list_log)
 
         self.setLayout(vbox_outmost)
+
+    def showEvent(self, event):
+        self._list_log.clear()
+
+        with open(logger.filename) as f:
+            for line in f.readlines():
+                self._list_log.addItem(line.strip())
