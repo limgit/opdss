@@ -97,7 +97,7 @@ class SignageManagementTab(QWidget):
         vbox_left.addLayout(hbox_buttons)
 
         # Right side of screen
-        def signage_change_handler(change_type: utils.ChangeType, sgn_text: str) -> None:
+        def signage_change_handler(change_type: utils.ChangeType, sgn_text: str='') -> None:
             # Get selected signage item
             get_selected = self._signage_list.selectedItems()
             if get_selected:
@@ -110,7 +110,7 @@ class SignageManagementTab(QWidget):
         signage_widget = SignageWidget(self._sgn_mng, signage_change_handler)
         self._widget_idx['signage'] = self._stacked_widget.addWidget(signage_widget)
 
-        def frame_change_handler(change_type: utils.ChangeType, frame_text: str) -> None:
+        def frame_change_handler(change_type: utils.ChangeType, frame_text: str='') -> None:
             # Get selected signage item
             get_selected = self._signage_list.selectedItems()
             if get_selected:

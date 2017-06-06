@@ -49,7 +49,7 @@ class DataManagementTab(QWidget):
         self._data_list.expandAll()
         self._data_list.itemSelectionChanged.connect(self.list_item_clicked)
 
-        def data_type_change_handler(change_type: utils.ChangeType, data_text: str) -> None:
+        def data_type_change_handler(change_type: utils.ChangeType, data_text: str='') -> None:
             # Get selected signage item
             get_selected = self._data_list.selectedItems()
             if get_selected:
@@ -60,7 +60,7 @@ class DataManagementTab(QWidget):
         data_type_widget = DataTypeWidget(self._obj_mng, data_type_change_handler)
         self._widget_idx['type'] = self._stacked_widget.addWidget(data_type_widget)
 
-        def data_change_handler(change_type: utils.ChangeType, data_text: str) -> None:
+        def data_change_handler(change_type: utils.ChangeType, data_text: str='') -> None:
             # Get selected signage item
             get_selected = self._data_list.selectedItems()
             if get_selected:
