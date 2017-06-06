@@ -1,10 +1,11 @@
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout,
                              QPushButton, QComboBox, QTabWidget,
                              QTextBrowser)
+from typing import Callable
 
 import utils.utils as Utils
 from controller.manager import TemplateManager
-from model.signage import Signage, Scene
+from model.signage import Scene
 from model.template import SceneTemplate
 from model.data_type import StringDataType
 from view.resource_manager import ResourceManager
@@ -12,7 +13,7 @@ from view.ui_components import StringDataWidget
 
 
 class SceneWidget(QWidget):
-    def __init__(self, tpl_mng: TemplateManager):
+    def __init__(self, tpl_mng: TemplateManager, value_change_handler: Callable[[Utils.ChangeType, str], None]):
         super().__init__()
 
         self._tpl_mng = tpl_mng
@@ -23,6 +24,7 @@ class SceneWidget(QWidget):
         self._tab_scheduling = SceneSchedulingTab()
 
         self._scene = None
+        self._value_change_handler = value_change_handler
 
         self._res = ResourceManager()
         self.init_ui()
@@ -88,7 +90,25 @@ class SceneWidget(QWidget):
         if button_text == self._res['deleteButtonText']:
             pass  # TODO: Add scene deletion functionality
         elif button_text == self._res['saveButtonText']:
-            pass  # TODO: Add scene data save functionality
+            # Set scene's template
+            tpl_id = Utils.ui_text_to_id(self._cbox_tpl.currentText())
+            tpl = self._tpl_mng.get_scene_template(tpl_id)
+            old_tpl = self._scene.template
+            self._scene.template = tpl
+
+            # Save other data
+            try:
+                self._tab_data.save(self._scene)
+                self._tab_scheduling.save(self._scene)
+                self._tab_transition.save(self._scene)
+            except AttributeError:
+                # Some input value is invalid. Revert to original template
+                self._scene.template = old_tpl
+                return
+
+            # Invoke value change handler to edit QTreeWidgetItem
+            scene_text = Utils.gen_ui_text(tpl.definition.name, tpl.id)
+            self._value_change_handler(Utils.ChangeType.SAVE, scene_text)
         elif button_text == self._res['cancelButtonText']:
             # Load the previous data
             self.load_data_on_ui(self._scene)
@@ -144,6 +164,9 @@ class SceneDataTab(QWidget):
         vbox_outmost.addWidget(self._tview_detail)
         self.setLayout(vbox_outmost)
 
+    def save(self, scene: Scene) -> None:
+        pass  # TODO: Implement data save functionality
+
 
 class SceneTransitionTab(QWidget):
     def __init__(self):
@@ -158,6 +181,9 @@ class SceneTransitionTab(QWidget):
     def init_ui(self) -> None:
         pass  # TODO: Add functionality
 
+    def save(self, scene: Scene) -> None:
+        pass  # TODO: Implement data save functionality
+
 
 class SceneSchedulingTab(QWidget):
     def __init__(self):
@@ -171,3 +197,6 @@ class SceneSchedulingTab(QWidget):
 
     def init_ui(self) -> None:
         pass  # TODO: Add functionality
+
+    def save(self, scene: Scene) -> None:
+        pass  # TODO: Implement data save functionality

@@ -106,7 +106,17 @@ class SignageManagementTab(QWidget):
         self._widget_idx['signage'] = self._stacked_widget.addWidget(signage_widget)
         frame_widget = FrameWidget(self._tpl_mng)
         self._widget_idx['frame'] = self._stacked_widget.addWidget(frame_widget)
-        scene_widget = SceneWidget(self._tpl_mng)
+
+        def scene_change_handler(change_type: Utils.ChangeType, scene_text: str) -> None:
+            # Get selected scene item
+            get_selected = self._signage_list.selectedItems()
+            if get_selected:
+                item = get_selected[0]
+                if change_type == Utils.ChangeType.SAVE:
+                    # Update QTreeWidgetItem
+                    idx = item.text(0).split(':')[0]
+                    item.setText(0, idx + ':' + scene_text)
+        scene_widget = SceneWidget(self._tpl_mng, scene_change_handler)
         self._widget_idx['scene'] = self._stacked_widget.addWidget(scene_widget)
 
         # Gather altogether

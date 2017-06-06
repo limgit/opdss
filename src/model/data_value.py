@@ -45,7 +45,7 @@ class FileValue:
 class ObjectValue:
     def __init__(self, object_id: Optional[str],
                  object_type: 'data_type.ObjectDataType',
-                 obj_mng: 'manager.ObjectManager'):
+                 obj_mng: Optional['manager.ObjectManager']):
         self._id = ''
         self._values = {}
         self._data_type = object_type
@@ -79,10 +79,10 @@ class ObjectValue:
         if isinstance(field_type, data_type.DateDataType):
             value = datetime.strptime(value, data_type.DateDataType.format)
         elif isinstance(field_type, data_type.ObjectDataType):
-            value = self._obj_mng.get_object_value(field_type, value)
+            value = self._obj_mng.get_object_value(field_type, value) if self._obj_mng else None
         elif isinstance(field_type, data_type.ListDataType) and \
                 isinstance(field_type.data_type, data_type.ObjectDataType):
-            value = [self._obj_mng.get_object_value(field_type.data_type, x) for x in value]
+            value = [self._obj_mng.get_object_value(field_type.data_type, x) if self._obj_mng else None for x in value]
 
         if not self._data_type.fields[key][0].is_valid(value):
             raise AttributeError

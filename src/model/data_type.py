@@ -135,7 +135,7 @@ class ObjectDataType(DataType[ObjectValue]):
         self._fields = fields
 
         super().__init__('')
-        # super().__init__({key: value.default for key, value in fields.items()})
+        # super().__init__({key: value[0].default for key, value in fields.items()})
 
     @property
     def id(self):

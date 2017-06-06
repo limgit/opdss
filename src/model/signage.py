@@ -118,7 +118,7 @@ class Scene:
     @template.setter
     def template(self, new_template: SceneTemplate) -> None:
         self._template = new_template
-        self._values = new_template.definition.default
+        self._values = ObjectValue(None, new_template.definition, None)
         self._on_change_handler()
 
     @property
