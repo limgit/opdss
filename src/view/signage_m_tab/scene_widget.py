@@ -195,9 +195,17 @@ class SceneTransitionTab(QWidget):
         self._res = ResourceManager()
         self.init_ui()
 
+    @staticmethod
+    def transition_type_to_text(transition_type: TransitionType) -> str:
+        return transition_type.name.capitalize()
+
+    @staticmethod
+    def text_to_transition_type(text: str) -> TransitionType:
+        return TransitionType[text.upper()]
+
     def load_data_on_ui(self, scene: Scene) -> None:
         self._ledit_duration.setText(str(scene.duration))
-        idx = self._cbox_type.findText(scene.transition_type.name.capitalize())
+        idx = self._cbox_type.findText(self.transition_type_to_text(scene.transition_type))
         self._cbox_type.setCurrentIndex(idx)
 
     def init_ui(self) -> None:
@@ -207,9 +215,9 @@ class SceneTransitionTab(QWidget):
         group_duration = QGroupBox(self._res['sceneDurationLabel'])
         group_duration.setLayout(vbox_duration)
 
-        transitions = [TransitionType.NONE.name.capitalize(),
-                       TransitionType.PUSH.name.capitalize(),
-                       TransitionType.FADE.name.capitalize()]
+        transitions = [self.transition_type_to_text(TransitionType.NONE),
+                       self.transition_type_to_text(TransitionType.PUSH),
+                       self.transition_type_to_text(TransitionType.PUSH)]
         self._cbox_type.addItems(transitions)
 
         vbox_transition = QVBoxLayout()
@@ -228,7 +236,7 @@ class SceneTransitionTab(QWidget):
     def save(self, scene: Scene) -> None:
         scene.duration = int(self._ledit_duration.text())
         transition = self._cbox_type.currentText()
-        scene.transition_type = TransitionType[transition.upper()]
+        scene.transition_type = self.text_to_transition_type(transition)
 
     def is_data_valid(self) -> bool:
         return self._ledit_duration.text().isdigit()
