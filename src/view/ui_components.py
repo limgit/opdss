@@ -4,7 +4,7 @@ from enum import Enum, auto
 from typing import Callable
 import sys
 
-from model.data_type import StringDataType, BooleanDataType
+from model.data_type import StringDataType, BooleanDataType, IntegerDataType
 
 
 def make_clickable(widget: QWidget, handler):
@@ -106,7 +106,7 @@ class StringDataWidget(ComponentWidget):
             if constraint == '':
                 constraint = "None"
         elif self._input_type == InputType.ONE_OF:
-            constraint = "select from the items."
+            constraint = "Select from the items."
         self._clicked_handler(self.name, self.description, constraint)
         super().mousePressEvent(event)
 
@@ -145,4 +145,75 @@ class BooleanDataWidget(ComponentWidget):
 
     def mousePressEvent(self, event):
         self._clicked_handler(self.name, self.description, "None.")
+        super().mousePressEvent(event)
+
+
+class IntegerDataWidget(ComponentWidget):
+    def __init__(self, data_type: IntegerDataType, name: str, description: str,
+                 clicked_handler: Callable[[str, str, str], None]):
+        super().__init__(name, description)
+
+        self._data_type = data_type
+        if len(self._data_type.one_of) == 0:
+            # No one of field. Custom data
+            self._input_type = InputType.FIELD
+            self._ledit_value = make_clickable(QLineEdit, self.mousePressEvent)
+        else:
+            # one of field exist. Select from combobox
+            self._input_type = InputType.ONE_OF
+            self._cbox_value = make_clickable(QComboBox, self.mousePressEvent)
+        self._clicked_handler = clicked_handler
+
+        self.init_ui()
+
+    @property
+    def value(self) -> int:
+        if self._input_type == InputType.FIELD:
+            return int(self._ledit_value.text())
+        elif self._input_type == InputType.ONE_OF:
+            return int(self._cbox_value.currentText())
+
+    @value.setter
+    def value(self, value: int) -> None:
+        if self._input_type == InputType.FIELD:
+            self._ledit_value.setText(str(value))
+        elif self._input_type == InputType.ONE_OF:
+            idx = self._cbox_value.findText(str(value))
+            self._cbox_value.setCurrentIndex(idx)
+
+    def is_data_valid(self) -> bool:
+        if self._input_type == InputType.FIELD:
+            return self._ledit_value.text().isdigit() and \
+                   self._data_type.min <= self.value <= self._data_type.max
+        elif self._input_type == InputType.ONE_OF:
+            return self._cbox_value.currentText().isdigit() and \
+                   self.value in self._data_type.one_of
+
+    def load_data_on_ui(self, value: str) -> None:
+        self.value = value
+
+    def init_ui(self) -> None:
+        self.setTitle(self.name + " (Integer)")
+        vbox_outmost = QVBoxLayout()
+        if self._input_type == InputType.FIELD:
+            vbox_outmost.addWidget(self._ledit_value)
+        elif self._input_type == InputType.ONE_OF:
+            self._cbox_value.addItems([str(a) for a in self._data_type.one_of])
+            vbox_outmost.addWidget(self._cbox_value)
+        self.setLayout(vbox_outmost)
+
+    def mousePressEvent(self, event):
+        constraint = ""
+        if self._input_type == InputType.FIELD:
+            minimum = self._data_type.min
+            maximum = self._data_type.max
+            if minimum != 0:
+                constraint += "Minimum value " + str(minimum) + ". "
+            if maximum != sys.maxsize:
+                constraint += "Maximum value " + str(maximum) + "."
+            if constraint == '':
+                constraint = "None"
+        elif self._input_type == InputType.ONE_OF:
+            constraint = "Select from the items."
+        self._clicked_handler(self.name, self.description, constraint)
         super().mousePressEvent(event)

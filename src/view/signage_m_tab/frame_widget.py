@@ -7,9 +7,9 @@ import utils.utils as Utils
 from controller.manager import TemplateManager
 from model.signage import Frame
 from model.template import FrameTemplate
-from model.data_type import StringDataType, BooleanDataType
+from model.data_type import StringDataType, BooleanDataType, IntegerDataType
 from view.resource_manager import ResourceManager
-from view.ui_components import StringDataWidget, BooleanDataWidget
+from view.ui_components import StringDataWidget, BooleanDataWidget, IntegerDataWidget
 
 
 class FrameWidget(QWidget):
@@ -137,6 +137,11 @@ class FrameDataTab(QWidget):
                 self._vbox_data.addWidget(widget)
             elif isinstance(field[0], BooleanDataType):
                 widget = BooleanDataWidget(field[0], field[1], field[2], clicked_handler)
+                widget.value = field[0].default
+                self._component_widgets[field_id] = widget
+                self._vbox_data.addWidget(widget)
+            elif isinstance(field[0], IntegerDataType):
+                widget = IntegerDataWidget(field[0], field[1], field[2], clicked_handler)
                 widget.value = field[0].default
                 self._component_widgets[field_id] = widget
                 self._vbox_data.addWidget(widget)
