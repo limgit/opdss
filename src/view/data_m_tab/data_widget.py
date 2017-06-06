@@ -4,6 +4,7 @@ from typing import Callable
 from datetime import datetime
 
 import utils.utils as utils
+from controller.manager import ObjectManager
 from model.data_type import (ObjectDataType, StringDataType, BooleanDataType,
                              IntegerDataType, DateDataType)
 from model.data_value import ObjectValue
@@ -13,10 +14,12 @@ from view.ui_components import (StringDataWidget, BooleanDataWidget,
 
 
 class DataWidget(QWidget):
-    def __init__(self, value_change_handler: Callable[[utils.ChangeType, str], None]):
+    def __init__(self, obj_mng: ObjectManager, value_change_handler: Callable[[utils.ChangeType, str], None]):
         super().__init__()
 
         self._data = None
+
+        self._obj_mng = obj_mng
 
         self._ledit_id = QLineEdit()
         self._vbox_data = QVBoxLayout()
@@ -116,7 +119,10 @@ class DataWidget(QWidget):
     def button_clicked(self):
         button_text = self.sender().text()
         if button_text == self._res['deleteButtonText']:
-            pass  # TODO: Add deletion functionality
+            print("Remove start")
+            self._obj_mng.remove_object_value(self._data)
+            print("Removed")
+            self._value_change_handler(utils.ChangeType.DELETE, '')
         elif button_text == self._res['saveButtonText']:
             # Check is input data valid. If not, do not save it
             if not self.is_data_valid():
