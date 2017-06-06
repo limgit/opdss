@@ -15,7 +15,6 @@ class DataTypeWidget(QWidget):
         self._ledit_author = QLineEdit()
         self._ledit_homepage = QLineEdit()
         self._ptedit_descript = QPlainTextEdit()
-        self._ptedit_depend = QPlainTextEdit()
 
         self._res = ResourceManager()
         self.init_ui()
@@ -27,7 +26,6 @@ class DataTypeWidget(QWidget):
         self._ledit_author.setText(data_type.dev_name)
         self._ledit_homepage.setText(data_type.dev_homepage)
         self._ptedit_descript.setPlainText(data_type.description)
-        # TODO: Show user data type dependency
 
     def init_ui(self):
         # ID display
@@ -70,17 +68,9 @@ class DataTypeWidget(QWidget):
         group_descript = QGroupBox(self._res['dataTypeDescriptionLabel'])
         group_descript.setLayout(vbox_descript)
 
-        # Dependency display
-        self._ptedit_depend.setEnabled(False)
-        vbox_depend = QVBoxLayout()
-        vbox_depend.addWidget(self._ptedit_depend)
-
-        group_depend = QGroupBox(self._res['dataTypeDependencyLabel'])
-        group_depend.setLayout(vbox_depend)
-
         # Button
         btn_delete = QPushButton(self._res['deleteButtonText'])
-        # TODO: Add functionality
+        btn_delete.clicked.connect(self.button_clicked)
 
         hbox_buttons = QHBoxLayout()
         hbox_buttons.addStretch(1)
@@ -93,8 +83,12 @@ class DataTypeWidget(QWidget):
         vbox_outmost.addWidget(group_author)
         vbox_outmost.addWidget(group_homepage)
         vbox_outmost.addWidget(group_descript)
-        vbox_outmost.addWidget(group_depend)
         vbox_outmost.addStretch(1)
         vbox_outmost.addLayout(hbox_buttons)
 
         self.setLayout(vbox_outmost)
+
+    def button_clicked(self):
+        button_text = self.sender().text()
+        if button_text == self._res['deleteButtonText']:
+            pass  # TODO: Add DataType Deletion logic
