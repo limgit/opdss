@@ -86,9 +86,9 @@ class ObjectValue:
                 isinstance(field_type.data_type, data_type.ObjectDataType):
             value = [self._obj_mng.get_object_value(field_type.data_type, x) for x in value]
         elif field_type is self._mtm_mng.image_type:
-            value = self._mtm_mng.get_images(value)
+            value = self._mtm_mng.get_image(value)
         elif field_type is self._mtm_mng.video_type:
-            value = self._mtm_mng.get_videos(value)
+            value = self._mtm_mng.get_video(value)
 
         if not self._data_type.fields[key][0].is_valid(value):
             raise AttributeError

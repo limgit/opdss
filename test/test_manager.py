@@ -63,7 +63,7 @@ class TestWebServer(unittest.TestCase):
 
 class TestMultimedia(unittest.TestCase):
     def test_file_change(self):
-        image = mtm_mng.get_images('placeholder.jpg')
+        image = mtm_mng.get_image('placeholder.jpg')
         image.file_name = 'test'
         image.file_name = 'placeholder.jpg'
 

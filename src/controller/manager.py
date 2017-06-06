@@ -80,10 +80,10 @@ class MultimediaManager:
     def images(self) -> Dict[str, FileValue]:
         return copy.copy(self._images)
 
-    def get_images(self, file_id: str) -> FileValue:
+    def get_image(self, file_id: str) -> FileValue:
         return self.images[file_id] if file_id else None
 
-    def get_videos(self, file_id: str) -> FileValue:
+    def get_video(self, file_id: str) -> FileValue:
         return self.videos[file_id] if file_id else None
 
     @property
