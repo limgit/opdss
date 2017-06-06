@@ -7,16 +7,17 @@ from controller.manager import ObjectManager, TemplateManager, SignageManager, C
 from webserver.web_server import WebServer
 
 sys.path.append("../src")
-root_path = Path('../data')
+root_path = Path('../data').resolve()
+
+mtm_mng = MultimediaManager(root_path / 'media')
+obj_mng = ObjectManager(root_path / 'data', mtm_mng)
+tpl_mng = TemplateManager(root_path / 'template', obj_mng)
+sgn_mng = SignageManager(root_path / 'signage', obj_mng, tpl_mng)
+chn_mng = ChannelManager(root_path / 'channel', sgn_mng)
 
 
 class TestChannelManager(unittest.TestCase):
     def test_channel_manager(self):
-        obj_mng = ObjectManager(root_path / 'data')
-        tpl_mng = TemplateManager(root_path / 'template', obj_mng)
-        sgn_mng = SignageManager(root_path / 'signage', obj_mng, tpl_mng)
-        chn_mng = ChannelManager(root_path / 'channel', sgn_mng)
-
         channel = chn_mng.get_channel('default_channel')
         channel.id = 'test'
         channel.id = 'default_channel'
@@ -24,8 +25,6 @@ class TestChannelManager(unittest.TestCase):
 
 class TestObjectManager(unittest.TestCase):
     def test_object_change(self):
-        obj_mng = ObjectManager(root_path / 'data')
-
         menu_item_type = obj_mng.get_object_type('menu_item')
         milk_object = obj_mng.get_object_value(menu_item_type, 'milk')
         milk_object.id = 'test'
@@ -42,9 +41,6 @@ class TestObjectManager(unittest.TestCase):
 
 class TestSignageManager(unittest.TestCase):
     def test_signage_change(self):
-        obj_mng = ObjectManager(root_path / 'data')
-        tpl_mng = TemplateManager(root_path / 'template', obj_mng)
-        sgn_mng = SignageManager(root_path / 'signage', obj_mng, tpl_mng)
         default_signage = sgn_mng.get_signage('default_signage')
 
         # change signage's property
@@ -61,31 +57,15 @@ class TestSignageManager(unittest.TestCase):
 
 class TestWebServer(unittest.TestCase):
     def test_start(self):
-        obj_mng = ObjectManager(root_path / 'data')
-        tpl_mng = TemplateManager(root_path / 'template', obj_mng)
-        sgn_mng = SignageManager(root_path / 'signage', obj_mng, tpl_mng)
-        chn_mng = ChannelManager(root_path / 'channel', sgn_mng)
-
-        server = WebServer(chn_mng, obj_mng, tpl_mng, sgn_mng)
+        server = WebServer(chn_mng, obj_mng, tpl_mng, sgn_mng, mtm_mng)
         server.start()  # todo: causes infinite loop
 
 
 class TestMultimedia(unittest.TestCase):
     def test_file_change(self):
-        multi_mng = MultimediaManager(root_path / 'multimedia')
-        image_path = root_path / 'multimedia' / 'image'
-        video_path = root_path / 'multimedia' / 'video'
-
-        #multi_mng.add_image(Path('C:/Users/sumin/PycharmProjects/guess/data/multimedia/image/1.jpg'))
-        multi_mng.add_image(image_path / '1.jpg')
-        multi_mng.get_images('1.jpg').file_name = 'test.jpg'
-        multi_mng.add_image(image_path / 'test.jpg')
-        multi_mng.get_images('test.jpg').file_name = '1.jpg'
-
-        multi_mng.add_video(video_path / '2.MOV')
-        multi_mng.get_videos('2.MOV').file_name = 'test.MOV'
-        multi_mng.add_video(video_path / 'test.MOV')
-        multi_mng.get_videos('test.MOV').file_name = '2.MOV'
+        image = mtm_mng.get_image('placeholder.jpg')
+        image.file_name = 'test'
+        image.file_name = 'placeholder.jpg'
 
 
 if __name__ == '__main__':
