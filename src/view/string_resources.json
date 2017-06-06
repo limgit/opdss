@@ -26,7 +26,6 @@
   "dataTypeAuthorLabel": "Author",
   "dataTypeHomepageLabel": "Homepage",
   "dataTypeDescriptionLabel": "Description",
-  "dataTypeDependencyLabel": "User Data Type Dependency",
   "multimediaListLabel": "List",
   "nameLabel": "Name",
   "multimediaPreviewLabel": "Preview",
@@ -37,5 +36,7 @@
   "templateDescriptionLabel": "Description",
   "templateDependencyLabel": "User Data Type Dependency",
   "frameLabel": "Frame",
-  "sceneLabel": "Scene"
+  "sceneLabel": "Scene",
+  "idInvalidTitle": "ID validation failed!",
+  "idInvalidDescription": "ID should only contain lower case alphabet, number or underscore with leading lower case alphabet"
 }
