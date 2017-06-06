@@ -43,6 +43,7 @@ class SceneWidget(QWidget):
             template = self._tpl_mng.get_scene_template(tpl_id)
             tpl_list.append(Utils.gen_ui_text(template.definition.name, template.id))
         self._cbox_tpl.addItems(tpl_list)
+        self._cbox_tpl.currentIndexChanged.connect(self.combobox_changed)
 
         # Tab widget
         tab_scene_manage = QTabWidget()
@@ -72,6 +73,12 @@ class SceneWidget(QWidget):
         vbox_outmost.addLayout(hbox_buttons)
 
         self.setLayout(vbox_outmost)
+
+    def combobox_changed(self) -> None:
+        combobox_text = self.sender().currentText()
+        tpl_id = Utils.ui_text_to_id(combobox_text)
+        tpl = self._tpl_mng.get_scene_template(tpl_id)
+        self._tab_data.load_ui(tpl)
 
 
 class SceneDataTab(QWidget):
@@ -104,6 +111,7 @@ class SceneDataTab(QWidget):
             field = fields[field_id]  # Tuple[DataType, name, description]
             if isinstance(field[0], StringDataType):
                 widget = StringDataWidget(field[0], field[1], field[2], clicked_handler)
+                widget.value = field[0].default
                 self._component_widgets[field_id] = widget
                 self._vbox_data.addWidget(widget)
             # TODO: Add more UI components according to data type
