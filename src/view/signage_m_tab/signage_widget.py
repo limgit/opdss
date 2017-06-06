@@ -3,13 +3,13 @@ from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout,
                              QPushButton, QMessageBox)
 from typing import Callable
 
-import utils.utils as Utils
+import utils.utils as utils
 from model.signage import Signage
 from view.resource_manager import ResourceManager
 
 
 class SignageWidget(QWidget):
-    def __init__(self, value_change_handler: Callable[[Utils.ChangeType, str], None]):
+    def __init__(self, value_change_handler: Callable[[utils.ChangeType, str], None]):
         super().__init__()
 
         self._value_change_handler = value_change_handler
@@ -78,11 +78,11 @@ class SignageWidget(QWidget):
         button_text = self.sender().text()
         if button_text == self._res['deleteButtonText']:
             # TODO: Delete selected signage
-            self._value_change_handler(Utils.ChangeType.DELETE)
+            self._value_change_handler(utils.ChangeType.DELETE)
         elif button_text == self._res['saveButtonText']:
             # ID Validation
             try:
-                Utils.validate_id(self._ledit_id.text())
+                utils.validate_id(self._ledit_id.text())
             except AttributeError:
                 QMessageBox.warning(self, self._res['idInvalidTitle'],
                                     self._res['idInvalidDescription'],
@@ -95,8 +95,8 @@ class SignageWidget(QWidget):
             self._signage.description = self._ptedit_descript.toPlainText()
 
             # Invoke value change handler to edit QTreeWidgetItem
-            sgn_text = Utils.gen_ui_text(self._signage.title, self._signage.id)
-            self._value_change_handler(Utils.ChangeType.SAVE, sgn_text)
+            sgn_text = utils.gen_ui_text(self._signage.title, self._signage.id)
+            self._value_change_handler(utils.ChangeType.SAVE, sgn_text)
         elif button_text == self._res['cancelButtonText']:
             # Load the previous data
             self.load_data_on_ui(self._signage)

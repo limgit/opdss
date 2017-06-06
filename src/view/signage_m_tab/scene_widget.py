@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout,
 from typing import Callable
 from datetime import datetime
 
-import utils.utils as Utils
+import utils.utils as utils
 from controller.manager import TemplateManager
 from model.signage import Scene, TransitionType, ScheduleType
 from model.template import SceneTemplate
@@ -17,7 +17,7 @@ from view.ui_components import (StringDataWidget, BooleanDataWidget,
 
 
 class SceneWidget(QWidget):
-    def __init__(self, tpl_mng: TemplateManager, value_change_handler: Callable[[Utils.ChangeType, str], None]):
+    def __init__(self, tpl_mng: TemplateManager, value_change_handler: Callable[[utils.ChangeType, str], None]):
         super().__init__()
 
         self._tpl_mng = tpl_mng
@@ -38,7 +38,7 @@ class SceneWidget(QWidget):
         self._scene = scene
         # Set current item of combobox
         tpl = self._scene.template
-        idx = self._cbox_tpl.findText(Utils.gen_ui_text(tpl.definition.name, tpl.id))
+        idx = self._cbox_tpl.findText(utils.gen_ui_text(tpl.definition.name, tpl.id))
         self._cbox_tpl.setCurrentIndex(idx)
 
         self._tab_data.load_data_on_ui(self._scene)
@@ -50,7 +50,7 @@ class SceneWidget(QWidget):
         tpl_list = list()
         for tpl_id in self._tpl_mng.scene_templates:
             template = self._tpl_mng.get_scene_template(tpl_id)
-            tpl_list.append(Utils.gen_ui_text(template.definition.name, template.id))
+            tpl_list.append(utils.gen_ui_text(template.definition.name, template.id))
         self._cbox_tpl.addItems(tpl_list)
         self._cbox_tpl.currentIndexChanged.connect(self.combobox_changed)
 
@@ -85,7 +85,7 @@ class SceneWidget(QWidget):
 
     def combobox_changed(self) -> None:
         combobox_text = self.sender().currentText()
-        tpl_id = Utils.ui_text_to_id(combobox_text)
+        tpl_id = utils.ui_text_to_id(combobox_text)
         tpl = self._tpl_mng.get_scene_template(tpl_id)
         self._tab_data.load_ui(tpl)
 
@@ -105,7 +105,7 @@ class SceneWidget(QWidget):
 
             # Now it's OK to save
             # Set scene's template
-            tpl_id = Utils.ui_text_to_id(self._cbox_tpl.currentText())
+            tpl_id = utils.ui_text_to_id(self._cbox_tpl.currentText())
             tpl = self._tpl_mng.get_scene_template(tpl_id)
             self._scene.template = tpl
 
@@ -114,8 +114,8 @@ class SceneWidget(QWidget):
             self._tab_transition.save(self._scene)
 
             # Invoke value change handler to edit QTreeWidgetItem
-            scene_text = Utils.gen_ui_text(tpl.definition.name, tpl.id)
-            self._value_change_handler(Utils.ChangeType.SAVE, scene_text)
+            scene_text = utils.gen_ui_text(tpl.definition.name, tpl.id)
+            self._value_change_handler(utils.ChangeType.SAVE, scene_text)
         elif button_text == self._res['cancelButtonText']:
             # Load the previous data
             self.load_data_on_ui(self._scene)

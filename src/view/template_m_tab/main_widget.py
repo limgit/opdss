@@ -1,19 +1,22 @@
 from PyQt5.QtWidgets import (QWidget, QTreeWidget, QTreeWidgetItem,
                              QHBoxLayout)
 
-import utils.utils as Utils
+import utils.utils as utils
 from .template_widget import TemplateWidget
-from controller.manager import ObjectManager, TemplateManager, SignageManager
+from controller.manager import ObjectManager, TemplateManager, SignageManager, MultimediaManager, ChannelManager
 from view.resource_manager import ResourceManager
 
 
 class TemplateManagementTab(QWidget):
-    def __init__(self, obj_mng: ObjectManager, tpl_mng: TemplateManager, sgn_mng: SignageManager):
+    def __init__(self, obj_mng: ObjectManager, tpl_mng: TemplateManager, sgn_mng: SignageManager,
+                 mtm_mng: MultimediaManager, chn_mng: ChannelManager):
         super().__init__()
 
         self._obj_mng = obj_mng
         self._tpl_mng = tpl_mng
         self._sgn_mng = sgn_mng
+        self._mtm_mng = mtm_mng
+        self._chn_mng = chn_mng
 
         self._res = ResourceManager()
         self._template_widget = TemplateWidget()
@@ -23,14 +26,14 @@ class TemplateManagementTab(QWidget):
         frame_label_item = QTreeWidgetItem([self._res['frameLabel']])
         for frame_tpl_id in self._tpl_mng.frame_templates.keys():
             frame_tpl = self._tpl_mng.get_frame_template(frame_tpl_id)
-            frame_text = Utils.gen_ui_text(frame_tpl.definition.name, frame_tpl.id)
+            frame_text = utils.gen_ui_text(frame_tpl.definition.name, frame_tpl.id)
             frame_item = QTreeWidgetItem([frame_text])
             frame_label_item.addChild(frame_item)
 
         scene_label_item = QTreeWidgetItem([self._res['sceneLabel']])
         for scene_tpl_id in self._tpl_mng.scene_templates.keys():
             scene_tpl = self._tpl_mng.get_scene_template(scene_tpl_id)
-            scene_text = Utils.gen_ui_text(scene_tpl.definition.name, scene_tpl.id)
+            scene_text = utils.gen_ui_text(scene_tpl.definition.name, scene_tpl.id)
             scene_item = QTreeWidgetItem([scene_text])
             scene_label_item.addChild(scene_item)
         return [frame_label_item, scene_label_item]
@@ -60,7 +63,7 @@ class TemplateManagementTab(QWidget):
                 self._template_widget.clear_data_on_ui()
             else:
                 # Selected one is frame/scene
-                tpl_id = Utils.ui_text_to_id(item_text)
+                tpl_id = utils.ui_text_to_id(item_text)
                 if item.parent().text(0) == self._res['frameLabel']:
                     # Selected one is frame template
                     tpl = self._tpl_mng.get_frame_template(tpl_id)
