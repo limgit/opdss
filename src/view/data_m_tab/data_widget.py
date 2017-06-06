@@ -1,6 +1,8 @@
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QLabel,
-                             QLineEdit, QPushButton, QTextBrowser)
+                             QLineEdit, QPushButton, QTextBrowser, QMessageBox)
+from typing import Callable
 
+import utils.utils as Utils
 from model.data_type import ObjectDataType, StringDataType
 from model.data_value import ObjectValue
 from view.resource_manager import ResourceManager
@@ -8,13 +10,17 @@ from view.ui_components import StringDataWidget
 
 
 class DataWidget(QWidget):
-    def __init__(self):
+    def __init__(self, value_change_handler: Callable[[Utils.ChangeType, str], None]):
         super().__init__()
+
+        self._data = None
 
         self._ledit_id = QLineEdit()
         self._vbox_data = QVBoxLayout()
         self._component_widgets = dict()  # id -> ComponentWidget
         self._tview_detail = QTextBrowser()
+
+        self._value_change_handler = value_change_handler
 
         self._res = ResourceManager()
         self.init_ui()
@@ -46,6 +52,7 @@ class DataWidget(QWidget):
                 # TODO: Add more UI components according to data type
 
     def load_data_on_ui(self, data: ObjectValue):
+        self._data = data
         self._ledit_id.setText(data.id)
         self.load_ui(data.data_type)
         for field_id in data.get_values().keys():
@@ -67,11 +74,11 @@ class DataWidget(QWidget):
 
         # Buttons
         btn_delete = QPushButton(self._res['deleteButtonText'])
-        # TODO: Add functionality
+        btn_delete.clicked.connect(self.button_clicked)
         btn_save = QPushButton(self._res['saveButtonText'])
-        # TODO: Add functionality
+        btn_save.clicked.connect(self.button_clicked)
         btn_cancel = QPushButton(self._res['cancelButtonText'])
-        # TODO: Add functionality
+        btn_cancel.clicked.connect(self.button_clicked)
 
         hbox_buttons = QHBoxLayout()
         hbox_buttons.addStretch(1)
@@ -87,3 +94,45 @@ class DataWidget(QWidget):
         vbox_outmost.addLayout(hbox_buttons)
 
         self.setLayout(vbox_outmost)
+
+    def button_clicked(self):
+        button_text = self.sender().text()
+        if button_text == self._res['deleteButtonText']:
+            pass  # TODO: Add deletion functionality
+        elif button_text == self._res['saveButtonText']:
+            # Check is input data valid. If not, do not save it
+            if not self.is_data_valid():
+                QMessageBox.warning(self, self._res['dataInvalidTitle'],
+                                    self._res['dataInvalidDescription'],
+                                    QMessageBox.Ok, QMessageBox.Ok)
+                return
+
+            # Now it's OK to save
+            self.save()
+
+            # Invoke value change handler to edit QTreeWidgetItem
+            self._value_change_handler(Utils.ChangeType.SAVE, self._ledit_id.text())
+        elif button_text == self._res['cancelButtonText']:
+            self.load_data_on_ui(self._data)
+
+    def save(self) -> None:
+        # Gather all data
+        values = dict()
+        for field_id in self._component_widgets.keys():
+            widget = self._component_widgets[field_id]
+            values[field_id] = widget.value
+        # Save it
+        self._data.id = self._ledit_id.text()
+        self._data.set_values(**values)
+
+    def is_data_valid(self) -> bool:
+        try:
+            Utils.validate_id(self._ledit_id.text())
+        except AttributeError:
+            return False
+
+        for field_id in self._component_widgets.keys():
+            widget = self._component_widgets[field_id]
+            if not widget.is_data_valid():
+                return False
+        return True
