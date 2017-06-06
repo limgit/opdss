@@ -309,9 +309,13 @@ class TemplateManager:
     def __init__(self, root_dir: Path, obj_mng: ObjectManager):
         self._root_dir = root_dir
         self._obj_mng = obj_mng
+        self._sgn_mng = None
         self._scene_templates = dict()
         self._frame_templates = dict()
         self.load_all()
+
+    def bind_managers(self, sgn_mng: 'SignageManager'):
+        self._sgn_mng = sgn_mng
 
     @property
     def root_dir(self) -> Path:
@@ -371,6 +375,24 @@ class TemplateManager:
         frame_refs.update(scene_refs)
 
         return frame_refs
+
+    def remove_scene_template(self, to_delete: SceneTemplate):
+        refs = self._sgn_mng.get_scene_template_references(to_delete)
+
+        if refs:
+            raise ReferenceError(refs)
+
+        delete_path = Path(self._root_dir / 'scene' / to_delete.id)
+        shutil.rmtree(str(delete_path))
+
+    def remove_frame_template(self, to_delete: FrameTemplate):
+        refs = self._sgn_mng.get_frame_template_references(to_delete)
+
+        if refs:
+            raise ReferenceError(refs)
+
+        delete_path = Path(self._root_dir / 'frame' / to_delete.id)
+        shutil.rmtree(str(delete_path))
 
 class SignageManager:
     def __init__(self, root_dir: Path, obj_mng: ObjectManager, tpl_mng: TemplateManager):
@@ -458,6 +480,15 @@ class SignageManager:
 
     def get_value_references(self, to_check) -> Dict[str, ObjectValue]:
         return {'signage/{}.{}'.format(signage.id, k): v for signage in self._signages.values() for k, v in signage.get_value_references(to_check).items()}
+
+    def get_scene_template_references(self, to_check) -> Dict[str, Scene]:
+        return {'signage/{}.{}'.format(signage.id, k): v
+                for signage in self._signages.values()
+                for k, v in signage.get_scene_template_references(to_check).items()}
+
+    def get_frame_template_references(self, to_check) -> Dict[str, Frame]:
+        return {'signage/{}.frame'.format(signage.id): signage.frame
+                for signage in filter(lambda x: x.frame.template is to_check, self._signages.values())}
 
 
 class ChannelManager:

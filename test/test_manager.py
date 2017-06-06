@@ -17,6 +17,7 @@ chn_mng = ChannelManager(root_path / 'channel', sgn_mng)
 
 mtm_mng.bind_managers(sgn_mng, obj_mng)
 obj_mng.bind_managers(tpl_mng, sgn_mng)
+tpl_mng.bind_managers(sgn_mng)
 
 
 class TestChannelManager(unittest.TestCase):
@@ -42,6 +43,15 @@ class TestObjectManager(unittest.TestCase):
         drinks_object = obj_mng.get_object_value(menu_group_type, 'drinks')
         drinks_object.set_value('name', 'test')
         drinks_object.set_value('name', 'Drinks')
+
+
+class TemplateManager(unittest.TestCase):
+    def test_template_manager(self):
+        empty_scene = tpl_mng.get_scene_template('empty_scene')
+        self.assertRaises(ReferenceError, tpl_mng.remove_scene_template, empty_scene)
+
+        bottom_clock = tpl_mng.get_frame_template('bottom_clock')
+        self.assertRaises(ReferenceError, tpl_mng.remove_frame_template, bottom_clock)
 
 
 class TestSignageManager(unittest.TestCase):

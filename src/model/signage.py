@@ -319,6 +319,10 @@ class Signage:
 
         return frame_references
 
+    def get_scene_template_references(self, to_check) -> Dict[str, Scene]:
+        return {'scene{}'.format(index): scene
+                for index, scene in filter(lambda x: x[1].template is to_check, enumerate(self._scenes))}
+
     def render(self, resource_dir: Path) -> str:
         dirs = [str(x.template.root_dir) for x in self._scenes]  # for scene template resources
         dirs.append(str(self._frame.template.root_dir))  # for frame template resources
