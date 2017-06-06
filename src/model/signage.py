@@ -209,13 +209,12 @@ class Frame:
 
 
 class Signage:
-    def __init__(self, signage_id: str, root_dir: Path, title: str= '',
+    def __init__(self, signage_id: str, title: str= '',
                  description: str='', frame: Frame=None, scenes=None):
         if scenes is None:
             scenes = []
 
         self._id = ''
-        self._root_dir = root_dir
         self._title = title
         self._description = description
         self._frame = frame
@@ -268,10 +267,6 @@ class Signage:
         self._value_change_handler()
 
     @property
-    def root_dir(self) -> Path:
-        return self._root_dir
-
-    @property
     def scenes(self) -> Tuple[Scene]:
         return tuple(self._scenes)
 
@@ -317,10 +312,10 @@ class Signage:
         self._scenes[index_1], self._scenes[index_2] = self._scenes[index_2], self._scenes[index_1]
         self._value_change_handler()
 
-    def render(self) -> str:
+    def render(self, resource_dir: Path) -> str:
         dirs = [str(x.template.root_dir) for x in self._scenes]  # for scene template resources
         dirs.append(str(self._frame.template.root_dir))  # for frame template resources
-        dirs.append(str(self._root_dir))  # for index.html
+        dirs.append(str(resource_dir))  # for index.html
 
         scenes = [str(x.template.root_dir.stem) + '.html' for x in self._scenes]
         frame = (str(self._frame.template.root_dir.stem) + '.html')

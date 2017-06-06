@@ -45,7 +45,7 @@ class WebServer:
         return ' '.join(['<a href="/{0}">{0}</a>'.format(str(x)) for x in self._chn_mng.channels.keys()])
 
     def handle_channel(self, channel_id: str) -> str:
-        return self._chn_mng.get_channel(channel_id).signage.render()
+        return self._chn_mng.get_channel(channel_id).signage.render(self._sgn_mng._dir_root)
 
     def handle_template_static(self, path: str) -> str:
         return self._app.send_static_file(path)

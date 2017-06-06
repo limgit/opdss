@@ -287,7 +287,7 @@ class SignageManager:
             frame_data = self._obj_mng.load_object_value(None, frame_template.definition, frame_value['data'])
             frame = Frame(frame_template, frame_data)
 
-            new_signage = Signage(signage_id, signage_mnf.parent, dct['title'], dct['description'], frame, scenes)
+            new_signage = Signage(signage_id, dct['title'], dct['description'], frame, scenes)
             self.add_signage(new_signage)
 
             webserver.logger.Logger().info(new_signage.title)
