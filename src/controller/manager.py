@@ -91,19 +91,21 @@ class MultimediaManager:
         return copy.copy(self._videos)
 
     def remove_image(self, to_delete: FileValue, sgn_mng: 'SignageManager', obj_mng: 'ObjectManager'):
-        refs = sgn_mng.get_references(to_delete) + obj_mng.get_references(to_delete)
+        refs = sgn_mng.get_value_references(to_delete)
+        refs.update(obj_mng.get_value_references(to_delete))
 
         if refs:
-            raise ReferenceError(*refs)
+            raise ReferenceError(refs)
 
         del self._images[to_delete.file_name]
         os.remove(str(to_delete.file_path))
 
     def remove_video(self, to_delete: FileValue, sgn_mng: 'SignageManager', obj_mng: 'ObjectManager'):
-        refs = sgn_mng.get_references(to_delete) + obj_mng.get_references(to_delete)
+        refs = sgn_mng.get_value_references(to_delete)
+        refs.update(obj_mng.get_value_references(to_delete))
 
         if refs:
-            raise ReferenceError(*refs)
+            raise ReferenceError(refs)
 
         del self.videos[to_delete.file_name]
         os.remove(str(to_delete.file_path))
@@ -136,11 +138,10 @@ class ObjectManager:
     def get_object_values(self, type_instance: ObjectDataType) -> Dict[str, ObjectValue]:
         return copy.copy(self._object_values[type_instance])
 
-    def get_references(self, to_check) -> List[str]:
-        return ['{}.{}.{}'.format(type_id, value_id, reference)
+    def get_value_references(self, to_check) -> Dict[str, ObjectValue]:
+        return {'object/{}.{}'.format(type_id, value_id): value
                 for type_id, values_dict in self._object_values.items()
-                for value_id, value in values_dict.items()
-                for reference in value.get_references(to_check)]
+                for value_id, value in filter(lambda x: x[1].has_references(to_check), values_dict.items())}
 
     def load_all(self) -> None:
         self._object_types = dict()
@@ -391,10 +392,8 @@ class SignageManager:
 
         value_change_handler()  # save to file
 
-    def get_references(self, to_check) -> List[str]:
-        return ['{}.{}'.format(signage_id, ref_str)
-                for signage_id, ref_list in [[signage.id, signage.get_references(to_check)] for signage in self._signages.values()]
-                for ref_str in ref_list]
+    def get_value_references(self, to_check) -> Dict[str, ObjectValue]:
+        return {'signage/{}.{}'.format(signage.id, k): v for signage in self._signages.values() for k, v in signage.get_value_references(to_check).items()}
 
 
 class ChannelManager:

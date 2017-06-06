@@ -3,7 +3,7 @@ from datetime import time
 from pathlib import Path
 
 from enum import Enum, auto
-from typing import Callable, Tuple, List
+from typing import Callable, Tuple, List, Dict
 
 from jinja2.environment import Environment
 from jinja2.loaders import FileSystemLoader
@@ -312,13 +312,12 @@ class Signage:
         self._scenes[index_1], self._scenes[index_2] = self._scenes[index_2], self._scenes[index_1]
         self._value_change_handler()
 
-    def get_references(self, to_check) -> List[str]:
-        frame_references = ['{0}.{1}'.format(self.id, x) for x in self._frame.values.get_references(to_check)]
-        scene_references = ['scene{}.{}'.format(index, ref_str)
-                            for index, ref_list in enumerate([scene.values.get_references(to_check) for scene in self._scenes])
-                            for ref_str in ref_list]
+    def get_value_references(self, to_check) -> Dict[str, ObjectValue]:
+        frame_references = {'frame', self._frame.values} if self._frame.values.has_references(to_check) else {}
+        scene_references = {'scene' + str(index): scene.values for index, scene in filter(lambda x: x[1].values.has_references(to_check), enumerate(self.scenes))}
+        frame_references.update(scene_references)
 
-        return frame_references + scene_references
+        return frame_references
 
     def render(self, resource_dir: Path) -> str:
         dirs = [str(x.template.root_dir) for x in self._scenes]  # for scene template resources

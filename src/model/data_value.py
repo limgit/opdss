@@ -113,8 +113,8 @@ class ObjectValue:
 
         return to_return
 
-    def get_references(self, to_check) -> List[str]:
-        return [key for key, value in filter(lambda tpl: tpl[1] is to_check, self._values.items())]
+    def has_references(self, to_check) -> bool:
+        return to_check in self._values.values()
 
     @property
     def id(self) -> Optional[str]:
