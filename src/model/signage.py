@@ -307,6 +307,7 @@ class Signage:
     def remove_scene(self, to_delete: Scene) -> None:
         to_delete.on_value_change = lambda: None
         self._scenes.remove(to_delete)
+        self._value_change_handler()
 
     def rearrange_scene(self, index_1: int, index_2: int) -> None:
         self._scenes[index_1], self._scenes[index_2] = self._scenes[index_2], self._scenes[index_1]

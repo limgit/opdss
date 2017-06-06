@@ -3,7 +3,7 @@ import logging.handlers
 import datetime
 from pathlib import Path
 
-root_path = Path('../data/log/')
+root_path = Path('../../data/log/')
 
 
 class Logger:
