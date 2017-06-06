@@ -1,10 +1,14 @@
+from datetime import datetime
 from PyQt5.QtWidgets import (QWidget, QGroupBox, QLineEdit, QComboBox,
-                             QVBoxLayout, QCheckBox)
+                             QVBoxLayout, QCheckBox, QDateTimeEdit)
+from PyQt5.QtCore import QDateTime
+
 from enum import Enum, auto
 from typing import Callable
 import sys
 
-from model.data_type import StringDataType, BooleanDataType, IntegerDataType
+from model.data_type import (StringDataType, BooleanDataType, IntegerDataType,
+                             DateDataType)
 
 
 def make_clickable(widget: QWidget, handler):
@@ -215,5 +219,52 @@ class IntegerDataWidget(ComponentWidget):
                 constraint = "None"
         elif self._input_type == InputType.ONE_OF:
             constraint = "Select from the items."
+        self._clicked_handler(self.name, self.description, constraint)
+        super().mousePressEvent(event)
+
+
+class DateTimeDataWidget(ComponentWidget):
+    def __init__(self, data_type: DateDataType, name: str, description: str,
+                 clicked_handler: Callable[[str, str, str], None]):
+        super().__init__(name, description)
+
+        self._data_type = data_type
+        self._date_time = make_clickable(QDateTimeEdit, self.mousePressEvent)
+        self._clicked_handler = clicked_handler
+
+        self.init_ui()
+
+    @property
+    def value(self) -> str:
+        return self._date_time.dateTime().toString("yyyy-MM-dd hh:mm")
+
+    @value.setter
+    def value(self, value: datetime) -> None:
+        self._date_time.setDateTime(value)
+
+    def is_data_valid(self) -> bool:
+        return self._data_type.is_valid(self.value)
+
+    def load_data_on_ui(self, value: str) -> None:
+        self.value = value
+
+    def init_ui(self) -> None:
+        self._date_time.setDisplayFormat("yyyy-MM-dd hh:mm")
+
+        self.setTitle(self.name + " (DateTime)")
+        vbox_outmost = QVBoxLayout()
+        vbox_outmost.addWidget(self._date_time)
+        self.setLayout(vbox_outmost)
+
+    def mousePressEvent(self, event):
+        constraint = ""
+        min_value = self._data_type.min
+        max_value = self._data_type.max
+        if min_value != '1000-01-01 00:00':
+            constraint += "Minimum date time " + min_value + ". "
+        if max_value != '9999-12-31 23:59':
+            constraint += "Maximum date time " + max_value + "."
+        if constraint == '':
+            constraint = "None"
         self._clicked_handler(self.name, self.description, constraint)
         super().mousePressEvent(event)

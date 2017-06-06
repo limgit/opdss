@@ -2,14 +2,17 @@ from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout,
                              QPushButton, QComboBox, QTabWidget,
                              QTextBrowser, QMessageBox)
 from typing import Callable
+from datetime import datetime
 
 import utils.utils as Utils
 from controller.manager import TemplateManager
 from model.signage import Frame
 from model.template import FrameTemplate
-from model.data_type import StringDataType, BooleanDataType, IntegerDataType
+from model.data_type import (StringDataType, BooleanDataType,
+                             IntegerDataType, DateDataType)
 from view.resource_manager import ResourceManager
-from view.ui_components import StringDataWidget, BooleanDataWidget, IntegerDataWidget
+from view.ui_components import (StringDataWidget, BooleanDataWidget,
+                                IntegerDataWidget, DateTimeDataWidget)
 
 
 class FrameWidget(QWidget):
@@ -85,7 +88,7 @@ class FrameWidget(QWidget):
                 return
 
             # Now it's OK to save
-            # Set scene's template
+            # Set frame's template
             tpl_id = Utils.ui_text_to_id(self._cbox_tpl.currentText())
             tpl = self._tpl_mng.get_frame_template(tpl_id)
             self._frame.template = tpl
@@ -143,6 +146,11 @@ class FrameDataTab(QWidget):
             elif isinstance(field[0], IntegerDataType):
                 widget = IntegerDataWidget(field[0], field[1], field[2], clicked_handler)
                 widget.value = field[0].default
+                self._component_widgets[field_id] = widget
+                self._vbox_data.addWidget(widget)
+            elif isinstance(field[0], DateDataType):
+                widget = DateTimeDataWidget(field[0], field[1], field[2], clicked_handler)
+                widget.value = datetime.strptime(field[0].default, DateDataType.format)
                 self._component_widgets[field_id] = widget
                 self._vbox_data.addWidget(widget)
                 # TODO: Add more UI components according to data type

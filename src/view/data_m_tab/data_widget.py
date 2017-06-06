@@ -1,12 +1,15 @@
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QLabel,
                              QLineEdit, QPushButton, QTextBrowser, QMessageBox)
 from typing import Callable
+from datetime import datetime
 
 import utils.utils as Utils
-from model.data_type import ObjectDataType, StringDataType, BooleanDataType, IntegerDataType
+from model.data_type import (ObjectDataType, StringDataType, BooleanDataType,
+                             IntegerDataType, DateDataType)
 from model.data_value import ObjectValue
 from view.resource_manager import ResourceManager
-from view.ui_components import StringDataWidget, BooleanDataWidget, IntegerDataWidget
+from view.ui_components import (StringDataWidget, BooleanDataWidget,
+                                IntegerDataWidget, DateTimeDataWidget)
 
 
 class DataWidget(QWidget):
@@ -57,6 +60,11 @@ class DataWidget(QWidget):
             elif isinstance(field[0], IntegerDataType):
                 widget = IntegerDataWidget(field[0], field[1], field[2], clicked_handler)
                 widget.value = field[0].default
+                self._component_widgets[field_id] = widget
+                self._vbox_data.addWidget(widget)
+            elif isinstance(field[0], DateDataType):
+                widget = DateTimeDataWidget(field[0], field[1], field[2], clicked_handler)
+                widget.value = datetime.strptime(field[0].default, DateDataType.format)
                 self._component_widgets[field_id] = widget
                 self._vbox_data.addWidget(widget)
                 # TODO: Add more UI components according to data type
