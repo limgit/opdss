@@ -77,12 +77,14 @@ class TestMultimedia(unittest.TestCase):
         video_path = root_path / 'multimedia' / 'video'
 
         #multi_mng.add_image(Path('C:/Users/sumin/PycharmProjects/guess/data/multimedia/image/1.jpg'))
-        multi_mng.add_image(Path(image_path / '1.jpg'))
-        multi_mng.get_images('1.jpg').file_name = '3.jpg'
-        multi_mng.get_images('3.jpg').file_name = '1.jpg'
+        multi_mng.add_image(image_path / '1.jpg')
+        multi_mng.get_images('1.jpg').file_name = 'test.jpg'
+        multi_mng.add_image(image_path / 'test.jpg')
+        multi_mng.get_images('test.jpg').file_name = '1.jpg'
 
-        multi_mng.add_video(Path(video_path / '2.MOV'))
+        multi_mng.add_video(video_path / '2.MOV')
         multi_mng.get_videos('2.MOV').file_name = 'test.MOV'
+        multi_mng.add_video(video_path / 'test.MOV')
         multi_mng.get_videos('test.MOV').file_name = '2.MOV'
 
 
