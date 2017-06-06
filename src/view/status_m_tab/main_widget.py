@@ -57,7 +57,7 @@ class ChannelWidget(QGroupBox):
             signage = self._sgn_mng.get_signage(sgn_id)
             signage_texts.append(utils.gen_ui_text(signage.title, signage.id))
         self._cbox_signages.addItems(signage_texts)
-        
+
         sgn_text = utils.gen_ui_text(self._channel.signage.title, self._channel.signage.id)
         idx = self._cbox_signages.findText(sgn_text)
         self._cbox_signages.setCurrentIndex(idx)
