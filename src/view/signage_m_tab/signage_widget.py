@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout,
                              QLabel, QLineEdit, QPlainTextEdit, QGroupBox,
-                             QPushButton)
+                             QPushButton, QMessageBox)
 from typing import Callable
 
 import utils.utils as Utils
@@ -80,7 +80,15 @@ class SignageWidget(QWidget):
             # TODO: Delete selected signage
             self._value_change_handler(Utils.ChangeType.DELETE)
         elif button_text == self._res['saveButtonText']:
-            # TODO: Need ID Validation
+            # ID Validation
+            try:
+                Utils.validate_id(self._ledit_id.text())
+            except AttributeError:
+                QMessageBox.warning(self, self._res['idInvalidTitle'],
+                                    self._res['idInvalidDescription'],
+                                    QMessageBox.Ok, QMessageBox.Ok)
+                return  # Do not save signage
+
             # Save to signage
             self._signage.id = self._ledit_id.text()
             self._signage.title = self._ledit_name.text()
