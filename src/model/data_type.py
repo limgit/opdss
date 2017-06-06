@@ -167,6 +167,9 @@ class ObjectDataType(DataType[ObjectValue]):
 
         return all([field_type[0].is_valid(value.get_value(field_key)) for field_key, field_type in self._fields.items()])
 
+    def has_references(self, to_check) -> bool:
+        return to_check in [x[0] if not isinstance(x[0], ListDataType) else x[0].data_type for x in self._fields.values()]
+
 
 class BooleanDataType(DataType[bool]):
     def __init__(self, default: bool=False):
