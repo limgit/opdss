@@ -1,7 +1,6 @@
 from datetime import datetime
 from PyQt5.QtWidgets import (QWidget, QGroupBox, QLineEdit, QComboBox,
                              QVBoxLayout, QCheckBox, QDateTimeEdit)
-from PyQt5.QtCore import QDateTime
 
 from enum import Enum, auto
 from typing import Callable
@@ -13,13 +12,13 @@ from model.data_type import (StringDataType, BooleanDataType, IntegerDataType,
 
 def make_clickable(widget: QWidget, handler):
     class ClickableWidget(widget):
-        def __init__(self, click_handler):
+        def __init__(self, focus_handler):
             super().__init__()
-            self._click_handler = click_handler
+            self._focus_handler = focus_handler
 
-        def mousePressEvent(self, event):
-            self._click_handler(event)
-            super().mousePressEvent(event)
+        def focusInEvent(self, event):
+            self._focus_handler(event)
+            super().focusInEvent(event)
     return ClickableWidget(handler)
 
 
@@ -53,11 +52,11 @@ class StringDataWidget(ComponentWidget):
         if len(self._data_type.one_of) == 0:
             # No one of field. Custom data
             self._input_type = InputType.FIELD
-            self._ledit_value = make_clickable(QLineEdit, self.mousePressEvent)
+            self._ledit_value = make_clickable(QLineEdit, self.focusInEvent)
         else:
             # one of field exist. Select from combobox
             self._input_type = InputType.ONE_OF
-            self._cbox_value = make_clickable(QComboBox, self.mousePressEvent)
+            self._cbox_value = make_clickable(QComboBox, self.focusInEvent)
         self._clicked_handler = clicked_handler
 
         self.init_ui()
@@ -98,7 +97,7 @@ class StringDataWidget(ComponentWidget):
             vbox_outmost.addWidget(self._cbox_value)
         self.setLayout(vbox_outmost)
 
-    def mousePressEvent(self, event):
+    def focusInEvent(self, event):
         constraint = ""
         if self._input_type == InputType.FIELD:
             min_len = self._data_type.min_length
@@ -112,7 +111,7 @@ class StringDataWidget(ComponentWidget):
         elif self._input_type == InputType.ONE_OF:
             constraint = "Select from the items."
         self._clicked_handler(self.name, self.description, constraint)
-        super().mousePressEvent(event)
+        super().focusInEvent(event)
 
 
 class BooleanDataWidget(ComponentWidget):
@@ -121,7 +120,7 @@ class BooleanDataWidget(ComponentWidget):
         super().__init__(name, description)
 
         self._data_type = data_type
-        self._check_box = make_clickable(QCheckBox, self.mousePressEvent)
+        self._check_box = make_clickable(QCheckBox, self.focusInEvent)
         self._clicked_handler = clicked_handler
 
         self.init_ui()
@@ -147,9 +146,9 @@ class BooleanDataWidget(ComponentWidget):
         vbox_outmost.addWidget(self._check_box)
         self.setLayout(vbox_outmost)
 
-    def mousePressEvent(self, event):
+    def focusInEvent(self, event):
         self._clicked_handler(self.name, self.description, "None.")
-        super().mousePressEvent(event)
+        super().focusInEvent(event)
 
 
 class IntegerDataWidget(ComponentWidget):
@@ -161,11 +160,11 @@ class IntegerDataWidget(ComponentWidget):
         if len(self._data_type.one_of) == 0:
             # No one of field. Custom data
             self._input_type = InputType.FIELD
-            self._ledit_value = make_clickable(QLineEdit, self.mousePressEvent)
+            self._ledit_value = make_clickable(QLineEdit, self.focusInEvent)
         else:
             # one of field exist. Select from combobox
             self._input_type = InputType.ONE_OF
-            self._cbox_value = make_clickable(QComboBox, self.mousePressEvent)
+            self._cbox_value = make_clickable(QComboBox, self.focusInEvent)
         self._clicked_handler = clicked_handler
 
         self.init_ui()
@@ -206,7 +205,7 @@ class IntegerDataWidget(ComponentWidget):
             vbox_outmost.addWidget(self._cbox_value)
         self.setLayout(vbox_outmost)
 
-    def mousePressEvent(self, event):
+    def focusInEvent(self, event):
         constraint = ""
         if self._input_type == InputType.FIELD:
             minimum = self._data_type.min
@@ -220,7 +219,7 @@ class IntegerDataWidget(ComponentWidget):
         elif self._input_type == InputType.ONE_OF:
             constraint = "Select from the items."
         self._clicked_handler(self.name, self.description, constraint)
-        super().mousePressEvent(event)
+        super().focusInEvent(event)
 
 
 class DateTimeDataWidget(ComponentWidget):
@@ -229,7 +228,7 @@ class DateTimeDataWidget(ComponentWidget):
         super().__init__(name, description)
 
         self._data_type = data_type
-        self._date_time = make_clickable(QDateTimeEdit, self.mousePressEvent)
+        self._date_time = make_clickable(QDateTimeEdit, self.focusInEvent)
         self._clicked_handler = clicked_handler
 
         self.init_ui()
@@ -256,7 +255,7 @@ class DateTimeDataWidget(ComponentWidget):
         vbox_outmost.addWidget(self._date_time)
         self.setLayout(vbox_outmost)
 
-    def mousePressEvent(self, event):
+    def focusInEvent(self, event):
         constraint = ""
         min_value = self._data_type.min
         max_value = self._data_type.max
@@ -267,4 +266,4 @@ class DateTimeDataWidget(ComponentWidget):
         if constraint == '':
             constraint = "None"
         self._clicked_handler(self.name, self.description, constraint)
-        super().mousePressEvent(event)
+        super().focusInEvent(event)
