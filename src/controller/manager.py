@@ -394,13 +394,18 @@ class TemplateManager:
         delete_path = Path(self._root_dir / 'frame' / to_delete.id)
         shutil.rmtree(str(delete_path))
 
+
 class SignageManager:
     def __init__(self, root_dir: Path, obj_mng: ObjectManager, tpl_mng: TemplateManager):
         self._tpl_mng = tpl_mng
         self._obj_mng = obj_mng
+        self._chn_mng = None
         self._root_dir = root_dir
         self._signages = dict()
         self.load_all()
+
+    def bind_managers(self, chn_mng: 'ChannelManager'):
+        self._chn_mng = chn_mng
 
     @property
     def root_dir(self) -> Path:
@@ -464,6 +469,11 @@ class SignageManager:
             del self._signages[old_id]
             self._signages[new_id] = new_signage
 
+            refs = self._chn_mng.get_signage_references(new_signage)
+
+            for ref in refs.values():
+                ref.value_change_handler(ref)
+
             os.remove(str(signage_path))
 
         def value_change_handler():
@@ -477,6 +487,16 @@ class SignageManager:
         self._signages[new_signage.id] = new_signage
 
         value_change_handler()  # save to file
+
+    def remove_signage(self, to_delete: Signage):
+        refs = {'channel/{}'.format(channel.id): channel
+                for channel_id, channel in self._chn_mng.get_signage_references(to_delete).items()}
+
+        if refs:
+            raise ReferenceError(refs)
+
+        delete_path = self._root_dir / to_delete.id
+        shutil.rmtree(str(delete_path))
 
     def get_value_references(self, to_check) -> Dict[str, ObjectValue]:
         return {'signage/{}.{}'.format(signage.id, k): v for signage in self._signages.values() for k, v in signage.get_value_references(to_check).items()}
@@ -569,3 +589,6 @@ class ChannelManager:
 
     def remove_channel(self, to_delete: Channel):
         pass
+
+    def get_signage_references(self, to_check: Signage) -> Dict[str, Channel]:
+        return {channel.id: channel for channel in filter(lambda x: x.signage is to_check, self.channels.values())}
