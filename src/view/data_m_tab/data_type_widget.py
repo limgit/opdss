@@ -1,14 +1,21 @@
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QLabel,
                              QLineEdit, QPlainTextEdit, QGroupBox,
-                             QPushButton)
+                             QPushButton, QMessageBox)
+from typing import Callable
 
+import utils.utils as utils
+from controller.manager import ObjectManager
 from model.data_type import ObjectDataType
 from view.resource_manager import ResourceManager
 
 
 class DataTypeWidget(QWidget):
-    def __init__(self):
+    def __init__(self, obj_mng: ObjectManager, value_change_handler: Callable[[utils.ChangeType, str], None]):
         super().__init__()
+
+        self._obj_mng = obj_mng
+        self._data_type = None
+        self._value_change_handler = value_change_handler
 
         self._ledit_id = QLineEdit()
         self._ledit_name = QLineEdit()
@@ -20,6 +27,7 @@ class DataTypeWidget(QWidget):
         self.init_ui()
 
     def load_data_on_ui(self, data_type: ObjectDataType):
+        self._data_type = data_type
         self._ledit_id.setText(data_type.id)
         self._ledit_name.setText(data_type.name)
         self._ledit_author.setText(data_type.dev_name)
@@ -90,4 +98,12 @@ class DataTypeWidget(QWidget):
     def button_clicked(self):
         button_text = self.sender().text()
         if button_text == self._res['deleteButtonText']:
-            pass  # TODO: Add DataType Deletion logic
+            try:
+                self._obj_mng.remove_object_type(self._data_type)
+            except ReferenceError as e:
+                QMessageBox.warning(self, "Can't delete",
+                                    "This data type can't be deleted. " + ', '.join(e.args[0].keys()) +
+                                    " reference this",
+                                    QMessageBox.Ok, QMessageBox.Ok)
+                return
+            self._value_change_handler(utils.ChangeType.DELETE, '')
