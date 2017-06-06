@@ -8,9 +8,9 @@ import sys
 from model.data_type import StringDataType
 
 
-def make_clickable(widget: QWidget, handler: Callable[[QMouseEvent], None]):
+def make_clickable(widget: QWidget, handler):
     class ClickableWidget(widget):
-        def __init__(self, click_handler: Callable[[QMouseEvent], None]):
+        def __init__(self, click_handler):
             super().__init__()
             self._click_handler = click_handler
 
@@ -105,5 +105,9 @@ class StringDataWidget(ComponentWidget):
                 constraint += "Minimum length " + str(min_len) + ". "
             if max_len != sys.maxsize:
                 constraint += "Maximum length " + str(max_len) + "."
+            if constraint == '':
+                constraint = "None"
+        elif self._input_type == InputType.ONE_OF:
+            constraint = "select from the items."
         self._clicked_handler(self.name, self.description, constraint)
         super().mousePressEvent(event)
