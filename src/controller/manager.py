@@ -84,11 +84,15 @@ class MultimediaManager:
 
 
 class ObjectManager:
-    def __init__(self, dir_root: Path):
-        self._dir_root = dir_root
+    def __init__(self, root_dir: Path):
+        self._root_dir = root_dir
         self._object_types = dict()
         self._object_values = dict()
         self.load_all()
+
+    @property
+    def root_dir(self) -> Path:
+        return self._root_dir
 
     @property
     def object_types(self) -> Dict[str, ObjectDataType]:
@@ -104,7 +108,10 @@ class ObjectManager:
         return copy.copy(self._object_values[type_instance])
 
     def load_all(self) -> None:
-        types_dir = [x for x in self._dir_root.iterdir() if x.is_dir()]
+        self._object_types = dict()
+        self._object_values = dict()
+
+        types_dir = [x for x in self._root_dir.iterdir() if x.is_dir()]
 
         # todo: currently, a method to handle dependency problem is awful.
         # -> if a dependency problem occurs, just postpone that type.
@@ -186,7 +193,7 @@ class ObjectManager:
         return new_object
 
     def add_object_value(self, new_object: ObjectValue) -> None:
-        object_dir = self._dir_root / new_object.data_type.id
+        object_dir = self._root_dir / new_object.data_type.id
 
         def id_change_handler(old_id, new_id):
             del self._object_values[new_object.data_type][old_id]
@@ -208,12 +215,16 @@ class ObjectManager:
 
 
 class TemplateManager:
-    def __init__(self, dir_root: Path, obj_mng: ObjectManager):
-        self._dir_root = dir_root
+    def __init__(self, root_dir: Path, obj_mng: ObjectManager):
+        self._root_dir = root_dir
         self._obj_mng = obj_mng
         self._scene_templates = dict()
         self._frame_templates = dict()
         self.load_all()
+
+    @property
+    def root_dir(self) -> Path:
+        return self._root_dir
 
     @property
     def scene_templates(self) -> Dict[str, SceneTemplate]:
@@ -230,8 +241,11 @@ class TemplateManager:
         return self._frame_templates[key]
 
     def load_all(self) -> None:
+        self._scene_templates = dict()
+        self._frame_templates = dict()
+
         # load scenes
-        scene_path = self._dir_root / 'scene'
+        scene_path = self._root_dir / 'scene'
         scenes_dir = [x for x in scene_path.iterdir() if x.is_dir()]
 
         for scene_tpl_id, scene_dir in [(x.name, x) for x in scenes_dir]:
@@ -243,7 +257,7 @@ class TemplateManager:
                 webserver.logger.Logger().info(self._scene_templates[scene_tpl_id].definition.name)
 
         # load frames
-        frame_path = self._dir_root / 'frame'
+        frame_path = self._root_dir / 'frame'
         frames_dir = [x for x in frame_path.iterdir() if x.is_dir()]
 
         for frame_tpl_id, frame_dir in [(x.name, x) for x in frames_dir]:
@@ -256,12 +270,16 @@ class TemplateManager:
 
 
 class SignageManager:
-    def __init__(self, dir_root: Path, obj_mng: ObjectManager, tpl_mng: TemplateManager):
+    def __init__(self, root_dir: Path, obj_mng: ObjectManager, tpl_mng: TemplateManager):
         self._tpl_mng = tpl_mng
         self._obj_mng = obj_mng
-        self._dir_root = dir_root
+        self._root_dir = root_dir
         self._signages = dict()
         self.load_all()
+
+    @property
+    def root_dir(self) -> Path:
+        return self._root_dir
 
     @property
     def signages(self) -> Dict[str, Signage]:
@@ -271,7 +289,9 @@ class SignageManager:
         return self._signages[key]
 
     def load_all(self) -> None:
-        for signage_id, signage_mnf in [(x.stem, x) for x in self._dir_root.glob('*.json')]:
+        self._signages = dict()
+
+        for signage_id, signage_mnf in [(x.stem, x) for x in self._root_dir.glob('*.json')]:
 
             # load from the signage file
             with signage_mnf.open() as f:
@@ -308,21 +328,21 @@ class SignageManager:
             frame_data = self._obj_mng.load_object_value(None, frame_template.definition, frame_value['data'])
             frame = Frame(frame_template, frame_data)
 
-            new_signage = Signage(signage_id, signage_mnf.parent, dct['title'], dct['description'], frame, scenes)
+            new_signage = Signage(signage_id, dct['title'], dct['description'], frame, scenes)
             self.add_signage(new_signage)
 
             webserver.logger.Logger().info(new_signage.title)
 
     def add_signage(self, new_signage: Signage) -> None:
         def id_change_handler(old_id, new_id):
-            signage_path = self._dir_root / (old_id + '.json')
+            signage_path = self._root_dir / (old_id + '.json')
             del self._signages[old_id]
             self._signages[new_id] = new_signage
 
             os.remove(str(signage_path))
 
         def value_change_handler():
-            signage_path = self._dir_root / (new_signage.id + '.json')
+            signage_path = self._root_dir / (new_signage.id + '.json')
             with signage_path.open('w') as f:
                 f.write(json.dumps(new_signage.to_dict()))
 
@@ -337,8 +357,8 @@ class SignageManager:
 class ChannelManager:
     from model.channel import Channel  # due to cyclic import problem, import Channel class locally.
 
-    def __init__(self, root_path: Path, sgn_mng: SignageManager):
-        self._root_path = root_path
+    def __init__(self, root_dir: Path, sgn_mng: SignageManager):
+        self._root_dir = root_dir
         self._channels = dict()
         self._sgn_mng = sgn_mng
 
@@ -348,8 +368,8 @@ class ChannelManager:
         self.load_all()
 
     @property
-    def root_path(self) -> Path:
-        return self._root_path
+    def root_dir(self) -> Path:
+        return self._root_dir
 
     @property
     def channels(self) -> Dict[str, Channel]:
@@ -375,7 +395,9 @@ class ChannelManager:
         return self._channels[channel_id]
 
     def load_all(self):
-        for channel_id, channel_file in [(x.stem, x) for x in self._root_path.glob('*.json')]:
+        self._channels = dict()
+
+        for channel_id, channel_file in [(x.stem, x) for x in self._root_dir.glob('*.json')]:
             # load from the signage file
             with channel_file.open() as f:
                 dct = json.load(f)
@@ -386,7 +408,7 @@ class ChannelManager:
 
     def add_channel(self, new_channel: Channel) -> None:
         def id_change_handler(channel, old_id):
-            channel_path = self._root_path / (old_id + '.json')
+            channel_path = self._root_dir / (old_id + '.json')
 
             del self._channels[old_id]
             self._channels[channel.id] = channel
@@ -394,7 +416,7 @@ class ChannelManager:
             os.remove(str(channel_path))
 
         def value_change_handler(channel):
-            channel_path = self._root_path / (channel.id + '.json')
+            channel_path = self._root_dir / (channel.id + '.json')
 
             with channel_path.open('w') as f:
                 f.write(json.dumps(channel.to_dict()))
