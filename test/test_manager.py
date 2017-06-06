@@ -63,19 +63,9 @@ class TestWebServer(unittest.TestCase):
 
 class TestMultimedia(unittest.TestCase):
     def test_file_change(self):
-        image_path = root_path / 'multimedia' / 'image'
-        video_path = root_path / 'multimedia' / 'video'
-
-        #mtm_mng.add_image(Path('C:/Users/sumin/PycharmProjects/guess/data/multimedia/image/1.jpg'))
-        mtm_mng.add_image(image_path / '1.jpg')
-        mtm_mng.get_images('1.jpg').file_name = 'test.jpg'
-        mtm_mng.add_image(image_path / 'test.jpg')
-        mtm_mng.get_images('test.jpg').file_name = '1.jpg'
-
-        mtm_mng.add_video(video_path / '2.MOV')
-        mtm_mng.get_videos('2.MOV').file_name = 'test.MOV'
-        mtm_mng.add_video(video_path / 'test.MOV')
-        mtm_mng.get_videos('test.MOV').file_name = '2.MOV'
+        image = mtm_mng.get_images('placeholder.jpg')
+        image.file_name = 'test'
+        image.file_name = 'placeholder.jpg'
 
 
 if __name__ == '__main__':
