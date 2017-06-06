@@ -2,7 +2,7 @@ import os
 import shutil
 from datetime import time
 
-from typing import Optional, Dict, Callable
+from typing import Optional, Dict, Callable, List
 
 import copy
 import json
@@ -24,6 +24,8 @@ class MultimediaManager:
         self._video_type = FileDataType(root_dir / 'video')
         self._images = dict()
         self._videos = dict()
+        self._sgn_mng = None
+        self._obj_mng = None
         self.load_all()
 
     def load_all(self) -> None:
@@ -36,6 +38,11 @@ class MultimediaManager:
         for video_file in video_files:
             self.add_video(video_file)
 
+    # to delete/rename safely, bind should be done.
+    def bind_managers(self, sgn_mng: 'SignageManager', obj_mng: 'ObjectManager'):
+        self._sgn_mng = sgn_mng
+        self._obj_mng = obj_mng
+
     def add_image(self, new_file_path: Path):
         # if new file is out of the media folder, copy the file to the media folder.
         if not new_file_path.parent.resolve().samefile(self._image_type.root_dir.resolve()):
@@ -46,7 +53,13 @@ class MultimediaManager:
         def id_change_handler(old_name: str, new_name: str):
             os.rename(str(self._image_type.root_dir / old_name), str(self._image_type.root_dir / new_name))
             del self._images[old_name]
-            self._images[new_name] = new_name
+            self._images[new_name] = new_image
+
+            refs = self._sgn_mng.get_value_references(new_image)
+            refs.update(self._obj_mng.get_value_references(new_image))
+
+            for ref in refs.values():
+                ref.on_value_change()
 
         new_image.on_id_change = id_change_handler
         self._images[new_image.file_name] = new_image
@@ -59,7 +72,13 @@ class MultimediaManager:
         def id_change_handler(old_name: str, new_name: str):
             os.rename(str(self._video_type.root_dir / old_name), str(self._video_type.root_dir / new_name))
             del self._videos[old_name]
-            self._videos[new_name] = new_name
+            self._videos[new_name] = new_video
+
+            refs = self._sgn_mng.get_value_references(new_video)
+            refs.update(self._obj_mng.get_value_references(new_video))
+
+            for ref in refs.values():
+                ref.on_value_change()
 
         new_video.on_id_change = id_change_handler
         self._videos[new_video.file_name] = new_video
@@ -90,13 +109,25 @@ class MultimediaManager:
     def videos(self) -> Dict[str, FileValue]:
         return copy.copy(self._videos)
 
-    def remove_image(self, file_name: str):
-        del self._images[file_name]
-        os.remove(self._images[file_name])
+    def remove_image(self, to_delete: FileValue):
+        refs = self._sgn_mng.get_value_references(to_delete)
+        refs.update(self._obj_mng.get_value_references(to_delete))
 
-    def remove_video(self, file_name: str):
-        del self.videos[file_name]
-        os.remove(self._videos[file_name])
+        if refs:
+            raise ReferenceError(refs)
+
+        del self._images[to_delete.file_name]
+        os.remove(str(to_delete.file_path))
+
+    def remove_video(self, to_delete: FileValue):
+        refs = self._sgn_mng.get_value_references(to_delete)
+        refs.update(self._obj_mng.get_value_references(to_delete))
+
+        if refs:
+            raise ReferenceError(refs)
+
+        del self.videos[to_delete.file_name]
+        os.remove(str(to_delete.file_path))
 
 
 class ObjectManager:
@@ -125,6 +156,11 @@ class ObjectManager:
 
     def get_object_values(self, type_instance: ObjectDataType) -> Dict[str, ObjectValue]:
         return copy.copy(self._object_values[type_instance])
+
+    def get_value_references(self, to_check) -> Dict[str, ObjectValue]:
+        return {'object/{}.{}'.format(type_id, value_id): value
+                for type_id, values_dict in self._object_values.items()
+                for value_id, value in filter(lambda x: x[1].has_references(to_check), values_dict.items())}
 
     def load_all(self) -> None:
         self._object_types = dict()
@@ -374,6 +410,9 @@ class SignageManager:
         self._signages[new_signage.id] = new_signage
 
         value_change_handler()  # save to file
+
+    def get_value_references(self, to_check) -> Dict[str, ObjectValue]:
+        return {'signage/{}.{}'.format(signage.id, k): v for signage in self._signages.values() for k, v in signage.get_value_references(to_check).items()}
 
 
 class ChannelManager:

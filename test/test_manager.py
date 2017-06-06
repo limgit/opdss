@@ -15,6 +15,8 @@ tpl_mng = TemplateManager(root_path / 'template', obj_mng)
 sgn_mng = SignageManager(root_path / 'signage', obj_mng, tpl_mng)
 chn_mng = ChannelManager(root_path / 'channel', sgn_mng)
 
+mtm_mng.bind_managers(sgn_mng, obj_mng)
+
 
 class TestChannelManager(unittest.TestCase):
     def test_channel_manager(self):
@@ -67,6 +69,7 @@ class TestMultimedia(unittest.TestCase):
         image.file_name = 'test'
         image.file_name = 'placeholder.jpg'
 
+        self.assertRaises(ReferenceError, mtm_mng.remove_image, image)
 
 if __name__ == '__main__':
     unittest.main()

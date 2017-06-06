@@ -1,6 +1,6 @@
 from datetime import datetime
 from pathlib import Path
-from typing import TypeVar, Callable, Any, Optional
+from typing import TypeVar, Callable, Any, Optional, List
 
 from controller import manager
 from model import data_type
@@ -113,6 +113,9 @@ class ObjectValue:
 
         return to_return
 
+    def has_references(self, to_check) -> bool:
+        return to_check in self._values.values()
+
     @property
     def id(self) -> Optional[str]:
         return self._id
@@ -140,8 +143,8 @@ class ObjectValue:
         self._id_change_handler = handler
 
     @property
-    def on_value_change(self) -> None:
-        raise ValueError  # don't try to access!
+    def on_value_change(self) -> Callable[[None], None]:
+        return self._value_change_handler
 
     @on_value_change.setter
     def on_value_change(self, handler: Callable[[None], None]) -> None:
