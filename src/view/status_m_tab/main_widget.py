@@ -83,4 +83,7 @@ class ChannelWidget(QGroupBox):
 
     def _signage_changed(self):
         sgn_id = utils.ui_text_to_id(self._cbox_signages.currentText())
-        # self._channel.signage = self._sgn_mng.get_signage(sgn_id)  # ERROR PRONE!
+        if not sgn_id:
+            return
+
+        self._channel.signage = self._sgn_mng.get_signage(sgn_id)
