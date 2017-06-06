@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout,
 from typing import Callable
 from datetime import datetime
 
-import utils.utils as Utils
+import utils.utils as utils
 from controller.manager import TemplateManager
 from model.signage import Frame
 from model.template import FrameTemplate
@@ -16,7 +16,7 @@ from view.ui_components import (StringDataWidget, BooleanDataWidget,
 
 
 class FrameWidget(QWidget):
-    def __init__(self, tpl_mng: TemplateManager, value_change_handler: Callable[[Utils.ChangeType, str], None]):
+    def __init__(self, tpl_mng: TemplateManager, value_change_handler: Callable[[utils.ChangeType, str], None]):
         super().__init__()
 
         self._tpl_mng = tpl_mng
@@ -33,7 +33,7 @@ class FrameWidget(QWidget):
         self._frame = frame
         # Change combobox item to frame's template
         tpl = frame.template
-        idx = self._cbox_tpl.findText(Utils.gen_ui_text(tpl.definition.name, tpl.id))
+        idx = self._cbox_tpl.findText(utils.gen_ui_text(tpl.definition.name, tpl.id))
         self._cbox_tpl.setCurrentIndex(idx)
 
         self._tab_data.load_data_on_ui(self._frame)
@@ -43,7 +43,7 @@ class FrameWidget(QWidget):
         tpl_list = list()
         for tpl_id in self._tpl_mng.frame_templates:
             template = self._tpl_mng.get_frame_template(tpl_id)
-            tpl_list.append(Utils.gen_ui_text(template.definition.name, template.id))
+            tpl_list.append(utils.gen_ui_text(template.definition.name, template.id))
         self._cbox_tpl.addItems(tpl_list)
         self._cbox_tpl.currentIndexChanged.connect(self.combobox_changed)
 
@@ -73,7 +73,7 @@ class FrameWidget(QWidget):
 
     def combobox_changed(self) -> None:
         combobox_text = self.sender().currentText()
-        tpl_id = Utils.ui_text_to_id(combobox_text)
+        tpl_id = utils.ui_text_to_id(combobox_text)
         tpl = self._tpl_mng.get_frame_template(tpl_id)
         self._tab_data.load_ui(tpl)
 
@@ -89,15 +89,15 @@ class FrameWidget(QWidget):
 
             # Now it's OK to save
             # Set frame's template
-            tpl_id = Utils.ui_text_to_id(self._cbox_tpl.currentText())
+            tpl_id = utils.ui_text_to_id(self._cbox_tpl.currentText())
             tpl = self._tpl_mng.get_frame_template(tpl_id)
             self._frame.template = tpl
 
             self._tab_data.save(self._frame)
 
             # Invoke value change handler to edit QTreeWidgetItem
-            frame_text = Utils.gen_ui_text(tpl.definition.name, tpl.id)
-            self._value_change_handler(Utils.ChangeType.SAVE, frame_text)
+            frame_text = utils.gen_ui_text(tpl.definition.name, tpl.id)
+            self._value_change_handler(utils.ChangeType.SAVE, frame_text)
         elif button_text == self._res['cancelButtonText']:
             # Load the previous data
             self.load_data_on_ui(self._frame)

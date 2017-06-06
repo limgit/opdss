@@ -3,18 +3,23 @@ from pathlib import Path
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget,
                              QPushButton, QHBoxLayout, QVBoxLayout)
 
-from controller.manager import ObjectManager, TemplateManager, SignageManager
+from controller.manager import (ObjectManager, TemplateManager,
+                                SignageManager, MultimediaManager,
+                                ChannelManager)
 from view.resource_manager import ResourceManager
 from view.main_tab_widget import MainTabWidget
 
 
 class MainWidget(QWidget):
-    def __init__(self, obj_mng: ObjectManager, tpl_mng: TemplateManager, sgn_mng: SignageManager):
+    def __init__(self, obj_mng: ObjectManager, tpl_mng: TemplateManager, sgn_mng: SignageManager,
+                 mtm_mng: MultimediaManager, chn_mng: ChannelManager):
         super().__init__()
 
         self._obj_mng = obj_mng
         self._tpl_mng = tpl_mng
         self._sgn_mng = sgn_mng
+        self._mtm_mng = mtm_mng
+        self._chn_mng = chn_mng
 
         self._res = ResourceManager()
         self.init_ui()
@@ -40,7 +45,7 @@ class MainWidget(QWidget):
         hbox_buttons.addWidget(btn_refresh)
 
         # Tab widget
-        tab_widget_main = MainTabWidget(self._obj_mng, self._tpl_mng, self._sgn_mng)
+        tab_widget_main = MainTabWidget(self._obj_mng, self._tpl_mng, self._sgn_mng, self._mtm_mng, self._chn_mng)
 
         # Layout buttons and tab widget
         vbox_outmost = QVBoxLayout()
@@ -57,15 +62,20 @@ class MainWindow(QMainWindow):
 
         self._root_path = root_path.resolve()
 
-        self._obj_mng = ObjectManager(self._root_path / 'data')
+        self._mtm_mng = MultimediaManager(root_path / 'media')
+        self._obj_mng = ObjectManager(self._root_path / 'data', self._mtm_mng)
         self._tpl_mng = TemplateManager(self._root_path / 'template', self._obj_mng)
         self._sgn_mng = SignageManager(self._root_path / 'signage', self._obj_mng, self._tpl_mng)
+        self._chn_mng = ChannelManager(self._root_path / 'channel', self._sgn_mng)
+
+        self._mtm_mng.bind_managers(self._sgn_mng, self._obj_mng)
+        self._obj_mng.bind_managers(self._tpl_mng)
 
         self._res = ResourceManager()
         self.init_ui()
 
     def init_ui(self):
-        main_widget = MainWidget(self._obj_mng, self._tpl_mng, self._sgn_mng)
+        main_widget = MainWidget(self._obj_mng, self._tpl_mng, self._sgn_mng, self._mtm_mng, self._chn_mng)
         self.setCentralWidget(main_widget)
 
         self.setGeometry(300, 300, 1200, 750)

@@ -4,11 +4,11 @@ from PyQt5.QtWidgets import (QWidget, QTreeWidget, QTreeWidgetItem,
 from enum import Enum, auto
 import random
 
-import utils.utils as Utils
+import utils.utils as utils
 from .signage_widget import SignageWidget
 from .frame_widget import FrameWidget
 from .scene_widget import SceneWidget
-from controller.manager import ObjectManager, TemplateManager, SignageManager
+from controller.manager import ObjectManager, TemplateManager, SignageManager, MultimediaManager, ChannelManager
 from model.data_value import ObjectValue
 from model.signage import Signage, Scene, Frame
 from view.resource_manager import ResourceManager
@@ -20,12 +20,15 @@ class Direction(Enum):
 
 
 class SignageManagementTab(QWidget):
-    def __init__(self, obj_mng: ObjectManager, tpl_mng: TemplateManager, sgn_mng: SignageManager):
+    def __init__(self, obj_mng: ObjectManager, tpl_mng: TemplateManager, sgn_mng: SignageManager,
+                 mtm_mng: MultimediaManager, chn_mng: ChannelManager):
         super().__init__()
 
         self._obj_mng = obj_mng
         self._tpl_mng = tpl_mng
         self._sgn_mng = sgn_mng
+        self._mtm_mng = mtm_mng
+        self._chn_mng = chn_mng
 
         self._res = ResourceManager()
         # Left part of screen
@@ -43,12 +46,12 @@ class SignageManagementTab(QWidget):
         # For all signage
         for signage_id in self._sgn_mng.signages.keys():
             signage = self._sgn_mng.get_signage(signage_id)
-            signage_text = Utils.gen_ui_text(signage.title, signage.id)
+            signage_text = utils.gen_ui_text(signage.title, signage.id)
             signage_item = QTreeWidgetItem([signage_text])
 
             # Add frame
             frame_tpl = signage.frame.template
-            frame_text = Utils.gen_ui_text(frame_tpl.definition.name, frame_tpl.id)
+            frame_text = utils.gen_ui_text(frame_tpl.definition.name, frame_tpl.id)
             frame_item = QTreeWidgetItem(["F:" + frame_text])
             signage_item.addChild(frame_item)
 
@@ -56,7 +59,7 @@ class SignageManagementTab(QWidget):
             idx = 1
             for scene in signage.scenes:
                 scene_tpl = scene.template
-                scene_text = Utils.gen_ui_text(scene_tpl.definition.name, scene_tpl.id)
+                scene_text = utils.gen_ui_text(scene_tpl.definition.name, scene_tpl.id)
                 scene_item = QTreeWidgetItem([str(idx) + ":" + scene_text])
                 signage_item.addChild(scene_item)
                 idx += 1
@@ -94,34 +97,34 @@ class SignageManagementTab(QWidget):
         vbox_left.addLayout(hbox_buttons)
 
         # Right side of screen
-        def signage_change_handler(change_type: Utils.ChangeType, sgn_text: str) -> None:
+        def signage_change_handler(change_type: utils.ChangeType, sgn_text: str) -> None:
             # Get selected signage item
             get_selected = self._signage_list.selectedItems()
             if get_selected:
                 item = get_selected[0]
-                if change_type == Utils.ChangeType.SAVE:
+                if change_type == utils.ChangeType.SAVE:
                     # Update QTreeWidgetItem
                     item.setText(0, sgn_text)
         signage_widget = SignageWidget(signage_change_handler)
         self._widget_idx['signage'] = self._stacked_widget.addWidget(signage_widget)
 
-        def frame_change_handler(change_type: Utils.ChangeType, frame_text: str) -> None:
+        def frame_change_handler(change_type: utils.ChangeType, frame_text: str) -> None:
             # Get selected signage item
             get_selected = self._signage_list.selectedItems()
             if get_selected:
                 item = get_selected[0]
-                if change_type == Utils.ChangeType.SAVE:
+                if change_type == utils.ChangeType.SAVE:
                     # Update QTreeWidgetItem
                     item.setText(0, "F:" + frame_text)
         frame_widget = FrameWidget(self._tpl_mng, frame_change_handler)
         self._widget_idx['frame'] = self._stacked_widget.addWidget(frame_widget)
 
-        def scene_change_handler(change_type: Utils.ChangeType, scene_text: str) -> None:
+        def scene_change_handler(change_type: utils.ChangeType, scene_text: str) -> None:
             # Get selected scene item
             get_selected = self._signage_list.selectedItems()
             if get_selected:
                 item = get_selected[0]
-                if change_type == Utils.ChangeType.SAVE:
+                if change_type == utils.ChangeType.SAVE:
                     # Update QTreeWidgetItem
                     idx = item.text(0).split(':')[0]
                     item.setText(0, idx + ':' + scene_text)
@@ -158,7 +161,7 @@ class SignageManagementTab(QWidget):
         parent.insertChild(sel_idx, moved_item)
 
         # Data Modification
-        sgn_id = Utils.ui_text_to_id(parent.text(0))
+        sgn_id = utils.ui_text_to_id(parent.text(0))
         signage = self._sgn_mng.get_signage(sgn_id)
         signage.rearrange_scene(sel_idx - 1, sel_idx - 1 + offset)  # Index starts from 0 here
 
@@ -193,7 +196,7 @@ class SignageManagementTab(QWidget):
                                                     self._res['idDialogDescription'])
                     if ok:
                         try:
-                            Utils.validate_id(text)
+                            utils.validate_id(text)
                         except AttributeError:
                             QMessageBox.warning(self, self._res['idInvalidTitle'],
                                                 self._res['idInvalidDescription'],
@@ -205,16 +208,16 @@ class SignageManagementTab(QWidget):
                         self._sgn_mng.add_signage(new_signage)  # Add new signage
 
                         # Add to UI
-                        signage_text = Utils.gen_ui_text(new_signage.title, new_signage.id)
+                        signage_text = utils.gen_ui_text(new_signage.title, new_signage.id)
                         item.setText(0, signage_text)
 
                         frame_tpl = initial_frame.template
-                        frame_text = Utils.gen_ui_text(frame_tpl.definition.name, frame_tpl.id)
+                        frame_text = utils.gen_ui_text(frame_tpl.definition.name, frame_tpl.id)
                         frame_item = QTreeWidgetItem(["F:" + frame_text])
                         item.addChild(frame_item)
 
                         scene_tpl = initial_scene.template
-                        scene_text = Utils.gen_ui_text(scene_tpl.definition.name, scene_tpl.id)
+                        scene_text = utils.gen_ui_text(scene_tpl.definition.name, scene_tpl.id)
                         scene_item = QTreeWidgetItem(["1:" + scene_text])
                         item.addChild(scene_item)
 
@@ -224,13 +227,13 @@ class SignageManagementTab(QWidget):
                         self._signage_list.addTopLevelItem(QTreeWidgetItem(['+']))
                 else:
                     # Selected one is signage
-                    sgn_id = Utils.ui_text_to_id(item_text)
+                    sgn_id = utils.ui_text_to_id(item_text)
                     signage = self._sgn_mng.get_signage(sgn_id)
                     idx = self._widget_idx['signage']
                     self._stacked_widget.widget(idx).load_data_on_ui(signage)
                     self._stacked_widget.setCurrentIndex(idx)
             else:
-                sgn_id = Utils.ui_text_to_id(item.parent().text(0))
+                sgn_id = utils.ui_text_to_id(item.parent().text(0))
                 signage = self._sgn_mng.get_signage(sgn_id)
                 if item_text.startswith("F:"):
                     # Selected one is frame
@@ -252,7 +255,7 @@ class SignageManagementTab(QWidget):
                     parent = item.parent()
                     num_child = parent.childCount()
                     scene_tpl = new_scene.template
-                    scene_text = Utils.gen_ui_text(scene_tpl.definition.name, scene_tpl.id)
+                    scene_text = utils.gen_ui_text(scene_tpl.definition.name, scene_tpl.id)
                     item.setText(0, str(num_child - 1) + ":" + scene_text)
                     # Add + button at last
                     parent.addChild(QTreeWidgetItem(['+']))
@@ -282,7 +285,7 @@ class SignageManagementTab(QWidget):
         initial_tpl = self._tpl_mng.get_scene_template(initial_tpl_id)
 
         # Default values
-        obj_value = ObjectValue(None, initial_tpl.definition, self._obj_mng)
+        obj_value = ObjectValue(None, initial_tpl.definition, self._obj_mng, self._mtm_mng)
 
         return Scene(initial_tpl, obj_value)
 
@@ -293,6 +296,6 @@ class SignageManagementTab(QWidget):
         initial_tpl = self._tpl_mng.get_frame_template(initial_tpl_id)
 
         # Default values
-        obj_value = ObjectValue(None, initial_tpl.definition, self._obj_mng)
+        obj_value = ObjectValue(None, initial_tpl.definition, self._obj_mng, self._mtm_mng)
 
         return Frame(initial_tpl, obj_value)

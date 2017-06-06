@@ -1,20 +1,23 @@
 from PyQt5.QtWidgets import (QWidget, QTreeWidget, QTreeWidgetItem,
                              QStackedWidget, QHBoxLayout)
 
-import utils.utils as Utils
+import utils.utils as utils
 from .data_type_widget import DataTypeWidget
 from .data_widget import DataWidget
-from controller.manager import ObjectManager, TemplateManager, SignageManager
+from controller.manager import ObjectManager, TemplateManager, SignageManager, MultimediaManager, ChannelManager
 from view.resource_manager import ResourceManager
 
 
 class DataManagementTab(QWidget):
-    def __init__(self, obj_mng: ObjectManager, tpl_mng: TemplateManager, sgn_mng: SignageManager):
+    def __init__(self, obj_mng: ObjectManager, tpl_mng: TemplateManager, sgn_mng: SignageManager,
+                 mtm_mng: MultimediaManager, chn_mng: ChannelManager):
         super().__init__()
 
         self._obj_mng = obj_mng
         self._tpl_mng = tpl_mng
         self._sgn_mng = sgn_mng
+        self._mtm_mng = mtm_mng
+        self._chn_mng = chn_mng
 
         self._data_list = QTreeWidget()
 
@@ -28,7 +31,7 @@ class DataManagementTab(QWidget):
         # For all data type
         for data_type_id in self._obj_mng.object_types.keys():
             data_type = self._obj_mng.get_object_type(data_type_id)
-            data_type_text = Utils.gen_ui_text(data_type.name, data_type.id)
+            data_type_text = utils.gen_ui_text(data_type.name, data_type.id)
             data_type_item = QTreeWidgetItem([data_type_text])
             # Add data
             for data_id in self._obj_mng.get_object_values(data_type).keys():
@@ -48,12 +51,12 @@ class DataManagementTab(QWidget):
 
         self._widget_idx['type'] = self._stacked_widget.addWidget(DataTypeWidget())
 
-        def data_change_handler(change_type: Utils.ChangeType, data_text: str) -> None:
+        def data_change_handler(change_type: utils.ChangeType, data_text: str) -> None:
             # Get selected signage item
             get_selected = self._data_list.selectedItems()
             if get_selected:
                 item = get_selected[0]
-                if change_type == Utils.ChangeType.SAVE:
+                if change_type == utils.ChangeType.SAVE:
                     # Update QTreeWidgetItem
                     item.setText(0, data_text)
         data_widget = DataWidget(data_change_handler)
@@ -74,7 +77,7 @@ class DataManagementTab(QWidget):
                 # It is at topmost level
                 # Selected one is data type
                 idx = self._widget_idx['type']
-                data_type_id = Utils.ui_text_to_id(item_text)
+                data_type_id = utils.ui_text_to_id(item_text)
                 data_type = self._obj_mng.get_object_type(data_type_id)
                 self._stacked_widget.widget(idx).load_data_on_ui(data_type)
                 self._stacked_widget.setCurrentIndex(idx)
@@ -84,7 +87,7 @@ class DataManagementTab(QWidget):
                 else:
                     # Selected one is data
                     idx = self._widget_idx['data']
-                    data_type_id = Utils.ui_text_to_id(item.parent().text(0))
+                    data_type_id = utils.ui_text_to_id(item.parent().text(0))
                     data_type = self._obj_mng.get_object_type(data_type_id)
                     data = self._obj_mng.get_object_value(data_type, item_text)
                     self._stacked_widget.widget(idx).load_data_on_ui(data)

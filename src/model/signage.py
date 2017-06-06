@@ -118,7 +118,7 @@ class Scene:
     @template.setter
     def template(self, new_template: SceneTemplate) -> None:
         self._template = new_template
-        self._values = ObjectValue(None, new_template.definition, self._values._obj_mng)
+        self._values = ObjectValue(None, new_template.definition, self._values._obj_mng, self._values._mtm_mng)
         self._on_change_handler()
 
     @property
@@ -186,7 +186,7 @@ class Frame:
     @template.setter
     def template(self, new_template: FrameTemplate) -> None:
         self._template = new_template
-        self._values = ObjectValue(None, new_template.definition, self._values._obj_mng)
+        self._values = ObjectValue(None, new_template.definition, self._values._obj_mng, self._values._mtm_mng)
         self._on_change_handler()
 
     @property

@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QLabel,
 from typing import Callable
 from datetime import datetime
 
-import utils.utils as Utils
+import utils.utils as utils
 from model.data_type import (ObjectDataType, StringDataType, BooleanDataType,
                              IntegerDataType, DateDataType)
 from model.data_value import ObjectValue
@@ -13,7 +13,7 @@ from view.ui_components import (StringDataWidget, BooleanDataWidget,
 
 
 class DataWidget(QWidget):
-    def __init__(self, value_change_handler: Callable[[Utils.ChangeType, str], None]):
+    def __init__(self, value_change_handler: Callable[[utils.ChangeType, str], None]):
         super().__init__()
 
         self._data = None
@@ -129,7 +129,7 @@ class DataWidget(QWidget):
             self.save()
 
             # Invoke value change handler to edit QTreeWidgetItem
-            self._value_change_handler(Utils.ChangeType.SAVE, self._ledit_id.text())
+            self._value_change_handler(utils.ChangeType.SAVE, self._ledit_id.text())
         elif button_text == self._res['cancelButtonText']:
             self.load_data_on_ui(self._data)
 
@@ -145,7 +145,7 @@ class DataWidget(QWidget):
 
     def is_data_valid(self) -> bool:
         try:
-            Utils.validate_id(self._ledit_id.text())
+            utils.validate_id(self._ledit_id.text())
         except AttributeError:
             return False
 
