@@ -177,8 +177,8 @@ class DateDataType(DataType[str]):
     format = '%Y-%m-%d %H:%M'
 
     def __init__(self,
-                 min_value: str='1-1-1 0:0',
-                 max_value: str='9999-11-31 23:59'):
+                 min_value: str='1000-01-01 00:00',
+                 max_value: str='9999-12-31 23:59'):
 
         super().__init__(datetime.now().strftime(DateDataType.format))
 
@@ -212,7 +212,7 @@ class DateDataType(DataType[str]):
         self._max = new_datetime
 
     def is_valid(self, value: str):
-        new_datetime = datetime.strptime(value, DateDataType.format)
+        new_datetime = datetime.strptime(value, DateDataType.format) if isinstance(value, str) else value
 
         return self._min <= new_datetime <= self._max
 

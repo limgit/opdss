@@ -122,7 +122,7 @@ class ObjectManager:
             type_id, type_dir = current_type
 
             # initialize new object type
-            with (type_dir / 'manifest.json').open() as f:
+            with (type_dir / 'manifest.json').open(encoding='UTF-8') as f:
                 mnf_contents = json.load(f)
                 new_type = self.load_object_type(type_id, mnf_contents)
 
@@ -139,7 +139,7 @@ class ObjectManager:
                 if value_id == 'manifest':
                     continue
 
-                with value_path.open() as f:
+                with value_path.open(encoding='UTF-8') as f:
                     new_object = self.load_object_value(value_id, new_type, json.load(f))
 
                 self.add_object_value(new_object)
@@ -249,7 +249,7 @@ class TemplateManager:
         scenes_dir = [x for x in scene_path.iterdir() if x.is_dir()]
 
         for scene_tpl_id, scene_dir in [(x.name, x) for x in scenes_dir]:
-            with (scene_dir / 'manifest.json').open() as f:
+            with (scene_dir / 'manifest.json').open(encoding='UTF-8') as f:
                 self._scene_templates[scene_tpl_id] = SceneTemplate(scene_tpl_id,
                                                                     self._obj_mng.load_object_type('', json.load(f)),
                                                                     scene_dir)
@@ -261,7 +261,7 @@ class TemplateManager:
         frames_dir = [x for x in frame_path.iterdir() if x.is_dir()]
 
         for frame_tpl_id, frame_dir in [(x.name, x) for x in frames_dir]:
-            with (frame_dir / 'manifest.json').open() as f:
+            with (frame_dir / 'manifest.json').open(encoding='UTF-8') as f:
                 self._frame_templates[frame_tpl_id] = FrameTemplate(frame_tpl_id,
                                                                     self._obj_mng.load_object_type('', json.load(f)),
                                                                     frame_dir)
@@ -294,7 +294,7 @@ class SignageManager:
         for signage_id, signage_mnf in [(x.stem, x) for x in self._root_dir.glob('*.json')]:
 
             # load from the signage file
-            with signage_mnf.open() as f:
+            with signage_mnf.open(encoding='UTF-8') as f:
                 dct = json.load(f)
 
             # load scenes
@@ -399,7 +399,7 @@ class ChannelManager:
 
         for channel_id, channel_file in [(x.stem, x) for x in self._root_dir.glob('*.json')]:
             # load from the signage file
-            with channel_file.open() as f:
+            with channel_file.open(encoding='UTF-8') as f:
                 dct = json.load(f)
 
             from model.channel import Channel
