@@ -16,7 +16,7 @@ sgn_mng = SignageManager(root_path / 'signage', obj_mng, tpl_mng)
 chn_mng = ChannelManager(root_path / 'channel', sgn_mng)
 
 mtm_mng.bind_managers(sgn_mng, obj_mng)
-obj_mng.bind_managers(tpl_mng)
+obj_mng.bind_managers(tpl_mng, sgn_mng)
 
 
 class TestChannelManager(unittest.TestCase):
@@ -29,13 +29,14 @@ class TestChannelManager(unittest.TestCase):
 class TestObjectManager(unittest.TestCase):
     def test_object_change(self):
         menu_item_type = obj_mng.get_object_type('menu_item')
+        self.assertRaises(ReferenceError, obj_mng.remove_object_type, menu_item_type)
+
         milk_object = obj_mng.get_object_value(menu_item_type, 'milk')
         milk_object.id = 'test'
         milk_object.id = 'milk'
-        self.assertRaises(ReferenceError, obj_mng.remove_object_type, menu_item_type)
-
         milk_object.set_value('price', 599)
         milk_object.set_value('price', 299)
+        self.assertRaises(ReferenceError, obj_mng.remove_object_value, milk_object)
 
         menu_group_type = obj_mng.get_object_type('menu_group')
         drinks_object = obj_mng.get_object_value(menu_group_type, 'drinks')

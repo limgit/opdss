@@ -135,14 +135,16 @@ class ObjectManager:
         self._root_dir = root_dir
         self._mtm_mng = mtm_mng
         self._tpl_mng = None
+        self._sgn_mng = None
 
         self._object_types = dict()
         self._object_values = dict()
 
         self.load_all()
 
-    def bind_managers(self, tpl_mng: 'TemplateManager'):
+    def bind_managers(self, tpl_mng: 'TemplateManager', sgn_mng: 'SignageManager'):
         self._tpl_mng = tpl_mng
+        self._sgn_mng = sgn_mng
 
     @property
     def root_dir(self) -> Path:
@@ -162,8 +164,8 @@ class ObjectManager:
         return copy.copy(self._object_values[type_instance])
 
     def get_value_references(self, to_check) -> Dict[str, ObjectValue]:
-        return {'object/{}.{}'.format(type_id, value_id): value
-                for type_id, values_dict in self._object_values.items()
+        return {'object/{}.{}'.format(type_value.id, value_id): value
+                for type_value, values_dict in self._object_values.items()
                 for value_id, value in filter(lambda x: x[1].has_references(to_check), values_dict.items())}
 
     def get_type_references(self, to_check) -> Dict[str, ObjectDataType]:
@@ -288,6 +290,19 @@ class ObjectManager:
 
         delete_dir = Path(self._root_dir / to_delete.id)
         shutil.rmtree(str(delete_dir))
+
+        del self._object_types[to_delete.id]
+
+    def remove_object_value(self, to_delete: ObjectValue):
+        print(to_delete)
+        refs = self.get_value_references(to_delete)
+        refs.update(self._sgn_mng.get_value_references(to_delete))
+
+        if refs:
+            raise ReferenceError(refs)
+
+        delete_path = Path(self._root_dir / to_delete.data_type.id / (to_delete.id + '.json'))
+        os.remove(str(delete_path))
 
 
 class TemplateManager:

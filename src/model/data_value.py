@@ -114,7 +114,7 @@ class ObjectValue:
         return to_return
 
     def has_references(self, to_check) -> bool:
-        return to_check in self._values.values()
+        return any([to_check is x if not isinstance(x, list) else to_check in x for x in self._values.values()])
 
     @property
     def id(self) -> Optional[str]:
