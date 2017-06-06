@@ -208,6 +208,7 @@ class SignageManagementTab(QWidget):
                 else:
                     # Selected one is scene
                     scene_idx = int(item_text.split(':')[0])
+                    scene = signage.scenes[scene_idx - 1]
                     # First, scene can be moved
                     self._btn_up.setEnabled(True)
                     self._btn_down.setEnabled(True)
@@ -218,7 +219,7 @@ class SignageManagementTab(QWidget):
                         # Scene at bottom. Cannot move down
                         self._btn_down.setEnabled(False)
                     idx = self._widget_idx['scene']
-                    self._stacked_widget.widget(idx).load_data_on_ui(signage, scene_idx - 1)
+                    self._stacked_widget.widget(idx).load_data_on_ui(scene)
                     self._stacked_widget.setCurrentIndex(idx)
 
     def _create_scene(self) -> Scene:

@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout,
 
 import utils.utils as Utils
 from controller.manager import TemplateManager
-from model.signage import Signage
+from model.signage import Signage, Scene
 from model.template import SceneTemplate
 from model.data_type import StringDataType
 from view.resource_manager import ResourceManager
@@ -22,17 +22,20 @@ class SceneWidget(QWidget):
         self._tab_transition = SceneTransitionTab()
         self._tab_scheduling = SceneSchedulingTab()
 
+        self._scene = None
+
         self._res = ResourceManager()
         self.init_ui()
 
-    def load_data_on_ui(self, signage: Signage, scene_idx: int) -> None:
+    def load_data_on_ui(self, scene: Scene) -> None:
         # scene_idx from 0
+        self._scene = scene
         # Set current item of combobox
-        tpl = signage.scenes[scene_idx].template
+        tpl = self._scene.template
         idx = self._cbox_tpl.findText(Utils.gen_ui_text(tpl.definition.name, tpl.id))
         self._cbox_tpl.setCurrentIndex(idx)
 
-        self._tab_data.load_data_on_ui(signage, scene_idx)
+        self._tab_data.load_data_on_ui(self._scene)
         self._tab_transition.load_data_on_ui()
         self._tab_scheduling.load_data_on_ui()
 
@@ -53,11 +56,11 @@ class SceneWidget(QWidget):
 
         # Buttons
         btn_delete = QPushButton(self._res['deleteButtonText'])
-        # TODO: Add functionality
+        btn_delete.clicked.connect(self.button_clicked)
         btn_save = QPushButton(self._res['saveButtonText'])
-        # TODO: Add functionality
+        btn_save.clicked.connect(self.button_clicked)
         btn_cancel = QPushButton(self._res['cancelButtonText'])
-        # TODO: Add functionality
+        btn_cancel.clicked.connect(self.button_clicked)
 
         hbox_buttons = QHBoxLayout()
         hbox_buttons.addStretch(1)
@@ -79,6 +82,16 @@ class SceneWidget(QWidget):
         tpl_id = Utils.ui_text_to_id(combobox_text)
         tpl = self._tpl_mng.get_scene_template(tpl_id)
         self._tab_data.load_ui(tpl)
+
+    def button_clicked(self) -> None:
+        button_text = self.sender().text()
+        if button_text == self._res['deleteButtonText']:
+            pass  # TODO: Add scene deletion functionality
+        elif button_text == self._res['saveButtonText']:
+            pass  # TODO: Add scene data save functionality
+        elif button_text == self._res['cancelButtonText']:
+            # Load the previous data
+            self.load_data_on_ui(self._scene)
 
 
 class SceneDataTab(QWidget):
@@ -117,9 +130,8 @@ class SceneDataTab(QWidget):
                 self._vbox_data.addWidget(widget)
             # TODO: Add more UI components according to data type
 
-    def load_data_on_ui(self, signage: Signage, scene_idx: int) -> None:
+    def load_data_on_ui(self, scene: Scene) -> None:
         # scene_idx from 0
-        scene = signage.scenes[scene_idx]
         self.load_ui(scene.template)
         for field_id in scene.values.get_values().keys():
             field_value = scene.values.get_value(field_id)
