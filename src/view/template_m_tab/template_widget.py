@@ -1,13 +1,16 @@
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout,
                              QLabel, QLineEdit, QPlainTextEdit,
-                             QGroupBox, QPushButton)
+                             QGroupBox, QPushButton, QMessageBox)
+from typing import Callable
 
-from model.template import Template
+import utils.utils as utils
+from controller.manager import TemplateManager
+from model.template import Template, SceneTemplate
 from view.resource_manager import ResourceManager
 
 
 class TemplateWidget(QWidget):
-    def __init__(self):
+    def __init__(self, tpl_mng: TemplateManager, value_change_handler: Callable[[utils.ChangeType, str], None]):
         super().__init__()
 
         self._ledit_id = QLineEdit()
@@ -15,6 +18,10 @@ class TemplateWidget(QWidget):
         self._ledit_author = QLineEdit()
         self._ledit_homepage = QLineEdit()
         self._ptedit_descript = QPlainTextEdit()
+
+        self._tpl_mng = tpl_mng
+        self._tpl = None
+        self._value_change_handler = value_change_handler
 
         self._res = ResourceManager()
         self.init_ui()
@@ -27,6 +34,7 @@ class TemplateWidget(QWidget):
         self._ptedit_descript.setPlainText('')
 
     def load_data_on_ui(self, tpl: Template) -> None:
+        self._tpl = tpl
         tpl_metadata = tpl.definition
         self._ledit_id.setText(tpl.id)
         self._ledit_name.setText(tpl_metadata.name)
@@ -98,4 +106,14 @@ class TemplateWidget(QWidget):
     def button_clicked(self):
         button_text = self.sender().text()
         if button_text == self._res['deleteButtonText']:
-            pass  # TODO: Add deletion logic
+            try:
+                if isinstance(self._tpl, SceneTemplate):
+                    self._tpl_mng.remove_scene_template(self._tpl)
+                else:
+                    self._tpl_mng.remove_frame_template(self._tpl)
+            except ReferenceError as e:
+                QMessageBox.warning(self, "Can't delete",
+                                    "This template can't be deleted. " + ', '.join(e.args[0].keys()) + " reference this",
+                                    QMessageBox.Ok, QMessageBox.Ok)
+                return
+            self._value_change_handler(utils.ChangeType.DELETE)

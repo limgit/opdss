@@ -17,9 +17,18 @@ class TemplateManagementTab(QWidget):
         self._sgn_mng = sgn_mng
         self._mtm_mng = mtm_mng
         self._chn_mng = chn_mng
+        self._multimedia_list = QTreeWidget()
 
         self._res = ResourceManager()
-        self._template_widget = TemplateWidget()
+        
+        def template_change_handler(change_type: utils.ChangeType, tpl_text: str=''):
+            get_selected = self._multimedia_list.selectedItems()
+            if get_selected:
+                item = get_selected[0]
+                if change_type == utils.ChangeType.DELETE:
+                    parent = item.parent()
+                    parent.removeChild(item)
+        self._template_widget = TemplateWidget(self._tpl_mng, template_change_handler)
         self.init_ui()
 
     def template_to_tree_item(self) -> [QTreeWidgetItem]:
@@ -40,15 +49,14 @@ class TemplateManagementTab(QWidget):
 
     def init_ui(self) -> None:
         # Left side of screen
-        multimedia_list = QTreeWidget()
-        multimedia_list.setHeaderLabel(self._res['templateListLabel'])
-        multimedia_list.addTopLevelItems(self.template_to_tree_item())
-        multimedia_list.expandAll()
-        multimedia_list.itemSelectionChanged.connect(self.list_item_clicked)
+        self._multimedia_list.setHeaderLabel(self._res['templateListLabel'])
+        self._multimedia_list.addTopLevelItems(self.template_to_tree_item())
+        self._multimedia_list.expandAll()
+        self._multimedia_list.itemSelectionChanged.connect(self.list_item_clicked)
 
         # Gather altogether
         hbox_outmost = QHBoxLayout()
-        hbox_outmost.addWidget(multimedia_list, 1)
+        hbox_outmost.addWidget(self._multimedia_list, 1)
         hbox_outmost.addWidget(self._template_widget, 4)
         self.setLayout(hbox_outmost)
 
