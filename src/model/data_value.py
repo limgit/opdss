@@ -106,7 +106,7 @@ class ObjectValue:
                 to_return[field_id] = field_value if use_reference else field_value.strftime(data_type.DateDataType.format)
             elif isinstance(field_value, ObjectValue):
                 to_return[field_id] = field_value.get_values() if use_reference else field_value.id
-            elif isinstance(field_value, list) and isinstance(field_value[0], ObjectValue):
+            elif isinstance(field_value, list) and len(field_value) > 0 and isinstance(field_value[0], ObjectValue):
                 to_return[field_id] = [x.get_values() if use_reference else x.id for x in to_return[field_id]]
             elif isinstance(field_value, FileValue):
                 to_return[field_id] = field_value.file_name if use_reference else field_value.file_name # TODO
