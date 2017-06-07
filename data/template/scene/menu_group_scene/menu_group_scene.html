@@ -2,9 +2,11 @@
     <link rel="stylesheet" type="text/css" href="/_/scene/menu_group_scene/style.css"/>
 
     {% if not x.hide_menu_group_name %}
-    <p class="title">{{ x.menu_group.name }}</p>
+    <div class="title_container">
+        <p class="title">{{ x.menu_group.name }}</p>
+    </div>
     {% endif %}
     {% for menu in x.menu_group.menus %}
-    <p>{{ x.bullet }} {{ menu.name }}: {{ x.menu_group.price_prefix }}{{ menu.price / 10**x.menu_group.digits }}{{ x.menu_group.price_postfix }}</p>
+    <p>{{ x.bullet }} {{ menu.name }} - {{ x.menu_group.price_prefix }}{{ menu.price / 10**x.menu_group.digits }}{{ x.menu_group.price_postfix }}</p>
     {% endfor %}
 </div>

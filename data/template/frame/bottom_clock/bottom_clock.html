@@ -4,9 +4,9 @@
     <div class="clock_body">
         <p id="current_time"></p>
     </div>
+    {% if x.close_enabled %}
     <div class="close_body">
-        {% if x.close_enabled %}
-        <p id="close_time">{{ '{0} {1:2}:{2:02}'.format(x.close_str, x.close_time.hour, x.close_time.minute) }}</p>
-        {% endif %}
+        <p id="close_time">{{ '{0}</br>{1:02}:{2:02}'.format(x.close_str, x.close_time.hour, x.close_time.minute) }}</p>
     </div>
+    {% endif %}
 </div>

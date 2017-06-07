@@ -5,13 +5,19 @@
 }
 .menu_group_scene p {
     font-size: 48px;
-}
-
-.menu_group_scene .message {
-    font-size: 12px;
+    margin: 12px;
 }
 
 .menu_group_scene .title {
-    font-size: 64px;
+    font-size: 96px;
     font-style: oblique;
+    color: white;
+}
+
+.menu_group_scene .title_container {
+    background-color: dodgerblue;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

@@ -1,4 +1,5 @@
-.empty_scene img {
-    width: 100%;
-    object-fit: contain;
+.empty_scene {
+    align-items: center;
+    justify-content: center;
+    font-size: 96px;
 }
