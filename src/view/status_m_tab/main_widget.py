@@ -52,16 +52,20 @@ class ChannelWidget(QGroupBox):
 
     def load_data_on_ui(self) -> None:
         self._cbox_signages.clear()
+        sgn = self._channel.signage
         signage_texts = list()
+        curr_sgn_idx = 0
         for sgn_id in self._sgn_mng.signages.keys():
+            if sgn_id == sgn.id:
+                curr_sgn_idx = len(signage_texts)
             signage = self._sgn_mng.get_signage(sgn_id)
             signage_texts.append(utils.gen_ui_text(signage.title, signage.id))
-        self._cbox_signages.addItems(signage_texts)
 
-        sgn_text = utils.gen_ui_text(self._channel.signage.title, self._channel.signage.id)
-        idx = self._cbox_signages.findText(sgn_text)
-        self._cbox_signages.setCurrentIndex(idx)
-
+        self._cbox_signages.addItem(signage_texts[curr_sgn_idx])
+        for sgn_text in reversed(signage_texts[:curr_sgn_idx]):
+            self._cbox_signages.insertItem(0, sgn_text)
+        for sgn_text in signage_texts[curr_sgn_idx+1:]:
+            self._cbox_signages.addItem(sgn_text)
         label_text = "Number of connections: " + str(self._channel.request_connection_count())
         self._label.setText(label_text)
 
