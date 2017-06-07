@@ -1,10 +1,10 @@
 <div class="scenes menu_group_scene">
     <link rel="stylesheet" type="text/css" href="/_/scene/menu_group_scene/style.css"/>
 
-    {% if not menu_group_scene.hide_menu_group_name %}
-    <p class="title">{{ menu_group_scene.menu_group.name }}</p>
+    {% if not x.hide_menu_group_name %}
+    <p class="title">{{ x.menu_group.name }}</p>
     {% endif %}
-    {% for x in menu_group_scene.menu_group.menus %}
-    <p>{{ menu_group_scene.bullet }} {{ x.name }}: {{ menu_group_scene.menu_group.price_prefix }}{{ x.price / 10**menu_group_scene.menu_group.digits }}{{ menu_group_scene.menu_group.price_postfix }}</p>
+    {% for menu in x.menu_group.menus %}
+    <p>{{ x.bullet }} {{ menu.name }}: {{ x.menu_group.price_prefix }}{{ menu.price / 10**x.menu_group.digits }}{{ x.menu_group.price_postfix }}</p>
     {% endfor %}
 </div>

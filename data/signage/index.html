@@ -95,10 +95,10 @@
         </style>
     </head>
     <body>
-        {% include _frame %}
+        {{ _frame }}
         <div id="main_slides">
             {% for scene in _scenes %}
-            {% include scene %}
+            {{ scene }}
             {% endfor %}
         </div>
     </body>

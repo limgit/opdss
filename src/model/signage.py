@@ -325,18 +325,21 @@ class Signage:
                 for index, scene in filter(lambda x: x[1].template is to_check, enumerate(self._scenes))}
 
     def render(self, resource_dir: Path) -> str:
-        dirs = [str(x.template.root_dir) for x in self._scenes]  # for scene template resources
-        dirs.append(str(self._frame.template.root_dir))  # for frame template resources
-        dirs.append(str(resource_dir))  # for index.html
-
-        scenes = [str(x.template.root_dir.stem) + '.html' for x in self._scenes]
-        frame = (str(self._frame.template.root_dir.stem) + '.html')
+        # dirs = [str(x.template.root_dir) for x in self._scenes]  # for scene template resources
+        # dirs.append(str(self._frame.template.root_dir))  # for frame template resources
+        dirs = [str(resource_dir)]  # for index.html
+        #
+        # scenes = [str(x.template.root_dir.stem) + '.html' for x in self._scenes]
+        # frame = (str(self._frame.template.root_dir.stem) + '.html')
 
         schedules = [json.dumps(x.schedule.to_dict()) for x in self._scenes]
         durations = [x.duration for x in self._scenes]
+        #
+        # data = {str(x.template.root_dir.stem): x.values.get_values() for x in self._scenes}
+        # data[str(self._frame.template.root_dir.stem)] = self._frame.values.get_values()
 
-        data = {str(x.template.root_dir.stem): x.values.get_values() for x in self._scenes}
-        data[str(self._frame.template.root_dir.stem)] = self._frame.values.get_values()
+        rendered_frame = self._frame.template.render(self._frame.values.get_values())
+        rendered_scenes = [scene.template.render(scene.values.get_values()) for scene in self._scenes]
 
         env = Environment(
             loader=FileSystemLoader(dirs)
@@ -344,4 +347,4 @@ class Signage:
 
         template = env.get_template('index.html')
 
-        return template.render(_schedules=schedules, _durations=durations, _scenes=scenes, _frame=frame, **data)
+        return template.render(_schedules=schedules, _durations=durations, _scenes=rendered_scenes, _frame=rendered_frame)
