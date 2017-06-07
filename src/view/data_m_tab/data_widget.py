@@ -4,22 +4,23 @@ from typing import Callable
 from datetime import datetime
 
 import utils.utils as utils
-from controller.manager import ObjectManager
+from controller.manager import ObjectManager, MultimediaManager
 from model.data_type import (ObjectDataType, StringDataType, BooleanDataType,
-                             IntegerDataType, DateDataType)
+                             IntegerDataType, DateDataType, FileDataType, ListDataType)
 from model.data_value import ObjectValue
 from view.resource_manager import ResourceManager
 from view.ui_components import (StringDataWidget, BooleanDataWidget,
-                                IntegerDataWidget, DateTimeDataWidget)
+                                IntegerDataWidget, DateTimeDataWidget, ObjectDataWidget, MediaWidget, ListDataWidget)
 
 
 class DataWidget(QWidget):
-    def __init__(self, obj_mng: ObjectManager, value_change_handler: Callable[[utils.ChangeType, str], None]):
+    def __init__(self, obj_mng: ObjectManager, mtm_mng: MultimediaManager, value_change_handler: Callable[[utils.ChangeType, str], None]):
         super().__init__()
 
         self._data = None
 
         self._obj_mng = obj_mng
+        self._mtm_mng = mtm_mng
 
         self._ledit_id = QLineEdit()
         self._vbox_data = QVBoxLayout()
@@ -70,14 +71,30 @@ class DataWidget(QWidget):
                 widget.value = datetime.strptime(field[0].default, DateDataType.format)
                 self._component_widgets[field_id] = widget
                 self._vbox_data.addWidget(widget)
+            elif isinstance(field[0], ObjectDataType):
+                widget = ObjectDataWidget(field[0], field[1], field[2], clicked_handler, self._obj_mng)
+                widget.value = field[0].default
+                self._component_widgets[field_id] = widget
+                self._vbox_data.addWidget(widget)
+            elif isinstance(field[0], FileDataType):
+                widget = MediaWidget(field[0] is self._mtm_mng.image_type, field[1], field[2], clicked_handler, self._mtm_mng)
+                widget.value = field[0].default
+                self._component_widgets[field_id] = widget
+                self._vbox_data.addWidget(widget)
+            elif isinstance(field[0], ListDataType):
+                widget = ListDataWidget(field[0], field[1], field[2], clicked_handler)
+                widget.value = field[0].default
+                self._component_widgets[field_id] = widget
+                self._vbox_data.addWidget(widget)
                 # TODO: Add more UI components according to data type
 
     def load_data_on_ui(self, data: ObjectValue):
         self._data = data
         self._ledit_id.setText(data.id)
         self.load_ui(data.data_type)
+        flat_values = data.get_values(False)
         for field_id in data.get_values().keys():
-            field_value = data.get_value(field_id)
+            field_value = flat_values[field_id]
             if field_id in self._component_widgets:  # TODO: This line should be removed
                 self._component_widgets[field_id].value = field_value
 

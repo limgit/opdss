@@ -6,8 +6,9 @@ from enum import Enum, auto
 from typing import Callable
 import sys
 
+from controller.manager import ObjectManager, MultimediaManager
 from model.data_type import (StringDataType, BooleanDataType, IntegerDataType,
-                             DateDataType)
+                             DateDataType, ObjectDataType, ListDataType)
 
 
 def make_clickable(widget: QWidget, handler):
@@ -114,6 +115,45 @@ class StringDataWidget(ComponentWidget):
         super().focusInEvent(event)
 
 
+class ListDataWidget(ComponentWidget):
+    def __init__(self, data_type: ListDataType, name: str, description: str,
+                 clicked_handler: Callable[[str, str, str], None]):
+        super().__init__(name, description)
+
+        self._data_type = data_type
+        self._ledit_value = make_clickable(QLineEdit, self.focusInEvent)
+        self._clicked_handler = clicked_handler
+
+        self.init_ui()
+
+    @property
+    def value(self) -> list:
+        return eval(self._ledit_value.text())
+
+    @value.setter
+    def value(self, value: str) -> None:
+        if isinstance(value, list):
+            value = str(value)
+
+        self._ledit_value.setText(value)
+
+    def is_data_valid(self) -> bool:
+        return True  # Boolean data is always valid
+
+    def load_data_on_ui(self, value: bool) -> None:
+        self.value = value
+
+    def init_ui(self) -> None:
+        self.setTitle("{} (List)".format(self.name))
+        vbox_outmost = QVBoxLayout()
+        vbox_outmost.addWidget(self._ledit_value)
+        self.setLayout(vbox_outmost)
+
+    def focusInEvent(self, event):
+        self._clicked_handler(self.name, self.description, "None.")
+        super().focusInEvent(event)
+
+
 class BooleanDataWidget(ComponentWidget):
     def __init__(self, data_type: BooleanDataType, name: str, description: str,
                  clicked_handler: Callable[[str, str, str], None]):
@@ -144,6 +184,82 @@ class BooleanDataWidget(ComponentWidget):
         self._check_box.setText(self.name)
         vbox_outmost = QVBoxLayout()
         vbox_outmost.addWidget(self._check_box)
+        self.setLayout(vbox_outmost)
+
+    def focusInEvent(self, event):
+        self._clicked_handler(self.name, self.description, "None.")
+        super().focusInEvent(event)
+
+
+class ObjectDataWidget(ComponentWidget):
+    def __init__(self, data_type: ObjectDataType, name: str, description: str,
+                 clicked_handler: Callable[[str, str, str], None], obj_mng: ObjectManager):
+        super().__init__(name, description)
+
+        self._data_type = data_type
+        self._combo_box = make_clickable(QComboBox, self.focusInEvent)
+        self._clicked_handler = clicked_handler
+        self._obj_mng = obj_mng
+
+        self.init_ui()
+
+    @property
+    def value(self) -> str:
+        return self._combo_box.currentText()
+
+    @value.setter
+    def value(self, value: str) -> None:
+        self._combo_box.setCurrentIndex(self._combo_box.findText(value))
+
+    def is_data_valid(self) -> bool:
+        return True  # TODO
+
+    def load_data_on_ui(self, value: str) -> None:
+        self.value = value
+
+    def init_ui(self) -> None:
+        self.setTitle("{} (Object: {})".format(self.name, self._data_type.name))
+        self._combo_box.addItems(self._obj_mng.get_object_values(self._data_type).keys())
+        vbox_outmost = QVBoxLayout()
+        vbox_outmost.addWidget(self._combo_box)
+        self.setLayout(vbox_outmost)
+
+    def focusInEvent(self, event):
+        self._clicked_handler(self.name, self.description, "None.")
+        super().focusInEvent(event)
+
+
+class MediaWidget(ComponentWidget):
+    def __init__(self, is_image: bool, name: str, description: str,
+                 clicked_handler: Callable[[str, str, str], None], mtm_mng: MultimediaManager):
+        super().__init__(name, description)
+
+        self._is_image = is_image
+        self._combo_box = make_clickable(QComboBox, self.focusInEvent)
+        self._clicked_handler = clicked_handler
+        self._mtm_mng = mtm_mng
+
+        self.init_ui()
+
+    @property
+    def value(self) -> str:
+        return self._combo_box.currentText()
+
+    @value.setter
+    def value(self, value: str) -> None:
+        self._combo_box.setCurrentIndex(self._combo_box.findText(value))
+
+    def is_data_valid(self) -> bool:
+        return True  # TODO
+
+    def load_data_on_ui(self, value: str) -> None:
+        self.value = value
+
+    def init_ui(self) -> None:
+        self.setTitle("{} ({})".format(self.name, 'Image' if self._is_image else 'Video'))
+        self._combo_box.addItems(self._mtm_mng.images.keys() if self._is_image else self._mtm_mng.videos.keys())
+        vbox_outmost = QVBoxLayout()
+        vbox_outmost.addWidget(self._combo_box)
         self.setLayout(vbox_outmost)
 
     def focusInEvent(self, event):
@@ -239,6 +355,9 @@ class DateTimeDataWidget(ComponentWidget):
 
     @value.setter
     def value(self, value: datetime) -> None:
+        if isinstance(value, str):
+            value = datetime.strptime(value, DateDataType.format)  # TODO
+
         self._date_time.setDateTime(value)
 
     def is_data_valid(self) -> bool:

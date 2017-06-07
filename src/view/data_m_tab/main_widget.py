@@ -74,7 +74,7 @@ class DataManagementTab(QWidget):
                     parent = item.parent()
                     parent.removeChild(item)
                     parent.setSelected(True)
-        data_widget = DataWidget(self._obj_mng, data_change_handler)
+        data_widget = DataWidget(self._obj_mng, self._mtm_mng, data_change_handler)
         self._widget_idx['data'] = self._stacked_widget.addWidget(data_widget)
 
         # Gather altogether
