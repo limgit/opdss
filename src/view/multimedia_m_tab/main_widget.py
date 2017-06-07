@@ -28,7 +28,9 @@ class MultimediaManagementTab(QWidget):
                 item = get_selected[0]
                 if change_type == utils.ChangeType.DELETE:
                     parent = item.parent()
+                    parent.removeChild(parent.child(parent.childCount()-1))
                     parent.removeChild(item)
+                    parent.addChild(QTreeWidgetItem(['+']))
         self._media_widget = MultimediaWidget(self._mtm_mng, multimedia_change_handler)
         self.init_ui()
 
