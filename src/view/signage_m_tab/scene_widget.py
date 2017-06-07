@@ -119,7 +119,6 @@ class SceneWidget(QWidget):
             tpl_id = utils.ui_text_to_id(self._cbox_tpl.currentText())
             tpl = self._tpl_mng.get_scene_template(tpl_id)
 
-
             scene.template = tpl
 
             self._tab_data.save(scene)
@@ -131,7 +130,7 @@ class SceneWidget(QWidget):
             self._value_change_handler(utils.ChangeType.SAVE, scene_text)
         elif button_text == self._res['cancelButtonText']:
             # Load the previous data
-            self.load_data_on_ui(scene)
+            self.load_data_on_ui(self._signage, self._scene_idx)
 
 
 class SceneDataTab(QWidget):
