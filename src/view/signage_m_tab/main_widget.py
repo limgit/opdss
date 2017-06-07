@@ -133,12 +133,14 @@ class SignageManagementTab(QWidget):
                 elif change_type == utils.ChangeType.DELETE:
                     scene_idx = int(scene_text)
                     parent = item.parent()
-                    for i in range(parent.childCount() - 1):
+                    parent.removeChild(parent.child(parent.childCount() - 1))
+                    for i in range(parent.childCount()):
                         if i > scene_idx + 1:
                             it = parent.child(i)
                             it_text = ':'.join(it.text(0).split(':')[1:])
                             it.setText(0, str(i - 1) + ':' + it_text)
                     parent.removeChild(item)
+                    parent.addChild(QTreeWidgetItem(['+']))
         scene_widget = SceneWidget(self._tpl_mng, scene_change_handler)
         self._widget_idx['scene'] = self._stacked_widget.addWidget(scene_widget)
 
