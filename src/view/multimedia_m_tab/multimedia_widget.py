@@ -1,18 +1,21 @@
 from PyQt5.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout,
                              QLabel, QLineEdit, QPushButton, QMessageBox)
+from typing import Callable
 
+import utils.utils as utils
 from controller.manager import MultimediaManager
 from model.data_value import FileValue
 from view.resource_manager import ResourceManager
 
 
 class MultimediaWidget(QWidget):
-    def __init__(self, mtm_mng: MultimediaManager):
+    def __init__(self, mtm_mng: MultimediaManager, value_change_handler: Callable[[utils.ChangeType, str], None]):
         super().__init__()
 
         self._ledit_name = QLineEdit()
         self._mtm_mng = mtm_mng
         self._mtm = None
+        self._value_change_handler = value_change_handler
 
         self._res = ResourceManager()
         self.init_ui()
@@ -63,4 +66,4 @@ class MultimediaWidget(QWidget):
                                     "This data can't be deleted. " + ', '.join(e.args[0].keys()) + " reference this",
                                     QMessageBox.Ok, QMessageBox.Ok)
                 return
-
+            self._value_change_handler(utils.ChangeType.DELETE)
