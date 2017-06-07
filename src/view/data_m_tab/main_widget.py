@@ -72,8 +72,9 @@ class DataManagementTab(QWidget):
                 elif change_type == utils.ChangeType.DELETE:
                     # Remove QTreeWidgetItem
                     parent = item.parent()
+                    parent.removeChild(parent.child(parent.childCount() - 1))
                     parent.removeChild(item)
-                    parent.setSelected(True)
+                    parent.addChild(QTreeWidgetItem(['+']))
         data_widget = DataWidget(self._obj_mng, self._mtm_mng, data_change_handler)
         self._widget_idx['data'] = self._stacked_widget.addWidget(data_widget)
 
