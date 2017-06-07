@@ -94,6 +94,7 @@ class SceneWidget(QWidget):
 
     def button_clicked(self) -> None:
         button_text = self.sender().text()
+        scene = self._signage.scenes[self._scene_idx]
         if button_text == self._res['deleteButtonText']:
             try:
                 self._signage.remove_scene(self._signage.scenes[self._scene_idx])
@@ -117,18 +118,20 @@ class SceneWidget(QWidget):
             # Set scene's template
             tpl_id = utils.ui_text_to_id(self._cbox_tpl.currentText())
             tpl = self._tpl_mng.get_scene_template(tpl_id)
-            self._scene.template = tpl
 
-            self._tab_data.save(self._scene)
-            self._tab_scheduling.save(self._scene)
-            self._tab_transition.save(self._scene)
+
+            scene.template = tpl
+
+            self._tab_data.save(scene)
+            self._tab_scheduling.save(scene)
+            self._tab_transition.save(scene)
 
             # Invoke value change handler to edit QTreeWidgetItem
             scene_text = utils.gen_ui_text(tpl.definition.name, tpl.id)
             self._value_change_handler(utils.ChangeType.SAVE, scene_text)
         elif button_text == self._res['cancelButtonText']:
             # Load the previous data
-            self.load_data_on_ui(self._scene)
+            self.load_data_on_ui(scene)
 
 
 class SceneDataTab(QWidget):
